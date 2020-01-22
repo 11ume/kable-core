@@ -9,6 +9,6 @@
 <br>
 <br>
 
-**Kable core** — Is a decentralized service discovery and load balancer system for Node.js
+**Kable core** — Core of kable system [kable](https://github.com/11ume/kable)
 
 **This project is under developement 🔥**
