@@ -2,7 +2,7 @@
   "name": "kable-core",
   "version": "0.0.1",
   "description": "Core of kable system",
-  "main": "./dist/main.js",
+  "main": "main.js",
   "types": "main.ts",
   "sideEffects": false,
   "author": {
