@@ -72,7 +72,7 @@ export interface NodeBase {
 
 export type NodeReplica = {
     is: boolean
-    , of: string
+    , of?: string
 }
 export interface NodeRegistre extends NodeBase {
     ensured: boolean
@@ -138,8 +138,8 @@ const nodeOptions: NodeOptions = {
     , host: '0.0.0.0'
     , meta: null
     , replica: false
-    , ignoreInstance: true
     , ignoreProcess: false
+    , ignoreInstance: true
 }
 
 const handleReplica = (is: boolean, id: string) => {
@@ -205,9 +205,11 @@ const Node = ({
         }
         , stop: {
             time: null
+            , reason: null
         }
         , doing: {
             time: null
+            , reason: null
         }
     })
 
