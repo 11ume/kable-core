@@ -307,7 +307,7 @@ export const implementations = (options: KableComposedOptions): Implementables =
     }
 }
 
-export const Kable = (implementables: Implementables): Kable => {
+export const KableCore = (implementables: Implementables): Kable => {
     const {
         node
         , transport
@@ -371,7 +371,7 @@ export const createKable = (id?: string, options?: KableComposedOptions) => {
         , ...options
     }
 
-    return Kable(implementations(opts))
+    return KableCore(implementations(opts))
 }
 
 export default createKable
