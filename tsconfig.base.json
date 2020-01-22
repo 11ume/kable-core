@@ -1,5 +1,4 @@
 {
-  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "target": "esnext",
     "module": "commonjs",
@@ -15,7 +14,11 @@
     "noEmitOnError": true,
     "skipLibCheck": true,
     "removeComments": true,
-    "esModuleInterop": true,
-    "outDir": "./dist"
-  }
+    "esModuleInterop": true
+  },
+  "exclude": [
+    "dist",
+    "test",
+    "node_modules"
+  ]
 }
