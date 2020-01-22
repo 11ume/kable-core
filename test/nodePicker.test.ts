@@ -1,13 +1,13 @@
 import test from 'ava'
 import op from 'ope-abort'
-import ERROR from '../../lib/constants/error'
-import { createNode } from '../../lib/node'
-import { createStore } from '../../lib/store'
-import { createOrchester } from '../../lib/orchester'
-import { createRepository } from '../../lib/repository'
-import { createNodeRegistre } from '../utils/helpers'
-import { createNodePicker, NodePickerOptions } from '../../lib/nodePicker'
-import { NodeRegistre, NODE_STATES } from '../../lib/node'
+import ERROR from '../lib/constants/error'
+import { createNode } from '../lib/node'
+import { createStore } from '../lib/store'
+import { createOrchester } from '../lib/orchester'
+import { createRepository } from '../lib/repository'
+import { createNodeRegistre } from './utils/helpers'
+import { createNodePicker, NodePickerOptions } from '../lib/nodePicker'
+import { NodeRegistre, NODE_STATES } from '../lib/node'
 
 const create = (id: string, options: NodePickerOptions = {}) => {
     const node = createNode({ options: { id } })

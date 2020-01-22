@@ -1,6 +1,6 @@
 import test from 'ava'
 import * as crypto from 'crypto'
-import { decode, encode } from '../../lib/serialization/serialization'
+import { decode, encode } from '../lib/serialization/serialization'
 
 type Message = { foo: string }
 const key = crypto.randomBytes(32)

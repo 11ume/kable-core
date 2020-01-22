@@ -1,8 +1,8 @@
 import test from 'ava'
 import * as crypto from 'crypto'
-import * as EVENTS from '../../lib/constants/events'
-import { createEventsDriver } from '../../lib/eventsDriver'
-import { createDgramTransport } from '../../lib/transport/dgram'
+import * as EVENTS from '../lib/constants/events'
+import { createEventsDriver } from '../lib/eventsDriver'
+import { createDgramTransport } from '../lib/transport/dgram'
 
 test.serial('transport dgram: force error when send message', async (t) => {
     const eventsDriver = createEventsDriver()
