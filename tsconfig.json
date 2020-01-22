@@ -14,8 +14,7 @@
     "noEmitOnError": true,
     "skipLibCheck": true,
     "removeComments": true,
-    "esModuleInterop": true,
-    "outDir": "./dist"
+    "esModuleInterop": true
   },
   "exclude": [
     "dist",
