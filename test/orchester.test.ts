@@ -17,7 +17,7 @@ const getNodeInStack = (index: number, { nodeWorkPool }: Orchester): boolean => 
     return false
 }
 
-test('orchester: add node', async (t) => {
+test('add node', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const orchester = createOrchester(nodesRepository)
@@ -27,7 +27,7 @@ test('orchester: add node', async (t) => {
     t.truthy(getNodeInStack(foo.index, orchester))
 })
 
-test('orchester: remove node', async (t) => {
+test('remove node', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const orchester = createOrchester(nodesRepository)
@@ -38,7 +38,7 @@ test('orchester: remove node', async (t) => {
     t.falsy(getNodeInStack(foo.index, orchester))
 })
 
-test('orchester: remove all replica nodes of foo but leave bar', async (t) => {
+test('remove all replica nodes of foo but leave bar', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const orchester = createOrchester(nodesRepository)
@@ -60,7 +60,7 @@ test('orchester: remove all replica nodes of foo but leave bar', async (t) => {
     t.is(orchester.nodeWorkPool.size, 1)
 })
 
-test('orchester: remove all replica nodes of foo', async (t) => {
+test('remove all replica nodes of foo', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const orchester = createOrchester(nodesRepository)
@@ -83,7 +83,7 @@ test('orchester: remove all replica nodes of foo', async (t) => {
     t.is(orchester.nodeWorkPool.size, 0)
 })
 
-test('orchester: test round robin normal flow', async (t) => {
+test('test round robin normal flow', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const orchester = createOrchester(nodesRepository)
@@ -113,7 +113,7 @@ test('orchester: test round robin normal flow', async (t) => {
     t.is(lastNode.index, getLastNode(max, foo, foo1, foo2))
 })
 
-test('orchester: test round robin flow on remove one node', async (t) => {
+test('test round robin flow on remove one node', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const orchester = createOrchester(nodesRepository)

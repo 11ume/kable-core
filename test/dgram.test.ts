@@ -4,7 +4,7 @@ import * as EVENTS from '../lib/constants/events'
 import { createEventsDriver } from '../lib/eventsDriver'
 import { createDgramTransport } from '../lib/transport/dgram'
 
-test.serial('transport dgram: force error when send message', async (t) => {
+test.serial('force error when send message', async (t) => {
     const eventsDriver = createEventsDriver()
     const dgram = createDgramTransport({ eventsDriver })
     await dgram.bind()
@@ -20,7 +20,7 @@ test.serial('transport dgram: force error when send message', async (t) => {
     t.true(dgram.isClosed)
 })
 
-test.serial('transport dgram: ensure dgram message', async (t) => {
+test.serial('ensure dgram message', async (t) => {
     const key = crypto.randomBytes(32)
     const barEventDriver = createEventsDriver()
     const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { key } })

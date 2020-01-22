@@ -3,7 +3,7 @@ import * as os from 'os'
 import { createNode, nodeStates, NODE_STATES } from '../lib/node'
 import ERROR from '../lib/constants/error'
 
-test('node: create node whitout options', (t) => {
+test('create node whitout options', (t) => {
     const options = {
         id: os.hostname()
         , port: 3000
@@ -29,7 +29,7 @@ test('node: create node whitout options', (t) => {
     t.is(n.ignoreProcess, options.ignoreProcess)
 })
 
-test('node: create node whit options', (t) => {
+test('create node whit options', (t) => {
     const metaMessage = 'foo buffer'
     const payload = Buffer.alloc(metaMessage.length)
     const options = {
@@ -58,14 +58,14 @@ test('node: create node whit options', (t) => {
     t.is(n.ignoreProcess, options.ignoreProcess)
 })
 
-test('node: check node legal state transition', async (t) => {
+test('check node legal state transition', async (t) => {
     const n = createNode()
     t.is(n.state, NODE_STATES.DOWN)
     n.transitState(NODE_STATES.UP)
     t.is(n.state, NODE_STATES.UP)
 })
 
-test('node: check node ilegal state transition', async (t) => {
+test('check node ilegal state transition', async (t) => {
     const n = createNode()
     const err = t.throws(() => n.transitState(NODE_STATES.DOWN))
     const customErr = ERROR.ILLEGAL_TRANSITION_STATE
@@ -73,7 +73,7 @@ test('node: check node ilegal state transition', async (t) => {
     t.is(err.message, customErr.message(NODE_STATES.DOWN, NODE_STATES.DOWN, nodeStates[n.state]))
 })
 
-test('node: check node resetStates', async (t) => {
+test('check node resetStates', async (t) => {
     const n = createNode()
 
     n.up.time = 1

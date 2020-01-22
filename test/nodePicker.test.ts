@@ -28,7 +28,7 @@ const create = (id: string, options: NodePickerOptions = {}) => {
     }
 }
 
-test('picker: get a node', async (t) => {
+test('get a node', async (t) => {
     const foo = create('foo')
     const rbar = createNodeRegistre('bar', NODE_STATES.RUNNING)
     foo.nodesRepository.add(rbar.index, rbar)
@@ -37,7 +37,7 @@ test('picker: get a node', async (t) => {
     t.is(pick.id, rbar.id)
 })
 
-test('pick: get one node whit delay', async (t) => {
+test('get one node whit delay', async (t) => {
     const foo = create('foo')
     const rbar = createNodeRegistre('bar', NODE_STATES.RUNNING)
     setTimeout(() => foo.nodesRepository.add(rbar.index, rbar), 500)
@@ -46,7 +46,7 @@ test('pick: get one node whit delay', async (t) => {
     t.is(pick.id, rbar.id)
 })
 
-test('pick: get error when pick node wait limit is exceeded', async (t) => {
+test('get error when pick node wait limit is exceeded', async (t) => {
     const foo = create('foo', { pickTimeoutOut: 0 })
     const pickId = 'bar'
     const pick = () => t.throwsAsync(foo.nodePicker.pick(pickId))
@@ -56,7 +56,7 @@ test('pick: get error when pick node wait limit is exceeded', async (t) => {
     t.is(pickError.message, err.message(pickId))
 })
 
-test('pick: abort pick', async (t) => {
+test('abort pick', async (t) => {
     const foo = create('foo')
     const opAbort = op()
     foo.nodePicker.pick('bar', { opAbort })
