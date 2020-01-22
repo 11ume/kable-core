@@ -1,4 +1,4 @@
-import * as crypto from 'crypto'
+import crypto from 'crypto'
 
 export const encrypt = (key: string | Buffer, payload: Uint8Array): Buffer => {
     const KEY = Buffer.isBuffer(key) ? key : Buffer.from(key)

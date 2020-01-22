@@ -1,4 +1,4 @@
-import * as dgram from 'dgram'
+import dgram from 'dgram'
 import * as EVENTS from '../constants/events'
 import * as EVENTS_TYPES from '../constants/eventTypes'
 import ERROR from '../constants/error'

@@ -1,5 +1,5 @@
 import * as crypto from 'crypto'
-import * as uuid from 'uuid'
+import uuid from 'uuid'
 import ERROR from './constants/error'
 import { V4Options } from 'uuid/interfaces'
 

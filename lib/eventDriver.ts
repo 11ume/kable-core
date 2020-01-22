@@ -1,5 +1,5 @@
 import { RemoteInfo } from 'dgram'
-import * as EventEmitter from 'events'
+import EventEmitter from 'events'
 import * as EVENTS from './constants/events'
 import * as EVENTS_TYPES from './constants/eventTypes'
 import {
