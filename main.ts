@@ -12,7 +12,7 @@ import * as NodePicker from './lib/nodePicker'
 import * as Repository from './lib/repository'
 import * as EventDriver from './lib/eventDriver'
 
-export default {
+export = {
     EVENTS
     , EVENTS_TYPES
     , Node
