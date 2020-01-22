@@ -15,7 +15,6 @@
     "skipLibCheck": true,
     "removeComments": true,
     "esModuleInterop": true,
-    "declaration": true,
     "outDir": "./dist"
   },
   "exclude": [
