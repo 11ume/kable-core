@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "Core of kable system",
   "main": "./dist/main.js",
-  "module": "main.ts",
+  "types": "main.ts",
+  "sideEffects": false,
   "author": {
     "name": "Horacio Rivero",
     "email": "horacioriverods@gmail.com"
