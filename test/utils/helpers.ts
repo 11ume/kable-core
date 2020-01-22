@@ -1,11 +1,11 @@
-import { pid } from '../../lib/constants/core'
-import { Kable } from '../../lib/kable'
-import { NodeEmitter } from '../../lib/eventDriver'
+import os from 'os'
 import { ExecutionContext } from 'ava'
+import * as EVENTS from '../../lib/constants/events'
+import { Kable } from '../../lib/kable'
+import { pid } from '../../lib/constants/core'
+import { NodeEmitter } from '../../lib/eventsDriver'
 import { createUuid, genRandomNumber } from '../../lib/utils'
 import { NodeRegistre, NODE_STATES } from '../../lib/node'
-import * as EVENTS from '../../lib/constants/events'
-import os from 'os'
 
 export const checkNodeRegistre = (t: ExecutionContext, r: NodeRegistre, k: Kable) => {
     t.is(r.id, k.id)

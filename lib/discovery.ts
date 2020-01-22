@@ -4,7 +4,7 @@ import * as EVENTS_TYPES from './constants/eventTypes'
 import { getDateNow } from './utils'
 import { Repository } from './repository'
 import { Transport } from './transport/transport'
-import { EventsDriver, NodeEmitter, NodeUpdateEmitter } from './eventDriver'
+import { EventsDriver, NodeEmitter, NodeUpdateEmitter } from './eventsDriver'
 import {
     Node
     , NodeUp

@@ -5,7 +5,7 @@ import { Transport, TransportOptionsCompose, TransportTypes, createTransport } f
 import { Discovery, DiscoveryOptions, createDiscovery } from './discovery'
 import { DependencyManagerOptions, createdependencyManager, DependencyManager } from './dependency'
 import { NodePickerOptions, PickOptions, createNodePicker, NodePicker } from './nodePicker'
-import { EventsDriver, createEventsDriver } from './eventDriver'
+import { EventsDriver, createEventsDriver } from './eventsDriver'
 import { createRepository, Repository } from './repository'
 import { createOrchester, Orchester } from './orchester'
 import { createStore } from './store'
@@ -373,3 +373,5 @@ export const createKable = (id?: string, options?: KableComposedOptions) => {
 
     return Kable(implementations(opts))
 }
+
+export default createKable

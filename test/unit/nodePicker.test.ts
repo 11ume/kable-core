@@ -4,9 +4,9 @@ import ERROR from '../../lib/constants/error'
 import { createNode } from '../../lib/node'
 import { createStore } from '../../lib/store'
 import { createOrchester } from '../../lib/orchester'
-import { createNodePicker, NodePickerOptions } from '../../lib/nodePicker'
 import { createRepository } from '../../lib/repository'
 import { createNodeRegistre } from '../utils/helpers'
+import { createNodePicker, NodePickerOptions } from '../../lib/nodePicker'
 import { NodeRegistre, NODE_STATES } from '../../lib/node'
 
 const create = (id: string, options: NodePickerOptions = {}) => {

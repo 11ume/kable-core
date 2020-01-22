@@ -3,7 +3,7 @@ import * as EVENTS from '../constants/events'
 import * as EVENTS_TYPES from '../constants/eventTypes'
 import ERROR from '../constants/error'
 import { createError } from '../utils'
-import { EventsDriver, NodeEmitter } from '../eventDriver'
+import { EventsDriver, NodeEmitter } from '../eventsDriver'
 import { Transport, TransportOptions } from './transport'
 import { decode, encode } from '../serialization/serialization'
 
