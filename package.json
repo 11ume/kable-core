@@ -16,9 +16,9 @@
     "test:watch": "node node_modules/ava/cli.js -w -vs",
     "test:verbose": "node node_modules/ava/cli.js -vs",
     "test:coverage": "nyc ava -vs",
-    "clean": "rm -rf .nyc_output coverage",
+    "clean": "rm -rf .nyc_output coverage dist",
     "lint": "node node_modules/tslint/bin/tslint -c tslint.json --project .",
-    "build": "tsc -p ./tsconfig.json",
+    "build": "tsc -p ./tsconfig.publish.json",
     "prepublishOnly": "npm run lint & npm run test & npm run build & npm run clean",
     "postinstall": "npm run build"
   },
