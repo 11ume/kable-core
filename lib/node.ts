@@ -85,9 +85,7 @@ export interface NodePacket extends NodeBase {
 }
 
 export interface Node extends NodeBase {
-    ignoreProcess: boolean
-    , ignoreInstance: boolean
-    , meta: NodeMetadata
+    meta: NodeMetadata
     , resetStates: (state: NODE_STATES) => void
     , transitState: (newState: NODE_STATES) => void
 }
@@ -98,8 +96,6 @@ export type NodeOptions = {
     , port?: number
     , meta?: NodeMetadata
     , replica?: boolean
-    , ignoreProcess?: boolean
-    , ignoreInstance?: boolean
 }
 
 type FnTrasitState = <T extends string>(currentState: string, newState: T) => T
@@ -138,8 +134,6 @@ const nodeOptions: NodeOptions = {
     , host: '0.0.0.0'
     , meta: null
     , replica: false
-    , ignoreProcess: false
-    , ignoreInstance: true
 }
 
 const handleReplica = (is: boolean, id: string) => {
@@ -183,8 +177,6 @@ const Node = ({
         , port: initPort = nodeOptions.port
         , meta: initMeta = nodeOptions.meta
         , replica: initReplica = nodeOptions.replica
-        , ignoreInstance: initIgnoreInstance = nodeOptions.ignoreInstance
-        , ignoreProcess: initIgnoreProcess = nodeOptions.ignoreProcess
     } = nodeOptions }: NodeArgs = {}): Node => {
     const stateMachineTransition = craateStateMachine(nodeStates)
     const iid = createUuid()
@@ -220,8 +212,6 @@ const Node = ({
         id
         , host: initHost
         , port: initPort
-        , ignoreProcess: initIgnoreProcess
-        , ignoreInstance: initIgnoreInstance
         , pid
         , iid
         , index

@@ -26,6 +26,8 @@ export type Discovery = {
 
 export type DiscoveryOptions = {
     advertisementTime?: number
+    , ignoreProcess?: boolean
+    , ignoreInstance?: boolean
 }
 
 type SendPayload = {
@@ -39,6 +41,8 @@ type SendPayload = {
 
 const discoveryOptions: DiscoveryOptions = {
     advertisementTime: 2000
+    , ignoreProcess: false
+    , ignoreInstance: true
 }
 
 const wildcards = ['0.0.0.0', '::']
@@ -221,9 +225,9 @@ const checkNodeDuplicateId = (node: Node, { id, iid, port, rinfo: { address } }:
 }
 
 // Ignore messages from: self process | self instances
-const checkIgnores = (node: Node, payload: NodeEmitter) => {
-    const isSameProcess = node.ignoreProcess && payload.pid === node.pid
-    const isSameInstance = node.ignoreInstance && payload.iid === node.iid
+const checkIgnores = (node: Node, ignoreProcess: boolean, ignoreInstance: boolean, payload: NodeEmitter) => {
+    const isSameProcess = ignoreProcess && payload.pid === node.pid
+    const isSameInstance = ignoreInstance && payload.iid === node.iid
     return (isSameProcess || isSameInstance) ? true : false
 }
 
@@ -284,6 +288,8 @@ const send = (transport: Transport
 }
 
 const recibe = (node: Node
+    , ignoreProcess: boolean
+    , ignoreInstance: boolean
     , nodesRepository: Repository<NodeRegistre>
     , eventsDriver: EventsDriver) => (payload: NodeEmitter) => {
         let newPayload = Object.assign({}, payload)
@@ -293,7 +299,7 @@ const recibe = (node: Node
             return
         }
 
-        if (checkIgnores(node, newPayload)) return
+        if (checkIgnores(node, ignoreProcess, ignoreInstance, newPayload)) return
         newPayload = resolvetHostResolutionAddress(newPayload)
         handleRecibe(nodesRepository, eventsDriver, newPayload)
     }
@@ -475,14 +481,16 @@ const Discovery = ({
     , eventsDriver
     , nodesRepository
     , options: {
-        advertisementTime = discoveryOptions.advertisementTime
+        advertisementTime: initAdvertisementTime = discoveryOptions.advertisementTime
+        , ignoreProcess: initIgnoreProcess = discoveryOptions.ignoreProcess
+        , ignoreInstance: initIgnoreInstance = discoveryOptions.ignoreInstance
     } = discoveryOptions }: DiscoveryArgs): Discovery => {
     const nodeDefaultTimeout = 1000
-    const nodeTimeout = setNodeTimeOut(advertisementTime, nodeDefaultTimeout)
+    const nodeTimeout = setNodeTimeOut(initAdvertisementTime, nodeDefaultTimeout)
     const ihNodeTimeout = createIntervalHandler(nodeTimeout, () => checkNodesTimeout(eventsDriver, nodesRepository, nodeTimeout))
-    const ihAdvertisamentTime = createIntervalHandler(advertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleAdvertisementState(node)))
+    const ihAdvertisamentTime = createIntervalHandler(initAdvertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleAdvertisementState(node)))
 
-    eventsDriver.on(EVENTS.TRANSPORT.MESSAGE, recibe(node, nodesRepository, eventsDriver))
+    eventsDriver.on(EVENTS.TRANSPORT.MESSAGE, recibe(node, initIgnoreProcess, initIgnoreInstance, nodesRepository, eventsDriver))
     eventsDriver.on(EVENTS.NODE.UPDATE, (payload) => sendNodeUpdate(transport, node, eventsDriver, handleUpdateState(node, payload)))
 
     return {

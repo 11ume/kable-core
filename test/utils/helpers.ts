@@ -2,10 +2,12 @@ import { pid } from '../../lib/constants/core'
 import { createUuid, genRandomNumber } from '../../lib/utils'
 import { NodeRegistre, NODE_STATES } from '../../lib/node'
 
-export const createNodeRegistre = (id: string, state: NODE_STATES, replica: { is: boolean, of: string } = {
-    is: false
-    , of: null
-}): NodeRegistre => {
+export const createNodeRegistre = (id: string
+    , state: NODE_STATES
+    , replica: { is: boolean, of: string } = {
+        is: false
+        , of: null
+    }): NodeRegistre => {
     return {
         id
         , port: 5000

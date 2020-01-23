@@ -245,8 +245,6 @@ export const implementations = (options: KableComposedOptions): Implementables =
             , port: options.port
             , meta: options.meta
             , replica: options.replica
-            , ignoreProcess: options.ignoreProcess
-            , ignoreInstance: options.ignoreInstance
         }
     })
 
@@ -274,6 +272,8 @@ export const implementations = (options: KableComposedOptions): Implementables =
         , nodesRepository
         , options: {
             advertisementTime: options.advertisementTime
+            , ignoreProcess: options.ignoreProcess
+            , ignoreInstance: options.ignoreInstance
         }
     })
 

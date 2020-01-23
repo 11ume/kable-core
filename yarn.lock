@@ -361,6 +361,13 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/ip@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/ip/-/ip-1.1.0.tgz#aec4f5bfd49e4a4c53b590d88c36eb078827a7c0"
+  integrity sha512-dwNe8gOoF70VdL6WJBwVHtQmAX4RMd62M+mAB9HQFjG1/qiCLM/meRy95Pd14FYBbEDwCq7jgJs89cHpLBu4HQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/minimatch@*":
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
@@ -1525,6 +1532,11 @@ interval-handler@^0.0.1-alpha:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/interval-handler/-/interval-handler-0.0.1.tgz#8e9642e5cba47ed321a46bf9bb073979e21fbeac"
   integrity sha512-esH4KPfJBTPTUBhOaahUnEERd5RI6uaLdE3Rdhvf6xrrN0q8L+Mw1pmXwxhlpwV9Ohl9WP0R6wPhC8PleGvpuA==
+
+ip@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.5.tgz#bdded70114290828c0a039e72ef25f5aaec4354a"
+  integrity sha1-vd7XARQpCCjAoDnnLvJfWq7ENUo=
 
 irregular-plurals@^2.0.0:
   version "2.0.0"

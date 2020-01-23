@@ -25,7 +25,7 @@ export type TransportOptionsCompose = DgramTransportOptions
 type TransporArgs = {
     type: TransportTypes
     , eventsDriver: EventsDriver
-    , options: TransportOptionsCompose
+    , options?: TransportOptionsCompose
 }
 
 const transportOptions: TransportOptions = {

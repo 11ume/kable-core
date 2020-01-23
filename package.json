@@ -52,16 +52,18 @@
     ]
   },
   "dependencies": {
+    "@msgpack/msgpack": "^1.11.0",
     "@types/node": "^13.1.8",
     "@types/uuid": "^3.4.6",
-    "@msgpack/msgpack": "^1.11.0",
     "interval-handler": "^0.0.1-alpha",
     "ope-abort": "^0.0.2",
     "typescript": "^3.7.4",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
+    "@types/ip": "^1.1.0",
     "ava": "2.4.0",
+    "ip": "^1.1.5",
     "nyc": "^15.0.0",
     "ts-node": "^8.6.2",
     "tslint": "^5.20.1"
