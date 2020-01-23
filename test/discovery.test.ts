@@ -42,8 +42,8 @@ const checkRegistre = (
 
     t.deepEqual(n.up, { time: null })
     t.deepEqual(n.start, { time: null })
-    t.deepEqual(n.stop, { time: null })
-    t.deepEqual(n.doing, { time: null })
+    t.deepEqual(n.stop, { time: null, reason: null })
+    t.deepEqual(n.doing, { time: null, reason: null })
 }
 
 const create = (id: string) => {
@@ -90,7 +90,7 @@ test.serial('get node hello event', async (t) => {
     const n = await check()
     checkRegistre(t, n, node, {
         id: 'foo'
-        , size: 274
+        , size: 290
         , port: 5000
         , event: DISCOVERY.HELLO
     })
@@ -111,7 +111,7 @@ test.serial('get node advertisement event', async (t) => {
     const n = await check()
     checkRegistre(t, n, node, {
         id: 'foo'
-        , size: 282
+        , size: 298
         , port: 5000
         , event: DISCOVERY.ADVERTISEMENT
     })
@@ -136,7 +136,7 @@ test.serial('get node unregistre event', async (t) => {
     const n = await check(transport.close)
     checkRegistre(t, n, node, {
         id: 'foo'
-        , size: 283
+        , size: 299
         , port: 5000
         , event: DISCOVERY.UNREGISTRE
     })
