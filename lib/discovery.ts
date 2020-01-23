@@ -339,12 +339,13 @@ const sendNodeUnregistre = (transport: Transport
 // node timeout always must be greater to advertisement Time
 const setNodeTimeOut = (advertisementTime: number, nodeDefaultTimeout: number) => advertisementTime + nodeDefaultTimeout
 
-const handleCommonState = (node: Node) => {
+const handleStateUp = (node: Node) => {
+    const up: NodeUp = {
+        time: node.up.time
+    }
+
     return {
-        state: node.state
-        , up: {
-            time: node.up.time
-        }
+        up
     }
 }
 
@@ -366,6 +367,7 @@ const handleStateStop = (node: Node) => {
         , reason: node.stop.reason
     }
 
+    stop.time === null && delete stop.time
     stop.reason === null && delete stop.reason
     return {
         stop
@@ -377,6 +379,7 @@ const handleStateStart = (node: Node) => {
         time: node.start.time
     }
 
+    start.time === null && delete start.time
     return {
         start
     }
@@ -388,15 +391,24 @@ const handleStateDoing = (node: Node) => {
         , reason: node.doing.reason
     }
 
+    doing.time === null && delete doing.time
     doing.reason === null && delete doing.reason
     return {
         doing
     }
 }
 
-const handleMergeStates = (node: Node) => {
+const handleHelloState = (node: Node) => {
     return {
-        ...handleCommonState(node)
+        state: node.state
+        , ...handleStateUp(node)
+    }
+}
+
+const handleAdvertisamentState = (node: Node) => {
+    return {
+        state: node.state
+        , ...handleStateUp(node)
         , ...handleStateStart(node)
         , ...handleStateStop(node)
         , ...handleStateDoing(node)
@@ -405,13 +417,17 @@ const handleMergeStates = (node: Node) => {
 
 const handleUnregistreState = (node: Node, signal?: string, code?: number) => {
     return {
-        ...handleCommonState(node)
+        state: node.state
+        , ...handleStateUp(node)
         , ...handleStateDown(node, signal, code)
     }
 }
 
 const handleUpdateState = (node: Node, { type: event }: NodeUpdateEmitter) => {
-    const common = handleCommonState(node)
+    const state = {
+        state: node.state
+    }
+    const common = Object.assign(state, handleStateUp(node))
     const events = {
         [EVENTS_TYPES.NODE_UPDATE_TYPES.START]: () => Object.assign(common, handleStateStart(node))
         , [EVENTS_TYPES.NODE_UPDATE_TYPES.STOP]: () => Object.assign(common, handleStateStop(node))
@@ -459,7 +475,7 @@ const start = ({
     , ihAdvertisamentTime }: StartArgs) => () => {
         ihAdvertisamentTime.start()
         ihNodeTimeout.start()
-        return sendNodeHello(transport, node, eventsDriver, handleMergeStates(node))
+        return sendNodeHello(transport, node, eventsDriver, handleHelloState(node))
     }
 
 type DiscoveryArgs = {
@@ -483,7 +499,7 @@ const Discovery = ({
     const nodeDefaultTimeout = 1000
     const nodeTimeout = setNodeTimeOut(initAdvertisementTime, nodeDefaultTimeout)
     const ihNodeTimeout = createIntervalHandler(nodeTimeout, () => checkNodesTimeout(eventsDriver, nodesRepository, nodeTimeout))
-    const ihAdvertisamentTime = createIntervalHandler(initAdvertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleMergeStates(node)))
+    const ihAdvertisamentTime = createIntervalHandler(initAdvertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleAdvertisamentState(node)))
 
     eventsDriver.on(EVENTS.TRANSPORT.MESSAGE, recibe(node, initIgnoreProcess, initIgnoreInstance, nodesRepository, eventsDriver))
     eventsDriver.on(EVENTS.NODE.UPDATE, (payload) => sendNodeUpdate(transport, node, eventsDriver, handleUpdateState(node, payload)))
