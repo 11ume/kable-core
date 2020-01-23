@@ -1,13 +1,10 @@
 import { pid } from '../../lib/constants/core'
 import { createUuid, genRandomNumber } from '../../lib/utils'
-import { NodeRegistre, NODE_STATES } from '../../lib/node'
+import { NodeRegistre, NodeReplica, NODE_STATES } from '../../lib/node'
 
 export const createNodeRegistre = (id: string
     , state: NODE_STATES
-    , replica: { is: boolean, of: string } = {
-        is: false
-        , of: null
-    }): NodeRegistre => {
+    , replica: NodeReplica = { is: false }): NodeRegistre => {
     return {
         id
         , port: 5000
@@ -21,8 +18,8 @@ export const createNodeRegistre = (id: string
         , ensured: false
         , lastSeen: 0
         , state
-        , up: null
-        , down: null
-        , stop: null
+        , up: {
+            time: 0
+        }
     }
 }
