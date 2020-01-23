@@ -29,7 +29,7 @@ test.serial('pick: get a node', async (t) => {
     })
 
     const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
-        eventsDriver.on(DISCOVERY.ADVERTISEMENT, resolve)
+        eventsDriver.on(DISCOVERY.HELLO, resolve)
     })
 
     await transport.bind()
@@ -38,8 +38,7 @@ test.serial('pick: get a node', async (t) => {
     const n = await check()
     t.deepEqual(n.doing, { time: null })
     t.false(n.ensured)
-    t.is(n.event, DISCOVERY.ADVERTISEMENT)
-    t.is(n.event, DISCOVERY.ADVERTISEMENT)
+    t.is(n.event, DISCOVERY.HELLO)
     t.truthy(n.host)
     t.is(n.hostname, node.hostname)
     t.is(n.id, node.hostname)
@@ -54,7 +53,7 @@ test.serial('pick: get a node', async (t) => {
         address: ip.address()
         , family: 'IPv4'
         , port: 5000
-        , size: 266
+        , size: 258
     })
 
     t.deepEqual(n.start, { time: null })

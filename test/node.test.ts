@@ -25,8 +25,6 @@ test('create node whitout options', (t) => {
     t.deepEqual(n.replica, {
         is: false
     })
-    t.is(n.ignoreInstance, options.ignoreInstance)
-    t.is(n.ignoreProcess, options.ignoreProcess)
 })
 
 test('create node whit options', (t) => {
@@ -54,8 +52,6 @@ test('create node whit options', (t) => {
     t.deepEqual(n.replica, {
         is: false
     })
-    t.is(n.ignoreInstance, options.ignoreInstance)
-    t.is(n.ignoreProcess, options.ignoreProcess)
 })
 
 test('check node legal state transition', async (t) => {

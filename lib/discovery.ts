@@ -373,16 +373,7 @@ const handleStateDoing = (node: Node) => {
     }
 }
 
-const handleHelloState = (node: Node) => {
-    return {
-        state: node.state
-        , up: {
-            time: node.up.time
-        }
-    }
-}
-
-const handleAdvertisementState = (node: Node) => {
+const handleState = (node: Node) => {
     const common = {
         state: node.state
         , up: {
@@ -464,7 +455,7 @@ const start = ({
     , ihAdvertisamentTime }: StartArgs) => () => {
         ihAdvertisamentTime.start()
         ihNodeTimeout.start()
-        return sendNodeHello(transport, node, eventsDriver, handleHelloState(node))
+        return sendNodeHello(transport, node, eventsDriver, handleState(node))
     }
 
 type DiscoveryArgs = {
@@ -488,7 +479,7 @@ const Discovery = ({
     const nodeDefaultTimeout = 1000
     const nodeTimeout = setNodeTimeOut(initAdvertisementTime, nodeDefaultTimeout)
     const ihNodeTimeout = createIntervalHandler(nodeTimeout, () => checkNodesTimeout(eventsDriver, nodesRepository, nodeTimeout))
-    const ihAdvertisamentTime = createIntervalHandler(initAdvertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleAdvertisementState(node)))
+    const ihAdvertisamentTime = createIntervalHandler(initAdvertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleState(node)))
 
     eventsDriver.on(EVENTS.TRANSPORT.MESSAGE, recibe(node, initIgnoreProcess, initIgnoreInstance, nodesRepository, eventsDriver))
     eventsDriver.on(EVENTS.NODE.UPDATE, (payload) => sendNodeUpdate(transport, node, eventsDriver, handleUpdateState(node, payload)))
