@@ -180,13 +180,7 @@ const manageDataToStoreInRegistre = ({
         , state
         , lastSeen
     }
-
-    data.meta === null && delete data.meta
-    data.down === null && delete data.down
-    data.stop === null && delete data.stop
-    data.start === null && delete data.start
-    data.doing === null && delete data.doing
-
+    // clean here
     return data
 }
 
@@ -278,12 +272,7 @@ const send = (transport: Transport
         , state
     }
 
-    data.meta === null && delete data.meta
-    data.down === null && delete data.down
-    data.stop === null && delete data.stop
-    data.start === null && delete data.start
-    data.doing === null && delete data.doing
-
+    // clean here
     return transport.send<NodePacket>(data)
 }
 
