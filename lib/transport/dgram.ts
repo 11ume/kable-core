@@ -1,4 +1,5 @@
 import dgram from 'dgram'
+import cleanDeep from 'clean-deep'
 import * as EVENTS from '../constants/events'
 import * as EVENTS_TYPES from '../constants/eventTypes'
 import ERROR from '../constants/error'
@@ -163,7 +164,8 @@ const send = <T extends object>(connection: Connection
             return new Promise((resolve, reject) => {
                 const { destination } = transmission
                 const data = preparePacket(packet, key)
-                const [message, errEncode] = encode(key, data)
+                const dataClean = cleanDeep(data)
+                const [message, errEncode] = encode(key, dataClean)
 
                 if (errEncode) {
                     onEncodeError(eventsDriver, errEncode)
