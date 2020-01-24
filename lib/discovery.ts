@@ -4,7 +4,7 @@ import * as EVENTS_TYPES from './constants/eventTypes'
 import { getDateNow } from './utils'
 import { Repository } from './repository'
 import { Transport } from './transport/transport'
-import { EventsDriver, NodeEmitter, NodeUpdateEmitter } from './eventsDriver'
+import { EventsDriver, NodeEmitter } from './eventsDriver'
 import {
     Node
     , NodeUp
@@ -180,13 +180,7 @@ const manageDataToStoreInRegistre = ({
         , state
         , lastSeen
     }
-
-    data.meta === null && delete data.meta
-    data.down === null && delete data.down
-    data.stop === null && delete data.stop
-    data.start === null && delete data.start
-    data.doing === null && delete data.doing
-
+    // clean here
     return data
 }
 
@@ -278,12 +272,7 @@ const send = (transport: Transport
         , state
     }
 
-    data.meta === null && delete data.meta
-    data.down === null && delete data.down
-    data.stop === null && delete data.stop
-    data.start === null && delete data.start
-    data.doing === null && delete data.doing
-
+    // clean here
     return transport.send<NodePacket>(data)
 }
 
@@ -367,8 +356,6 @@ const handleStateStop = (node: Node) => {
         , reason: node.stop.reason
     }
 
-    stop.time === null && delete stop.time
-    stop.reason === null && delete stop.reason
     return {
         stop
     }
@@ -379,7 +366,6 @@ const handleStateStart = (node: Node) => {
         time: node.start.time
     }
 
-    start.time === null && delete start.time
     return {
         start
     }
@@ -391,50 +377,20 @@ const handleStateDoing = (node: Node) => {
         , reason: node.doing.reason
     }
 
-    doing.time === null && delete doing.time
-    doing.reason === null && delete doing.reason
     return {
         doing
     }
 }
 
-const handleHelloState = (node: Node) => {
-    return {
-        state: node.state
-        , ...handleStateUp(node)
-    }
-}
-
-const handleAdvertisamentState = (node: Node) => {
+const handleState = (node: Node, signal?: string, code?: number) => {
     return {
         state: node.state
         , ...handleStateUp(node)
         , ...handleStateStart(node)
         , ...handleStateStop(node)
         , ...handleStateDoing(node)
-    }
-}
-
-const handleUnregistreState = (node: Node, signal?: string, code?: number) => {
-    return {
-        state: node.state
-        , ...handleStateUp(node)
         , ...handleStateDown(node, signal, code)
     }
-}
-
-const handleUpdateState = (node: Node, { type: event }: NodeUpdateEmitter) => {
-    const state = {
-        state: node.state
-    }
-    const common = Object.assign(state, handleStateUp(node))
-    const events = {
-        [EVENTS_TYPES.NODE_UPDATE_TYPES.START]: () => Object.assign(common, handleStateStart(node))
-        , [EVENTS_TYPES.NODE_UPDATE_TYPES.STOP]: () => Object.assign(common, handleStateStop(node))
-        , [EVENTS_TYPES.NODE_UPDATE_TYPES.DOING]: () => Object.assign(common, handleStateDoing(node))
-    }
-
-    return events[event]()
 }
 
 type StopArgs = {
@@ -456,7 +412,7 @@ const stop = ({
         ihAdvertisamentTime.stop()
         ihNodeTimeout.stop()
         nodesRepository.clearAll()
-        return sendNodeUnregistre(transport, node, eventsDriver, handleUnregistreState(node, signal, code))
+        return sendNodeUnregistre(transport, node, eventsDriver, handleState(node, signal, code))
     }
 
 type StartArgs = {
@@ -475,7 +431,7 @@ const start = ({
     , ihAdvertisamentTime }: StartArgs) => () => {
         ihAdvertisamentTime.start()
         ihNodeTimeout.start()
-        return sendNodeHello(transport, node, eventsDriver, handleHelloState(node))
+        return sendNodeHello(transport, node, eventsDriver, handleState(node))
     }
 
 type DiscoveryArgs = {
@@ -499,10 +455,10 @@ const Discovery = ({
     const nodeDefaultTimeout = 1000
     const nodeTimeout = setNodeTimeOut(initAdvertisementTime, nodeDefaultTimeout)
     const ihNodeTimeout = createIntervalHandler(nodeTimeout, () => checkNodesTimeout(eventsDriver, nodesRepository, nodeTimeout))
-    const ihAdvertisamentTime = createIntervalHandler(initAdvertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleAdvertisamentState(node)))
+    const ihAdvertisamentTime = createIntervalHandler(initAdvertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleState(node)))
 
     eventsDriver.on(EVENTS.TRANSPORT.MESSAGE, recibe(node, initIgnoreProcess, initIgnoreInstance, nodesRepository, eventsDriver))
-    eventsDriver.on(EVENTS.NODE.UPDATE, (payload) => sendNodeUpdate(transport, node, eventsDriver, handleUpdateState(node, payload)))
+    eventsDriver.on(EVENTS.NODE.UPDATE, () => sendNodeUpdate(transport, node, eventsDriver, handleState(node)))
 
     return {
         start: start({

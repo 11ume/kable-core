@@ -33,17 +33,10 @@ const checkRegistre = (
     t.deepEqual(n.replica, {
         is: false
     })
-    t.deepEqual(n.rinfo, {
-        address: ip.address()
-        , family: 'IPv4'
-        , port: opts.port
-        , size: opts.size
-    })
-
-    t.deepEqual(n.up, { time: null })
-    t.deepEqual(n.start, { time: null })
-    t.deepEqual(n.stop, { time: null })
-    t.deepEqual(n.doing, { time: null })
+    t.is(n.rinfo.address, ip.address())
+    t.is(n.rinfo.family, 'IPv4')
+    t.is(n.rinfo.port, opts.port)
+    t.true(typeof n.rinfo.size === 'number')
 }
 
 const create = (id: string) => {
@@ -90,7 +83,7 @@ test.serial('get node hello event', async (t) => {
     const n = await check()
     checkRegistre(t, n, node, {
         id: 'foo'
-        , size: 274
+        , size: 198
         , port: 5000
         , event: DISCOVERY.HELLO
     })
@@ -111,7 +104,7 @@ test.serial('get node advertisement event', async (t) => {
     const n = await check()
     checkRegistre(t, n, node, {
         id: 'foo'
-        , size: 282
+        , size: 206
         , port: 5000
         , event: DISCOVERY.ADVERTISEMENT
     })
@@ -136,8 +129,38 @@ test.serial('get node unregistre event', async (t) => {
     const n = await check(transport.close)
     checkRegistre(t, n, node, {
         id: 'foo'
-        , size: 283
+        , size: 221
         , port: 5000
         , event: DISCOVERY.UNREGISTRE
     })
+})
+
+test.serial('check node detection', async (t) => {
+    const foo = create('foo')
+    const bar = create('bar')
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        foo.eventsDriver.on(DISCOVERY.HELLO, (registre) => {
+            resolve(registre)
+        })
+    })
+
+    await bar.transport.bind()
+    await foo.transport.bind()
+    await bar.discovery.start()
+    await foo.discovery.start()
+
+    const n = await check()
+    checkRegistre(t, n, bar.node, {
+        id: 'bar'
+        , size: 221
+        , port: 5000
+        , event: DISCOVERY.HELLO
+    })
+
+    foo.discovery.stop('down')
+    foo.transport.close()
+
+    bar.discovery.stop('down')
+    bar.transport.close()
+
 })
