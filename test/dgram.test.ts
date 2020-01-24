@@ -8,37 +8,35 @@ interface Message extends NodeEmitter {
     foo?: string
 }
 
-test.serial('force error when send message', async (t) => {
-    const eventsDriver = createEventsDriver()
-    const dgram = createDgramTransport({ eventsDriver })
+test.serial('force error on send message', async (t) => {
+    const dgram = createDgramTransport({ eventsDriver: createEventsDriver() })
     await dgram.bind()
 
-    try {
-        await dgram.connection.socket.close()
-        await dgram.send({})
-    } catch (err) {
-        t.is(err.name, 'Error')
-        t.is(err.message, 'Not running')
-    }
-
+    dgram.connection.socket.close()
+    const err = await t.throwsAsync(() => dgram.send(null))
+    t.is(err.name, 'Error')
+    t.is(err.message, 'Not running')
     t.true(dgram.isClosed)
 })
 
 test.serial('send dgram message', async (t) => {
-    const barEventDriver = createEventsDriver()
+    const barEd = createEventsDriver()
     const foo = createDgramTransport({ eventsDriver: createEventsDriver() })
-    const bar = createDgramTransport({ eventsDriver: barEventDriver })
+    const bar = createDgramTransport({ eventsDriver: barEd })
     await foo.bind()
     await bar.bind()
 
     const onMessage = (): Promise<Message> => new Promise((resolve) => {
-        barEventDriver.on(EVENTS.TRANSPORT.MESSAGE, (payload) => {
+        barEd.on(EVENTS.TRANSPORT.MESSAGE, (payload) => {
             resolve(payload)
         })
     })
 
     await foo.send({ foo: 'foo' })
     const message = await onMessage()
+
+    await foo.close()
+    await bar.close()
 
     t.is(message.foo, 'foo')
     t.false(message.ensured)
@@ -48,20 +46,70 @@ test.serial('send dgram message', async (t) => {
 
 test.serial('send and ensure dgram message', async (t) => {
     const key = crypto.randomBytes(32)
-    const barEventDriver = createEventsDriver()
+    const barEd = createEventsDriver()
     const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { key } })
-    const bar = createDgramTransport({ eventsDriver: barEventDriver, options: { key } })
+    const bar = createDgramTransport({ eventsDriver: barEd, options: { key } })
     await foo.bind()
     await bar.bind()
 
     const onMessage = (): Promise<Message> => new Promise((resolve) => {
-        barEventDriver.on(EVENTS.TRANSPORT.MESSAGE, resolve)
+        barEd.on(EVENTS.TRANSPORT.MESSAGE, resolve)
     })
 
-    await foo.send(null)
+    await foo.send({ foo: 'foo' })
     const message = await onMessage()
 
+    await foo.close()
+    await bar.close()
+
+    t.is(message.foo, 'foo')
     t.true(message.ensured)
+    t.true(foo.isClosed)
+    t.true(bar.isClosed)
+})
+
+// test.serial('methods: unicast', async (t) => {
+//     const barEd = createEventsDriver()
+//     const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { unicast: '0.0.0.0' } })
+//     const bar = createDgramTransport({ eventsDriver: barEd, options: { unicast: '0.0.0.0' } })
+//     await foo.bind()
+//     await bar.bind()
+
+//     const onMessage = (): Promise<Message> => new Promise((resolve) => {
+//         barEd.on(EVENTS.TRANSPORT.MESSAGE, resolve)
+//     })
+
+//     await foo.send({ foo: 'foo' })
+//     const message = await onMessage()
+
+//     await foo.close()
+//     await bar.close()
+
+//     t.is(message.foo, 'foo')
+//     t.false(message.ensured)
+//     t.true(foo.isClosed)
+//     t.true(bar.isClosed)
+// })
+
+test.serial('methods: broadcast', async (t) => {
+    const barEd = createEventsDriver()
+    const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { broadcast: '255.255.255.255' } })
+    const bar = createDgramTransport({ eventsDriver: barEd, options: { broadcast: '255.255.255.255' } })
+    await foo.bind()
+    await bar.bind()
+
+    const onMessage = (): Promise<Message> => new Promise((resolve) => {
+        barEd.on(EVENTS.TRANSPORT.MESSAGE, resolve)
+    })
+
+    await foo.send({ foo: 'foo' })
+    const message = await onMessage()
+
+    await foo.close()
+    await bar.close()
+
+    t.is(message.foo, 'foo')
+    t.false(message.ensured)
     t.true(foo.isClosed)
     t.true(bar.isClosed)
 })

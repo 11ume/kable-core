@@ -1,63 +1,30 @@
-import { NODE_REGISTRE } from '../lib/constants/events'
-import { createStore } from '../lib/store'
-import { createDiscovery } from '../lib/discovery'
-import { createRepository } from '../lib/repository'
-import { createTransport, TransportTypes } from '../lib/transport/transport'
-import { createEventsDriver, NodeRegistreRemoveEmitter } from '../lib/eventsDriver'
-import { NodeRegistre, createNode } from './../lib/node'
+import * as EVENTS from '../lib/constants/events'
+import { createEventsDriver, NodeEmitter } from '../lib/eventsDriver'
+import { createDgramTransport } from '../lib/transport/dgram'
 
-const create = (id: string) => {
-    const nodesStore = createStore<NodeRegistre>()
-    const eventsDriver = createEventsDriver()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
-    const node = createNode({
-        options: {
-            id
-        }
-    })
-    const transport = createTransport({
-        type: TransportTypes.DGRAM
-        , eventsDriver
-    })
-
-    const discovery = createDiscovery({
-        node
-        , transport
-        , eventsDriver
-        , nodesRepository
-        , options: {
-            ignoreInstance: false
-        }
-    })
-
-    return {
-        node
-        , transport
-        , discovery
-        , eventsDriver
-    }
+interface Message extends NodeEmitter {
+    foo?: string
 }
 
 const main = async () => {
-    const foo = create('foo')
-    const bar = create('bar')
-    const check = (): Promise<NodeRegistreRemoveEmitter> => new Promise((resolve) => {
-        foo.eventsDriver.on(NODE_REGISTRE.REMOVE, (registre) => {
-            resolve(registre)
+    const barEd = createEventsDriver()
+    const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { unicast: '192.168.0.2' } })
+    const bar = createDgramTransport({ eventsDriver: barEd })
+    await foo.bind()
+    await bar.bind()
+
+    const onMessage = (): Promise<Message> => new Promise((resolve) => {
+        barEd.on(EVENTS.TRANSPORT.MESSAGE, (data) => {
+            resolve(data)
         })
+
+        foo.send({ foo: 'foo' })
     })
 
-    await bar.transport.bind()
-    await foo.transport.bind()
-    await bar.discovery.start()
-
-    bar.discovery.stop('down')
-
-    const n = await check()
-    console.log(n)
-    foo.discovery.stop('down')
-    foo.transport.close()
-    bar.transport.close()
+    const message = await onMessage()
+    console.log(message)
+    foo.close()
+    bar.close()
 }
 
 main()
