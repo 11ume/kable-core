@@ -4,9 +4,14 @@ import { createStore } from '../lib/store'
 import { createDiscovery } from '../lib/discovery'
 import { createRepository } from '../lib/repository'
 import { createTransport, TransportTypes } from '../lib/transport/transport'
-import { createEventsDriver, NodeEmitter, NodeRegistreRemoveEmitter, NodeRegistreAddEmitter } from '../lib/eventsDriver'
 import { NodeRegistre, createNode } from './../lib/node'
 import { checkEmitterData } from './utils/helpers'
+import {
+    createEventsDriver
+    , NodeEmitter
+    , NodeRegistreRemoveEmitter
+    , NodeRegistreAddEmitter
+} from '../lib/eventsDriver'
 
 const create = (id: string, ignoreInstance = false) => {
     const nodesStore = createStore<NodeRegistre>()
