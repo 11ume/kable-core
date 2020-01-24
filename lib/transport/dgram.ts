@@ -14,6 +14,7 @@ export interface DgramTransportOptions extends TransportOptions {
     broadcast?: string
     reuseAddr?: boolean
     protocol?: DgramProtocol
+    exclusive?: boolean
 }
 
 interface Dgram extends Transport {
@@ -55,6 +56,7 @@ type DgramBind = {
     , protocol?: DgramProtocol
     , reuseAddr: boolean
     , key: string | Buffer
+    , exclusive: boolean
 }
 
 type DgramProtocol = 'udp4' | 'udp6'
@@ -75,6 +77,25 @@ type TransmissionBroadcast = {
     destination: string
 }
 
+interface SendDestinationArgs {
+    socket: dgram.Socket
+    , eventsDriver: EventsDriver
+    , message: Uint8Array
+    , tport: number
+}
+
+interface SendDestinationOnlyArgs extends SendDestinationArgs {
+    destination: string
+}
+
+interface SendDestinationManyArgs extends SendDestinationArgs {
+    destinations: string[]
+}
+
+interface SendArgs extends SendDestinationArgs {
+    destination: string
+}
+
 const dgramOptions: DgramTransportOptions = {
     key: null
     , tport: 5000
@@ -84,6 +105,7 @@ const dgramOptions: DgramTransportOptions = {
     , broadcast: undefined
     , reuseAddr: true
     , protocol: ('udp4' as DgramProtocol)
+    , exclusive: false
 }
 
 const onSocketError = (eventsDriver: EventsDriver) => (err: Error) => {
@@ -114,11 +136,12 @@ const onDecodeError = (eventsDriver: EventsDriver, err: Error) => {
     })
 }
 
-const sendMessage = (socket: dgram.Socket
-    , eventsDriver: EventsDriver
-    , tport: number
-    , message: Uint8Array
-    , destination: string): Promise<void> => {
+const sendMessage = ({
+    socket
+    , eventsDriver
+    , destination
+    , message
+    , tport }: SendArgs): Promise<void> => {
     return new Promise((resolve, reject) => {
         const offset = 0
         socket.send(message, offset, message.length, tport, destination, (err) => {
@@ -140,21 +163,24 @@ const preparePacket = (packet: object, key: string | Buffer) => {
     return { ...aggregateDate, ...packet }
 }
 
-const sendMultiDestinations = (socket: dgram.Socket
-    , eventsDriver: EventsDriver
-    , destinations: string[]
-    , message: Uint8Array
-    , tport: number): Promise<void> => {
+const sendMultiDestinations = ({
+    socket
+    , eventsDriver
+    , destinations
+    , message
+    , tport }: SendDestinationManyArgs): Promise<void> => {
     return Promise
-        .all(destinations.map((destination) => sendMessage(socket, eventsDriver, tport, message, destination)))
+        .all(destinations.map((destination) => sendMessage({
+            socket
+            , eventsDriver
+            , tport
+            , message
+            , destination
+        })))
         .then(Function.call)
 }
 
-const sendOnlyDestination = (socket: dgram.Socket
-    , eventsDriver: EventsDriver
-    , destination: string
-    , message: Uint8Array
-    , tport: number) => sendMessage(socket, eventsDriver, tport, message, destination)
+const sendOnlyDestination = (opts: SendDestinationOnlyArgs) => sendMessage(opts)
 
 const send = <T extends object>(connection: Connection
     , eventsDriver: EventsDriver
@@ -174,13 +200,25 @@ const send = <T extends object>(connection: Connection
                 }
 
                 if (Array.isArray(destination)) {
-                    sendMultiDestinations(connection.socket, eventsDriver, destination, message, tport)
+                    sendMultiDestinations({
+                        socket: connection.socket
+                        , eventsDriver
+                        , destinations: destination
+                        , message
+                        , tport
+                    })
                         .then(resolve)
                         .catch(reject)
                     return
                 }
 
-                sendOnlyDestination(connection.socket, eventsDriver, destination, message, tport)
+                sendOnlyDestination({
+                    socket: connection.socket
+                    , eventsDriver
+                    , destination
+                    , message
+                    , tport
+                })
                     .then(resolve)
                     .catch(reject)
             })
@@ -250,6 +288,7 @@ const addSocketEvents = (connection: Connection, eventsDriver: EventsDriver, key
     const onMsg = onSocketRecibeMessage(eventsDriver, key)
     connection.socket.on('error', onErr)
     connection.socket.on('message', onMsg)
+
     return () => {
         connection.socket.off('error', onErr)
         connection.socket.off('message', onMsg)
@@ -272,7 +311,8 @@ const bind = (connection: Connection, eventsDriver: EventsDriver, {
     , multicastTTL
     , protocol
     , reuseAddr
-    , key }: DgramBind): Promise<void> => {
+    , key
+    , exclusive }: DgramBind): Promise<void> => {
     return new Promise((resolve) => {
         connection.socket = createSocket({ protocol, reuseAddr })
         connection.removeEvents = addSocketEvents(connection, eventsDriver, key)
@@ -280,7 +320,7 @@ const bind = (connection: Connection, eventsDriver: EventsDriver, {
         const options: dgram.BindOptions = {
             port: tport
             , address: taddress
-            , exclusive: false
+            , exclusive
         }
 
         const bindcall = () => {
@@ -312,6 +352,7 @@ const DgramTransport = ({
         , broadcast = dgramOptions.broadcast
         , reuseAddr = dgramOptions.reuseAddr
         , protocol = dgramOptions.protocol
+        , exclusive = dgramOptions.exclusive
     } = dgramOptions }: DgramArgs): Dgram => {
     const MULTICAST_TTL = 1
     const connection: Connection = {
@@ -342,6 +383,7 @@ const DgramTransport = ({
                 , protocol
                 , reuseAddr
                 , key
+                , exclusive
             })
                 .then(() => {
                     isClosed = false

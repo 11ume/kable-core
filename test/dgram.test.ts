@@ -30,9 +30,10 @@ test.serial('send dgram message', async (t) => {
         barEd.on(EVENTS.TRANSPORT.MESSAGE, (payload) => {
             resolve(payload)
         })
+
+        foo.send({ foo: 'foo' })
     })
 
-    await foo.send({ foo: 'foo' })
     const message = await onMessage()
 
     await foo.close()
@@ -54,9 +55,9 @@ test.serial('send and ensure dgram message', async (t) => {
 
     const onMessage = (): Promise<Message> => new Promise((resolve) => {
         barEd.on(EVENTS.TRANSPORT.MESSAGE, resolve)
+        foo.send({ foo: 'foo' })
     })
 
-    await foo.send({ foo: 'foo' })
     const message = await onMessage()
 
     await foo.close()
@@ -77,9 +78,9 @@ test.serial('send and ensure dgram message', async (t) => {
 
 //     const onMessage = (): Promise<Message> => new Promise((resolve) => {
 //         barEd.on(EVENTS.TRANSPORT.MESSAGE, resolve)
+//         foo.send({ foo: 'foo' })
 //     })
 
-//     await foo.send({ foo: 'foo' })
 //     const message = await onMessage()
 
 //     await foo.close()
@@ -100,9 +101,9 @@ test.serial('methods: broadcast', async (t) => {
 
     const onMessage = (): Promise<Message> => new Promise((resolve) => {
         barEd.on(EVENTS.TRANSPORT.MESSAGE, resolve)
+        foo.send({ foo: 'foo' })
     })
 
-    await foo.send({ foo: 'foo' })
     const message = await onMessage()
 
     await foo.close()
