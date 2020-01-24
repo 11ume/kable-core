@@ -1,17 +1,16 @@
 import test from 'ava'
 import ip from 'ip'
 import { ExecutionContext } from 'ava'
-import { DISCOVERY } from '../lib/constants/events'
+import { DISCOVERY, NODE_REGISTRE } from '../lib/constants/events'
 import { createStore } from '../lib/store'
 import { createDiscovery } from '../lib/discovery'
 import { createRepository } from '../lib/repository'
 import { createTransport, TransportTypes } from '../lib/transport/transport'
-import { createEventsDriver, NodeEmitter } from '../lib/eventsDriver'
+import { createEventsDriver, NodeEmitter, NodeRegistreRemoveEmitter, NodeRegistreAddEmitter } from '../lib/eventsDriver'
 import { Node, NodeRegistre, createNode } from './../lib/node'
 
 type CheckOptions = {
     id: string
-    , size: number
     , port: number
     , event: DISCOVERY
 }
@@ -39,7 +38,7 @@ const checkRegistre = (
     t.true(typeof n.rinfo.size === 'number')
 }
 
-const create = (id: string) => {
+const create = (id: string, ignoreInstance = false) => {
     const nodesStore = createStore<NodeRegistre>()
     const eventsDriver = createEventsDriver()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
@@ -59,7 +58,7 @@ const create = (id: string) => {
         , eventsDriver
         , nodesRepository
         , options: {
-            ignoreInstance: false
+            ignoreInstance
         }
     })
 
@@ -68,6 +67,7 @@ const create = (id: string) => {
         , transport
         , discovery
         , eventsDriver
+        , nodesRepository
     }
 }
 
@@ -83,7 +83,6 @@ test.serial('get node hello event', async (t) => {
     const n = await check()
     checkRegistre(t, n, node, {
         id: 'foo'
-        , size: 198
         , port: 5000
         , event: DISCOVERY.HELLO
     })
@@ -104,7 +103,6 @@ test.serial('get node advertisement event', async (t) => {
     const n = await check()
     checkRegistre(t, n, node, {
         id: 'foo'
-        , size: 206
         , port: 5000
         , event: DISCOVERY.ADVERTISEMENT
     })
@@ -115,10 +113,9 @@ test.serial('get node advertisement event', async (t) => {
 
 test.serial('get node unregistre event', async (t) => {
     const { node, eventsDriver, transport, discovery } = create('foo')
-    const check = (stop: () => void): Promise<NodeEmitter> => new Promise((resolve) => {
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
         eventsDriver.on(DISCOVERY.UNREGISTRE, (registre) => {
             resolve(registre)
-            stop()
         })
     })
 
@@ -126,18 +123,19 @@ test.serial('get node unregistre event', async (t) => {
     await discovery.start()
     discovery.stop('down')
 
-    const n = await check(transport.close)
+    const n = await check()
     checkRegistre(t, n, node, {
         id: 'foo'
-        , size: 221
         , port: 5000
         , event: DISCOVERY.UNREGISTRE
     })
+
+    transport.close()
 })
 
-test.serial('check node detection', async (t) => {
-    const foo = create('foo')
-    const bar = create('bar')
+test.serial('check node hello event', async (t) => {
+    const foo = create('foo', true)
+    const bar = create('bar', true)
     const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
         foo.eventsDriver.on(DISCOVERY.HELLO, (registre) => {
             resolve(registre)
@@ -152,7 +150,6 @@ test.serial('check node detection', async (t) => {
     const n = await check()
     checkRegistre(t, n, bar.node, {
         id: 'bar'
-        , size: 221
         , port: 5000
         , event: DISCOVERY.HELLO
     })
@@ -162,5 +159,50 @@ test.serial('check node detection', async (t) => {
 
     bar.discovery.stop('down')
     bar.transport.close()
+})
 
+test.serial('check node remove event', async (t) => {
+    const foo = create('foo', true)
+    const bar = create('bar', true)
+    const check = (): Promise<NodeRegistreRemoveEmitter> => new Promise((resolve) => {
+        foo.eventsDriver.on(NODE_REGISTRE.REMOVE, (registre) => {
+            resolve(registre)
+        })
+    })
+
+    await foo.transport.bind()
+    await bar.transport.bind()
+    await foo.discovery.start()
+    await bar.discovery.start()
+    bar.discovery.stop('down')
+
+    const n = await check()
+    t.is(n.payload.nodeRegistre.id, 'bar')
+
+    foo.discovery.stop('down')
+    foo.transport.close()
+    bar.transport.close()
+})
+
+test.serial('check node add event', async (t) => {
+    const foo = create('foo', true)
+    const bar = create('bar', true)
+    const check = (): Promise<NodeRegistreAddEmitter> => new Promise((resolve) => {
+        foo.eventsDriver.on(NODE_REGISTRE.ADD, (registre) => {
+            resolve(registre)
+        })
+    })
+
+    await foo.transport.bind()
+    await bar.transport.bind()
+    await foo.discovery.start()
+    await bar.discovery.start()
+
+    const n = await check()
+    t.is(n.payload.nodeRegistre.id, 'bar')
+
+    bar.discovery.stop('down')
+    foo.discovery.stop('down')
+    foo.transport.close()
+    bar.transport.close()
 })

@@ -1,9 +1,9 @@
-import { DISCOVERY } from '../lib/constants/events'
+import { NODE_REGISTRE } from '../lib/constants/events'
 import { createStore } from '../lib/store'
 import { createDiscovery } from '../lib/discovery'
 import { createRepository } from '../lib/repository'
 import { createTransport, TransportTypes } from '../lib/transport/transport'
-import { createEventsDriver, NodeEmitter } from '../lib/eventsDriver'
+import { createEventsDriver, NodeRegistreRemoveEmitter } from '../lib/eventsDriver'
 import { NodeRegistre, createNode } from './../lib/node'
 
 const create = (id: string) => {
@@ -39,16 +39,25 @@ const create = (id: string) => {
 }
 
 const main = async () => {
-    const { eventsDriver, transport, discovery } = create('foo')
-    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
-        eventsDriver.on(DISCOVERY.ADVERTISEMENT, (registre) => {
+    const foo = create('foo')
+    const bar = create('bar')
+    const check = (): Promise<NodeRegistreRemoveEmitter> => new Promise((resolve) => {
+        foo.eventsDriver.on(NODE_REGISTRE.REMOVE, (registre) => {
             resolve(registre)
         })
     })
 
-    await transport.bind()
-    await discovery.start()
-    check()
+    await bar.transport.bind()
+    await foo.transport.bind()
+    await bar.discovery.start()
+
+    bar.discovery.stop('down')
+
+    const n = await check()
+    console.log(n)
+    foo.discovery.stop('down')
+    foo.transport.close()
+    bar.transport.close()
 }
 
 main()

@@ -95,6 +95,8 @@ type ErrorDefaultEmitter = {
 }
 
 type ErrorEmitterFn = (payload: ErrorEmitter) => void
+type NodeRegistreAddEmitterFn = (payload: NodeRegistreAddEmitter) => void
+type NodeRegistreRemoveEmitterFn = (payload: NodeRegistreRemoveEmitter) => void
 type NodeEmitterFn = (payload: NodeEmitter) => void
 type NodeUpdateEmitterFn = (payload: NodeUpdateEmitter) => void
 
@@ -103,6 +105,8 @@ export interface EventsDriver extends EventEmitter {
     on(event: EVENTS.NODE.UPDATE, fn: NodeUpdateEmitterFn): this
     on(event: EVENTS.TRANSPORT.MESSAGE, fn: NodeEmitterFn): this
     on(event: EVENTS.UNIVERSAL.ERROR, fn: ErrorEmitterFn): this
+    on(event: EVENTS.NODE_REGISTRE.ADD, fn: NodeRegistreAddEmitterFn): this
+    on(event: EVENTS.NODE_REGISTRE.REMOVE, fn: NodeRegistreRemoveEmitterFn): this
 
     off(event: DRIVER_EVENTS, fn: DRIVER_FN): this
 

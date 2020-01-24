@@ -55,7 +55,7 @@
     "@msgpack/msgpack": "^1.11.0",
     "@types/node": "^13.1.8",
     "@types/uuid": "^3.4.6",
-    "interval-handler": "^0.0.1-alpha",
+    "interval-handler": "^0.0.2",
     "ope-abort": "^0.0.2",
     "typescript": "^3.7.4",
     "uuid": "^3.3.3",

@@ -1536,10 +1536,10 @@ ini@^1.3.4, ini@~1.3.0:
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
   integrity sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
 
-interval-handler@^0.0.1-alpha:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/interval-handler/-/interval-handler-0.0.1.tgz#8e9642e5cba47ed321a46bf9bb073979e21fbeac"
-  integrity sha512-esH4KPfJBTPTUBhOaahUnEERd5RI6uaLdE3Rdhvf6xrrN0q8L+Mw1pmXwxhlpwV9Ohl9WP0R6wPhC8PleGvpuA==
+interval-handler@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/interval-handler/-/interval-handler-0.0.2.tgz#86459b64a61e51498ee7eff5f98a13037ff2250b"
+  integrity sha512-DC3bnIq6FeB7us95lj707Ul1UpkcIF95bb4WNmZSVGhnoXuAMax6m41zymlukrHGuHRVoVP1kMa1f8yUFfuMNQ==
 
 ip@^1.1.5:
   version "1.1.5"
