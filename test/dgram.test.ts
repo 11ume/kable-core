@@ -1,8 +1,12 @@
 import test from 'ava'
 import * as crypto from 'crypto'
 import * as EVENTS from '../lib/constants/events'
-import { createEventsDriver } from '../lib/eventsDriver'
+import { createEventsDriver, NodeEmitter } from '../lib/eventsDriver'
 import { createDgramTransport } from '../lib/transport/dgram'
+
+interface Message extends NodeEmitter {
+    foo?: string
+}
 
 test.serial('force error when send message', async (t) => {
     const eventsDriver = createEventsDriver()
@@ -20,7 +24,29 @@ test.serial('force error when send message', async (t) => {
     t.true(dgram.isClosed)
 })
 
-test.serial('ensure dgram message', async (t) => {
+test.serial('send dgram message', async (t) => {
+    const barEventDriver = createEventsDriver()
+    const foo = createDgramTransport({ eventsDriver: createEventsDriver() })
+    const bar = createDgramTransport({ eventsDriver: barEventDriver })
+    await foo.bind()
+    await bar.bind()
+
+    const onMessage = (): Promise<Message> => new Promise((resolve) => {
+        barEventDriver.on(EVENTS.TRANSPORT.MESSAGE, (payload) => {
+            resolve(payload)
+        })
+    })
+
+    await foo.send({ foo: 'foo' })
+    const message = await onMessage()
+
+    t.is(message.foo, 'foo')
+    t.false(message.ensured)
+    t.true(foo.isClosed)
+    t.true(bar.isClosed)
+})
+
+test.serial('send and ensure dgram message', async (t) => {
     const key = crypto.randomBytes(32)
     const barEventDriver = createEventsDriver()
     const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { key } })
@@ -28,18 +54,14 @@ test.serial('ensure dgram message', async (t) => {
     await foo.bind()
     await bar.bind()
 
-    type Message = {
-        ensured: boolean
-    }
-
     const onMessage = (): Promise<Message> => new Promise((resolve) => {
         barEventDriver.on(EVENTS.TRANSPORT.MESSAGE, resolve)
     })
 
-    await foo.send({ key })
+    await foo.send(null)
     const message = await onMessage()
 
     t.true(message.ensured)
-    t.true(bar.isClosed)
+    t.true(foo.isClosed)
     t.true(bar.isClosed)
 })

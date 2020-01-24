@@ -39,11 +39,6 @@ const checkRegistre = (
         , port: opts.port
         , size: opts.size
     })
-
-    n.up && t.deepEqual(n.up, { time: null })
-    n.start && t.deepEqual(n.start, { time: null })
-    n.stop && t.deepEqual(n.stop, { time: null, reason: null })
-    n.doing && t.deepEqual(n.doing, { time: null, reason: null })
 }
 
 const create = (id: string) => {
