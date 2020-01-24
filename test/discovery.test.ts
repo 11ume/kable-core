@@ -1,42 +1,12 @@
 import test from 'ava'
-import ip from 'ip'
-import { ExecutionContext } from 'ava'
 import { DISCOVERY, NODE_REGISTRE } from '../lib/constants/events'
 import { createStore } from '../lib/store'
 import { createDiscovery } from '../lib/discovery'
 import { createRepository } from '../lib/repository'
 import { createTransport, TransportTypes } from '../lib/transport/transport'
 import { createEventsDriver, NodeEmitter, NodeRegistreRemoveEmitter, NodeRegistreAddEmitter } from '../lib/eventsDriver'
-import { Node, NodeRegistre, createNode } from './../lib/node'
-
-type CheckOptions = {
-    id: string
-    , port: number
-    , event: DISCOVERY
-}
-
-const checkRegistre = (
-    t: ExecutionContext
-    , n: NodeEmitter
-    , node: Node
-    , opts: CheckOptions) => {
-    t.false(n.ensured)
-    t.is(n.event, opts.event)
-    t.truthy(n.host)
-    t.is(n.hostname, node.hostname)
-    t.is(n.id, opts.id)
-    t.is(n.iid, node.iid)
-    t.is(n.index, node.index)
-    t.is(n.pid, node.pid)
-    t.is(n.port, node.port)
-    t.deepEqual(n.replica, {
-        is: false
-    })
-    t.is(n.rinfo.address, ip.address())
-    t.is(n.rinfo.family, 'IPv4')
-    t.is(n.rinfo.port, opts.port)
-    t.true(typeof n.rinfo.size === 'number')
-}
+import { NodeRegistre, createNode } from './../lib/node'
+import { checkEmitterData } from './utils/helpers'
 
 const create = (id: string, ignoreInstance = false) => {
     const nodesStore = createStore<NodeRegistre>()
@@ -81,7 +51,7 @@ test.serial('get node hello event', async (t) => {
     await discovery.start()
 
     const n = await check()
-    checkRegistre(t, n, node, {
+    checkEmitterData(t, n, node, {
         id: 'foo'
         , port: 5000
         , event: DISCOVERY.HELLO
@@ -101,7 +71,7 @@ test.serial('get node advertisement event', async (t) => {
     await discovery.start()
 
     const n = await check()
-    checkRegistre(t, n, node, {
+    checkEmitterData(t, n, node, {
         id: 'foo'
         , port: 5000
         , event: DISCOVERY.ADVERTISEMENT
@@ -124,7 +94,7 @@ test.serial('get node unregistre event', async (t) => {
     discovery.stop('down')
 
     const n = await check()
-    checkRegistre(t, n, node, {
+    checkEmitterData(t, n, node, {
         id: 'foo'
         , port: 5000
         , event: DISCOVERY.UNREGISTRE
@@ -148,7 +118,7 @@ test.serial('check node hello event', async (t) => {
     await foo.discovery.start()
 
     const n = await check()
-    checkRegistre(t, n, bar.node, {
+    checkEmitterData(t, n, bar.node, {
         id: 'bar'
         , port: 5000
         , event: DISCOVERY.HELLO
