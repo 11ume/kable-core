@@ -8,8 +8,8 @@ interface Message extends NodeEmitter {
 
 const main = async () => {
     const barEd = createEventsDriver()
-    const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { unicast: '0.0.0.0' } })
-    const bar = createDgramTransport({ eventsDriver: barEd })
+    const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { unicast: '127.0.0.1' } })
+    const bar = createDgramTransport({ eventsDriver: barEd, options: { unicast: '127.0.0.1' } })
     await foo.bind()
     await bar.bind()
 

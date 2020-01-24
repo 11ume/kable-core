@@ -69,28 +69,28 @@ test.serial('send and ensure dgram message', async (t) => {
     t.true(bar.isClosed)
 })
 
-// test.serial('methods: unicast', async (t) => {
-//     const barEd = createEventsDriver()
-//     const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { unicast: '0.0.0.0' } })
-//     const bar = createDgramTransport({ eventsDriver: barEd, options: { unicast: '0.0.0.0' } })
-//     await foo.bind()
-//     await bar.bind()
+test.serial('methods: unicast', async (t) => {
+    const barEd = createEventsDriver()
+    const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { unicast: '0.0.0.0' } })
+    const bar = createDgramTransport({ eventsDriver: barEd, options: { unicast: '0.0.0.0' } })
+    await foo.bind()
+    await bar.bind()
 
-//     const onMessage = (): Promise<Message> => new Promise((resolve) => {
-//         barEd.on(EVENTS.TRANSPORT.MESSAGE, resolve)
-//         foo.send({ foo: 'foo' })
-//     })
+    const onMessage = (): Promise<Message> => new Promise((resolve) => {
+        barEd.on(EVENTS.TRANSPORT.MESSAGE, resolve)
+        foo.send({ foo: 'foo' })
+    })
 
-//     const message = await onMessage()
+    const message = await onMessage()
 
-//     await foo.close()
-//     await bar.close()
+    await foo.close()
+    await bar.close()
 
-//     t.is(message.foo, 'foo')
-//     t.false(message.ensured)
-//     t.true(foo.isClosed)
-//     t.true(bar.isClosed)
-// })
+    t.is(message.foo, 'foo')
+    t.false(message.ensured)
+    t.true(foo.isClosed)
+    t.true(bar.isClosed)
+})
 
 test.serial('methods: broadcast', async (t) => {
     const barEd = createEventsDriver()
