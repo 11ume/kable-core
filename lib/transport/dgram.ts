@@ -273,6 +273,7 @@ const setTransmissionPreferences = (socket: dgram.Socket
             break
         }
         case 'multicast': {
+            socket.setBroadcast(false)
             socket.setMulticastTTL(multicastTTL)
             socket.addMembership(trans.destination)
             break
