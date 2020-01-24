@@ -136,3 +136,33 @@ test.serial('get node unregistre event', async (t) => {
         , event: DISCOVERY.UNREGISTRE
     })
 })
+
+test.serial('check node detection', async (t) => {
+    const foo = create('foo')
+    const bar = create('bar')
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        foo.eventsDriver.on(DISCOVERY.HELLO, (registre) => {
+            resolve(registre)
+        })
+    })
+
+    await bar.transport.bind()
+    await foo.transport.bind()
+    await bar.discovery.start()
+    await foo.discovery.start()
+
+    const n = await check()
+    checkRegistre(t, n, bar.node, {
+        id: 'bar'
+        , size: 221
+        , port: 5000
+        , event: DISCOVERY.HELLO
+    })
+
+    foo.discovery.stop('down')
+    foo.transport.close()
+
+    bar.discovery.stop('down')
+    bar.transport.close()
+
+})
