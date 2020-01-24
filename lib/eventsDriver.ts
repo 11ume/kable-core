@@ -1,5 +1,5 @@
 import { RemoteInfo } from 'dgram'
-import EventEmitter from 'events'
+import events, { EventEmitter } from 'events'
 import * as EVENTS from './constants/events'
 import * as EVENTS_TYPES from './constants/eventTypes'
 import {
@@ -117,7 +117,7 @@ export interface EventsDriver extends EventEmitter {
 }
 
 const EventsDriver = (): EventsDriver => {
-    const emitter = new EventEmitter()
+    const emitter = new events.EventEmitter()
     return emitter
 }
 

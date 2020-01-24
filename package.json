@@ -18,7 +18,7 @@
     "test:coverage": "nyc ava -vs",
     "clean": "rm -rf .nyc_output coverage dist",
     "lint": "node node_modules/tslint/bin/tslint -c tslint.json --project .",
-    "build": "tsc -p ./tsconfig.publish.json",
+    "build": "tsc -p ./tsconfig.json",
     "prepublishOnly": "npm run lint & npm run test & npm run build & npm run clean",
     "postinstall": "npm run build"
   },
@@ -58,7 +58,8 @@
     "interval-handler": "^0.0.1-alpha",
     "ope-abort": "^0.0.2",
     "typescript": "^3.7.4",
-    "uuid": "^3.3.3"
+    "uuid": "^3.3.3",
+    "clean-deep": "https://github.com/11ume/clean-deep.git"
   },
   "devDependencies": {
     "@types/ip": "^1.1.0",
