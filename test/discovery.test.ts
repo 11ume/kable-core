@@ -33,12 +33,10 @@ const checkRegistre = (
     t.deepEqual(n.replica, {
         is: false
     })
-    t.deepEqual(n.rinfo, {
-        address: ip.address()
-        , family: 'IPv4'
-        , port: opts.port
-        , size: opts.size
-    })
+    t.is(n.rinfo.address, ip.address())
+    t.is(n.rinfo.family, 'IPv4')
+    t.is(n.rinfo.port, opts.port)
+    t.true(typeof n.rinfo.size === 'number')
 }
 
 const create = (id: string) => {
