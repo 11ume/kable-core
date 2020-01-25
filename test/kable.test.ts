@@ -36,9 +36,10 @@ test.serial('get a node but abort', async (t) => {
     const opAbort = oa()
 
     await foo.up()
-    foo.pick('bar', { opAbort })
-    await delay(1000, opAbort.abort)
+    delay(100, opAbort.abort)
+    const pick = await foo.pick('bar', { opAbort })
 
+    t.is(pick, null)
     t.true(opAbort.state.aborted)
     foo.down()
 })
