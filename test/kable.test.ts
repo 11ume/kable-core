@@ -197,8 +197,8 @@ test.serial('create send and recibe node whit metadata', async (t) => {
         resolve(foo.pick('bar'))
     })
 
-    const data = await check()
-    t.deepEqual(data.meta, { id: 'foo', description: 'im foo' })
+    const pick = await check()
+    t.deepEqual(pick.meta, { id: 'foo', description: 'im foo' })
 
     foo.down()
     bar.down()
