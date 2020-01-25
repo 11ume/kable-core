@@ -136,9 +136,10 @@ test.serial('state transition, check node registre on start', async (t) => {
 test.serial('state transition, check node registre on stop', async (t) => {
     const foo = kable('foo')
     const bar = kable('bar')
+    const reason = 'any reason'
+
     await foo.up()
     await bar.up()
-    const reason = 'any reason'
     bar.stop(reason)
 
     const check = (): Promise<NodeRegistre> => new Promise(async (resolve) => {
@@ -162,9 +163,10 @@ test.serial('state transition, check node registre on stop', async (t) => {
 test.serial('state transition, check node registre on doing', async (t) => {
     const foo = kable('foo')
     const bar = kable('bar')
+    const reason = 'any reason'
+
     await foo.up()
     await bar.up()
-    const reason = 'any reason'
     bar.doing(reason)
 
     const check = (): Promise<NodeRegistre> => new Promise(async (resolve) => {
@@ -180,6 +182,23 @@ test.serial('state transition, check node registre on doing', async (t) => {
     t.falsy(pick.stop)
     t.falsy(pick.start)
     t.falsy(pick.down)
+
+    foo.down()
+    bar.down()
+})
+
+test.serial('create send and recibe node whit metadata', async (t) => {
+    const foo = kable('foo')
+    const bar = kable('bar', { meta: { id: 'foo', description: 'im foo' } })
+    await foo.up()
+    await bar.up()
+
+    const check = (): Promise<NodeRegistre> => new Promise(async (resolve) => {
+        resolve(foo.pick('bar'))
+    })
+
+    const data = await check()
+    t.deepEqual(data.meta, { id: 'foo', description: 'im foo' })
 
     foo.down()
     bar.down()
