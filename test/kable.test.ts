@@ -1,4 +1,5 @@
 import test from 'ava'
+import oa from 'ope-abort'
 import kable from '../lib/kable'
 import ERROR from '../lib/constants/error'
 import { checkPick, delay } from '../lib/utils/helpers'
@@ -28,6 +29,18 @@ test.serial('get node whit delay', async (t) => {
 
     foo.down()
     bar.down()
+})
+
+test.serial('get a node but abort', async (t) => {
+    const foo = kable('foo')
+    const opAbort = oa()
+
+    await foo.up()
+    foo.pick('bar', { opAbort })
+    await delay(1000, opAbort.abort)
+
+    t.true(opAbort.state.aborted)
+    foo.down()
 })
 
 test.serial('state transition, up - down', async (t) => {
