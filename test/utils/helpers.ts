@@ -21,15 +21,18 @@ type CheckEmitterOptions = {
 export const checkPick = (
     t: ExecutionContext
     , k: Kable
-    , nr: NodeRegistre) => {
-    t.truthy(k.host)
-    t.is(k.hostname, nr.hostname)
-    t.is(k.id, nr.id)
-    t.is(k.iid, nr.iid)
-    t.is(k.index, nr.index)
-    t.is(k.pid, nr.pid)
-    t.is(k.port, nr.port)
-    t.deepEqual(nr.replica, {
+    , nodeRegistre: NodeRegistre) => {
+    t.false(nodeRegistre.ensured)
+    t.is(k.hostname, nodeRegistre.hostname)
+    t.is(k.id, nodeRegistre.id)
+    t.is(k.iid, nodeRegistre.iid)
+    t.is(k.index, nodeRegistre.index)
+    t.truthy(new Date(nodeRegistre.lastSeen))
+    t.is(k.pid, nodeRegistre.pid)
+    t.is(k.port, nodeRegistre.port)
+    t.true(Object.values(NODE_STATES).includes(nodeRegistre.state))
+    t.truthy(new Date(nodeRegistre.up.time))
+    t.deepEqual(nodeRegistre.replica, {
         is: false
     })
 }
