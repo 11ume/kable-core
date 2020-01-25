@@ -27,11 +27,11 @@ export const checkPick = (
     t.is(k.id, nodeRegistre.id)
     t.is(k.iid, nodeRegistre.iid)
     t.is(k.index, nodeRegistre.index)
-    t.truthy(new Date(nodeRegistre.lastSeen))
+    t.truthy(nodeRegistre.lastSeen)
     t.is(k.pid, nodeRegistre.pid)
     t.is(k.port, nodeRegistre.port)
     t.true(Object.values(NODE_STATES).includes(nodeRegistre.state))
-    t.truthy(new Date(nodeRegistre.up.time))
+    t.truthy(nodeRegistre.up.time)
     t.deepEqual(nodeRegistre.replica, {
         is: false
     })
