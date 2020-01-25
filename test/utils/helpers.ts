@@ -25,44 +25,44 @@ export const delay = (time: number, fn?: (...args: any[]) => any) => new Promise
 
 export const checkPick = (
     t: ExecutionContext
-    , k: Kable
-    , nodeRegistre: NodeRegistre) => {
-    t.false(nodeRegistre.ensured)
-    t.is(k.hostname, nodeRegistre.hostname)
-    t.is(k.id, nodeRegistre.id)
-    t.is(k.iid, nodeRegistre.iid)
-    t.is(k.index, nodeRegistre.index)
-    t.truthy(nodeRegistre.lastSeen)
-    t.is(k.pid, nodeRegistre.pid)
-    t.is(k.port, nodeRegistre.port)
-    t.true(Object.values(NODE_STATES).includes(nodeRegistre.state))
-    t.truthy(nodeRegistre.up.time)
-    t.deepEqual(nodeRegistre.replica, {
+    , element: Kable
+    , target: NodeRegistre) => {
+    t.false(target.ensured)
+    t.is(element.hostname, target.hostname)
+    t.is(element.id, target.id)
+    t.is(element.iid, target.iid)
+    t.is(element.index, target.index)
+    t.truthy(target.lastSeen)
+    t.is(element.pid, target.pid)
+    t.is(element.port, target.port)
+    t.true(Object.values(NODE_STATES).includes(target.state))
+    t.truthy(target.up.time)
+    t.deepEqual(target.replica, {
         is: false
     })
 }
 
 export const checkEmitterData = (
     t: ExecutionContext
-    , n: NodeEmitter
-    , node: Node
+    , target: NodeEmitter
+    , element: Partial<NodeEmitter>
     , opts: CheckEmitterOptions) => {
-    t.false(n.ensured)
-    t.is(n.event, opts.event)
-    t.truthy(n.host)
-    t.is(n.hostname, node.hostname)
-    t.is(n.id, opts.id)
-    t.is(n.iid, node.iid)
-    t.is(n.index, node.index)
-    t.is(n.pid, node.pid)
-    t.is(n.port, node.port)
-    t.deepEqual(n.replica, {
+    t.false(target.ensured)
+    t.is(target.event, opts.event)
+    t.truthy(target.host)
+    t.is(target.hostname, element.hostname)
+    t.is(target.id, opts.id)
+    t.is(target.iid, element.iid)
+    t.is(target.index, element.index)
+    t.is(target.pid, element.pid)
+    t.is(target.port, element.port)
+    t.deepEqual(target.replica, {
         is: false
     })
-    t.is(n.rinfo.address, ip.address())
-    t.is(n.rinfo.family, 'IPv4')
-    t.is(n.rinfo.port, opts.port)
-    t.true(typeof n.rinfo.size === 'number')
+    t.is(target.rinfo.address, ip.address())
+    t.is(target.rinfo.family, 'IPv4')
+    t.is(target.rinfo.port, opts.port)
+    t.true(typeof target.rinfo.size === 'number')
 }
 
 export const createNodeRegistre = (id: string
