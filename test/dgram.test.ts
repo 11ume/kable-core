@@ -117,8 +117,8 @@ test.serial('send dgram whit broadcast', async (t) => {
 
 test.serial('send dgram whit multicast', async (t) => {
     const barEd = createEventsDriver()
-    const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { broadcast: '239.255.255.250' } })
-    const bar = createDgramTransport({ eventsDriver: barEd, options: { broadcast: '239.255.255.250' } })
+    const foo = createDgramTransport({ eventsDriver: createEventsDriver(), options: { multicast: '239.255.255.250' } })
+    const bar = createDgramTransport({ eventsDriver: barEd, options: { multicast: '239.255.255.250' } })
     await foo.bind()
     await bar.bind()
 
