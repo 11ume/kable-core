@@ -59,12 +59,12 @@
     "ope-abort": "^0.0.2",
     "typescript": "^3.7.4",
     "uuid": "^3.3.3",
+    "ip": "^1.1.5",
     "clean-deep": "https://github.com/11ume/clean-deep.git"
   },
   "devDependencies": {
     "@types/ip": "^1.1.0",
     "ava": "2.4.0",
-    "ip": "^1.1.5",
     "nyc": "^15.0.0",
     "ts-node": "^8.6.2",
     "tslint": "^5.20.1"
