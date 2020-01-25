@@ -24,8 +24,7 @@
   },
   "nyc": {
     "exclude": [
-      "dist/*",
-      "test/utils/*"
+      "dist/*"
     ],
     "extension": [
       ".ts"
@@ -41,8 +40,7 @@
     "cache": true,
     "files": [
       "!dist",
-      "!dev",
-      "!test/utils/*"
+      "!dev"
     ],
     "extensions": [
       "ts"
