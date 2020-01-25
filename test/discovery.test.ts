@@ -5,7 +5,7 @@ import { createDiscovery } from '../lib/discovery'
 import { createRepository } from '../lib/repository'
 import { createTransport, TransportTypes } from '../lib/transport/transport'
 import { NodeRegistre, createNode } from './../lib/node'
-import { checkEmitterData } from './utils/helpers'
+import { checkEmitterData } from '../lib/utils/helpers'
 import {
     createEventsDriver
     , NodeEmitter

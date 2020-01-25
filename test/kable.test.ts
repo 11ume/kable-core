@@ -1,7 +1,7 @@
 import test from 'ava'
 import kable from '../lib/kable'
 import ERROR from '../lib/constants/error'
-import { checkPick, delay } from './utils/helpers'
+import { checkPick, delay } from '../lib/utils/helpers'
 import { NODE_STATES, nodeStates, NodeRegistre } from '../lib/node'
 
 test.serial('get a node', async (t) => {

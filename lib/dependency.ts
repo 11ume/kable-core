@@ -1,6 +1,6 @@
 import { NodeRegistre } from './node'
 import { Repository } from './repository'
-import { fnPatch, objIsFalsy } from './utils'
+import { fnPatch, objIsFalsy } from './utils/utils'
 
 export type DependencyManager = {
     add: (id: string) => void

@@ -1,6 +1,6 @@
 import * as os from 'os'
 import * as EVENTS from './constants/events'
-import { createUuid, craateStateMachine, genRandomNumber } from './utils'
+import { createUuid, craateStateMachine, genRandomNumber } from './utils/utils'
 import { pid } from './constants/core'
 
 export enum NODE_STATES {

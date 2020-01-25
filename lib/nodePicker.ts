@@ -1,7 +1,7 @@
 import { OperationAbort } from 'ope-abort'
 import ERROR from './constants/error'
 import { NodeRegistre } from './node'
-import { createError } from './utils'
+import { createError } from './utils/utils'
 import { Orchester } from './orchester'
 
 export type PickOptions = {

@@ -8,7 +8,7 @@ import {
     , arrIsNotEmpty
     , arrIfCheckExist
     , arrNumbSortAc
-} from './utils'
+} from './utils/utils'
 
 export type Orchester = {
     nodeWorkPool: NodeWorkPool

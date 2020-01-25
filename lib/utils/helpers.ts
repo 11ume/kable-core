@@ -1,16 +1,16 @@
 import ip from 'ip'
 import { ExecutionContext } from 'ava'
-import { pid } from '../../lib/constants/core'
-import { Kable } from './../../lib/kable'
-import { DISCOVERY } from './../../lib/constants/events'
-import { NodeEmitter } from '../../lib/eventsDriver'
-import { createUuid, genRandomNumber } from '../../lib/utils'
+import { pid } from '../constants/core'
+import { Kable } from '../kable'
+import { DISCOVERY } from '../constants/events'
+import { NodeEmitter } from '../eventsDriver'
+import { createUuid, genRandomNumber } from './utils'
 import {
     Node
     , NodeRegistre
     , NodeReplica
     , NODE_STATES
-} from '../../lib/node'
+} from '../node'
 
 type CheckEmitterOptions = {
     id: string

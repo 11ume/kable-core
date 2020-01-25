@@ -9,7 +9,7 @@ import { EventsDriver, createEventsDriver } from './eventsDriver'
 import { createRepository, Repository } from './repository'
 import { createOrchester, Orchester } from './orchester'
 import { createStore } from './store'
-import { getDateNow } from './utils'
+import { getDateNow } from './utils/utils'
 
 export type KableComposedOptions = NodeOptions
     & DiscoveryOptions

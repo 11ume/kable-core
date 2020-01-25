@@ -4,7 +4,7 @@ import { NodeRegistre } from './../lib/node'
 import { createStore } from '../lib/store'
 import { createOrchester } from '../lib/orchester'
 import { createRepository } from '../lib/repository'
-import { createNodeRegistre } from './utils/helpers'
+import { createNodeRegistre } from '../lib/utils/helpers'
 import { convertToReplicaId, NODE_STATES } from '../lib/node'
 
 const getNodeInStack = (index: number, { nodeWorkPool }: Orchester): boolean => {

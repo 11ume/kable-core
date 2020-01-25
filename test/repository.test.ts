@@ -2,7 +2,7 @@ import test from 'ava'
 import { createStore } from '../lib/store'
 import { NodeRegistre, NODE_STATES } from '../lib/node'
 import { createRepository } from '../lib/repository'
-import { createNodeRegistre } from './utils/helpers'
+import { createNodeRegistre } from '../lib/utils/helpers'
 
 test('add new registre', (t) => {
     const nodesStore = createStore<NodeRegistre>()

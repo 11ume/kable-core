@@ -1,7 +1,7 @@
 import ERROR from '../constants/error'
 import { EventsDriver } from '../eventsDriver'
 import { createDgramTransport, DgramTransportOptions } from './dgram'
-import { createError } from '../utils'
+import { createError } from '../utils/utils'
 
 export enum TransportTypes {
     DGRAM = 'dgram'

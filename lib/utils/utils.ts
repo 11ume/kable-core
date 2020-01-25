@@ -1,6 +1,6 @@
 import * as crypto from 'crypto'
 import uuid from 'uuid'
-import ERROR from './constants/error'
+import ERROR from '../constants/error'
 import { V4Options } from 'uuid/interfaces'
 
 type StateTable = {

@@ -1,2 +1,2 @@
-import { createUuid } from '../utils'
+import { createUuid } from '../utils/utils'
 export const pid = createUuid()
