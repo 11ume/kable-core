@@ -1,7 +1,7 @@
 import test from 'ava'
 import kable from '../lib/kable'
 import ERROR from '../lib/constants/error'
-import { checkPick } from './utils/helpers'
+import { checkPick, delay } from './utils/helpers'
 import { NODE_STATES, nodeStates, NodeRegistre } from '../lib/node'
 
 test.serial('get a node', async (t) => {
@@ -116,10 +116,9 @@ test.serial('state transition, check node registre on start', async (t) => {
     await bar.up(false)
     bar.start()
 
-    const check = (): Promise<NodeRegistre> => new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(foo.pick('bar'))
-        }, 2000)
+    const check = (): Promise<NodeRegistre> => new Promise(async (resolve) => {
+        await delay(1000)
+        resolve(foo.pick('bar'))
     })
 
     const pick = await check()
@@ -142,10 +141,9 @@ test.serial('state transition, check node registre on stop', async (t) => {
     const reason = 'any reason'
     bar.stop(reason)
 
-    const check = (): Promise<NodeRegistre> => new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(foo.pick('bar'))
-        }, 2000)
+    const check = (): Promise<NodeRegistre> => new Promise(async (resolve) => {
+        await delay(1000)
+        resolve(foo.pick('bar'))
     })
 
     const pick = await check()
@@ -169,10 +167,9 @@ test.serial('state transition, check node registre on doing', async (t) => {
     const reason = 'any reason'
     bar.doing(reason)
 
-    const check = (): Promise<NodeRegistre> => new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(foo.pick('bar'))
-        }, 2000)
+    const check = (): Promise<NodeRegistre> => new Promise(async (resolve) => {
+        await delay(1000)
+        resolve(foo.pick('bar'))
     })
 
     const pick = await check()
@@ -187,21 +184,3 @@ test.serial('state transition, check node registre on doing', async (t) => {
     foo.down()
     bar.down()
 })
-
-// test.serial('state transition, check node registre on down', async (t) => {
-//     const foo = kable('foo')
-//     const bar = kable('bar')
-//     await foo.up()
-//     await bar.up()
-//     bar.down()
-
-//     const pick = await foo.pick('bar')
-
-//     t.truthy(pick.up)
-//     t.truthy(pick.down.time)
-//     t.falsy(pick.doing)
-//     t.falsy(pick.stop)
-//     t.falsy(pick.start)
-
-//     foo.down()
-// })

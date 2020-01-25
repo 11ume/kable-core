@@ -189,7 +189,7 @@ const handleNodeRegistre = (eventsDriver: EventsDriver, nodesRepository: Reposit
     addNodeToRepository(eventsDriver, nodesRepository, manageDataToStoreInRegistre(payload))
 }
 
-const handleRecibe = (nodesRepository: Repository<NodeRegistre>
+const handleMessageRecibed = (nodesRepository: Repository<NodeRegistre>
     , eventsDriver: EventsDriver
     , payload: NodeEmitter) => {
     const event = payload.event
@@ -273,7 +273,6 @@ const send = (transport: Transport
         , state
     }
 
-    // clean here
     return transport.send<NodePacket>(data)
 }
 
@@ -291,7 +290,7 @@ const onRecibeMessage = (node: Node
 
         if (checkIgnores(node, ignoreProcess, ignoreInstance, newPayload)) return
         newPayload = resolvetHostResolutionAddress(newPayload)
-        handleRecibe(nodesRepository, eventsDriver, newPayload)
+        handleMessageRecibed(nodesRepository, eventsDriver, newPayload)
     }
 
 const sendNodeHello = (transport: Transport
