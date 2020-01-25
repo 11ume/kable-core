@@ -22,7 +22,7 @@ test.serial('get node whit delay', async (t) => {
     const bar = kable('bar')
 
     await foo.up()
-    setTimeout(bar.up, 2000)
+    delay(2000, bar.up)
     const pick = await foo.pick('bar')
     checkPick(t, bar, pick)
 
@@ -117,7 +117,7 @@ test.serial('state transition, check node registre on start', async (t) => {
     bar.start()
 
     const check = (): Promise<NodeRegistre> => new Promise(async (resolve) => {
-        await delay(1000)
+        await delay(200)
         resolve(foo.pick('bar'))
     })
 
@@ -143,7 +143,7 @@ test.serial('state transition, check node registre on stop', async (t) => {
     bar.stop(reason)
 
     const check = (): Promise<NodeRegistre> => new Promise(async (resolve) => {
-        await delay(1000)
+        await delay(200)
         resolve(foo.pick('bar'))
     })
 
@@ -170,7 +170,7 @@ test.serial('state transition, check node registre on doing', async (t) => {
     bar.doing(reason)
 
     const check = (): Promise<NodeRegistre> => new Promise(async (resolve) => {
-        await delay(1000)
+        await delay(200)
         resolve(foo.pick('bar'))
     })
 
