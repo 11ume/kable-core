@@ -44,8 +44,8 @@ export const checkPick = (
 
 export const checkEmitterData = (
     t: ExecutionContext
+    , element: Node
     , target: NodeEmitter
-    , element: Partial<NodeEmitter>
     , opts: CheckEmitterOptions) => {
     t.false(target.ensured)
     t.is(target.event, opts.event)

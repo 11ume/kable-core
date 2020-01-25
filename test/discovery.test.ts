@@ -56,7 +56,7 @@ test.serial('get node hello event', async (t) => {
     await discovery.start()
 
     const n = await check()
-    checkEmitterData(t, n, node, {
+    checkEmitterData(t, node, n, {
         id: 'foo'
         , port: 5000
         , event: DISCOVERY.HELLO
@@ -76,7 +76,7 @@ test.serial('get node advertisement event', async (t) => {
     await discovery.start()
 
     const n = await check()
-    checkEmitterData(t, n, node, {
+    checkEmitterData(t, node, n, {
         id: 'foo'
         , port: 5000
         , event: DISCOVERY.ADVERTISEMENT
@@ -99,7 +99,7 @@ test.serial('get node unregistre event', async (t) => {
     discovery.stop('down')
 
     const n = await check()
-    checkEmitterData(t, n, node, {
+    checkEmitterData(t, node, n, {
         id: 'foo'
         , port: 5000
         , event: DISCOVERY.UNREGISTRE
@@ -123,7 +123,7 @@ test.serial('check node hello event', async (t) => {
     await foo.discovery.start()
 
     const n = await check()
-    checkEmitterData(t, n, bar.node, {
+    checkEmitterData(t, bar.node, n, {
         id: 'bar'
         , port: 5000
         , event: DISCOVERY.HELLO
