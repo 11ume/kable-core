@@ -1,28 +1,32 @@
-// test.serial('pick: get a node', async (t) => {
-//     const foo = kable('foo')
-//     const bar = kable('bar')
+import test from 'ava'
+import kable from '../lib/kable'
+import { checkPick } from './utils/helpers'
 
-//     await foo.up()
-//     await bar.up()
-//     const pick = await foo.pick('bar')
-//     checkNodeRegistre(t, pick, bar)
+test.serial('get a node', async (t) => {
+    const foo = kable('foo')
+    const bar = kable('bar')
 
-//     foo.down()
-//     bar.down()
-// })
+    await foo.up()
+    await bar.up()
+    const pick = await foo.pick('bar')
+    checkPick(t, bar, pick)
 
-// test.serial('pick: get node whit delay', async (t) => {
-//     const foo = kable('foo')
-//     const bar = kable('bar')
+    foo.down()
+    bar.down()
+})
 
-//     await foo.up()
-//     setTimeout(bar.up, 2000)
-//     const pick = await foo.pick('bar')
-//     checkNodeRegistre(t, pick, bar)
+test.serial('get node whit delay', async (t) => {
+    const foo = kable('foo')
+    const bar = kable('bar')
 
-//     foo.down()
-//     bar.down()
-// })
+    await foo.up()
+    setTimeout(bar.up, 2000)
+    const pick = await foo.pick('bar')
+    checkPick(t, bar, pick)
+
+    foo.down()
+    bar.down()
+})
 
 // import test from 'ava'
 // import kable from 'kable-core'

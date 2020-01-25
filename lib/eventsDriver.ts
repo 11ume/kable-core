@@ -45,7 +45,7 @@ export type NodeUpdateDoingEmitter = {
 export type NodeRegistreAddEmitter = {
     payload: {
         time: number
-        , nodeRegistre: NodeRegistre
+        , nodeRegistre: Partial<NodeRegistre>
     }
 }
 

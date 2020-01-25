@@ -1,3 +1,4 @@
+import cleanDeep from 'clean-deep'
 import createIntervalHandler, { IntervalHandler } from 'interval-handler'
 import * as EVENTS from './constants/events'
 import * as EVENTS_TYPES from './constants/eventTypes'
@@ -65,8 +66,8 @@ const onDuplicatedIdError = (eventsDriver: EventsDriver, duplicatedId: Duplicate
 
 const addNodeToRepository = (eventsDriver: EventsDriver
     , nodesRepository: Repository<NodeRegistre>
-    , nodeRegistre: NodeRegistre) => {
-    nodesRepository.add(nodeRegistre.index, nodeRegistre)
+    , nodeRegistre: Partial<NodeRegistre>) => {
+    nodesRepository.add(nodeRegistre.index, (nodeRegistre as NodeRegistre))
     eventsDriver.emit(EVENTS.NODE_REGISTRE.ADD, {
         payload: {
             time: getDateNow()
@@ -159,7 +160,7 @@ const manageDataToStoreInRegistre = ({
     , stop = null
     , start = null
     , doing = null
-    , state }: NodeEmitter): NodeRegistre => {
+    , state }: NodeEmitter): Partial<NodeRegistre> => {
     const lastSeen = getDateNow()
     const data = {
         id
@@ -180,8 +181,8 @@ const manageDataToStoreInRegistre = ({
         , state
         , lastSeen
     }
-    // clean here
-    return data
+
+    return cleanDeep(data)
 }
 
 const handleNodeRegistre = (eventsDriver: EventsDriver, nodesRepository: Repository<NodeRegistre>, payload: NodeEmitter) => {
@@ -276,7 +277,7 @@ const send = (transport: Transport
     return transport.send<NodePacket>(data)
 }
 
-const recibe = (node: Node
+const onRecibeMessage = (node: Node
     , ignoreProcess: boolean
     , ignoreInstance: boolean
     , nodesRepository: Repository<NodeRegistre>
@@ -457,7 +458,7 @@ const Discovery = ({
     const ihNodeTimeout = createIntervalHandler(nodeTimeout, () => checkNodesTimeout(eventsDriver, nodesRepository, nodeTimeout))
     const ihAdvertisamentTime = createIntervalHandler(initAdvertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleState(node)))
 
-    eventsDriver.on(EVENTS.TRANSPORT.MESSAGE, recibe(node, initIgnoreProcess, initIgnoreInstance, nodesRepository, eventsDriver))
+    eventsDriver.on(EVENTS.TRANSPORT.MESSAGE, onRecibeMessage(node, initIgnoreProcess, initIgnoreInstance, nodesRepository, eventsDriver))
     eventsDriver.on(EVENTS.NODE.UPDATE, () => sendNodeUpdate(transport, node, eventsDriver, handleState(node)))
 
     return {
