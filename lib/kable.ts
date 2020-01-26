@@ -334,7 +334,9 @@ export const KableCore = (implementables: Implementables): Kable => {
             , eventsDriver
             , detachHandleShutdown
         })
-        , pick: nodePicker.pick
+        , pick: (id: string, options?: PickOptions) => {
+            return nodePicker.pick(id, options)
+        }
         , get id() {
             return node.id
         }
