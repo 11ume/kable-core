@@ -1,8 +1,8 @@
 import ip from 'ip'
+import * as EVENTS from '../constants/events'
 import { ExecutionContext } from 'ava'
 import { pid } from '../constants/core'
 import { Kable } from '../kable'
-import { DISCOVERY } from '../constants/events'
 import { NodeEmitter } from '../eventsDriver'
 import { createUuid, genRandomNumber } from './utils'
 import {
@@ -15,7 +15,7 @@ import {
 type CheckEmitterOptions = {
     id: string
     , port: number
-    , event: DISCOVERY
+    , event: EVENTS.DISCOVERY
 }
 
 export const delay = (time: number, fn?: (...args: any[]) => any) => new Promise((r) => setTimeout(() => {
