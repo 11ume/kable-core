@@ -8,6 +8,7 @@ import { NodePickerOptions, PickOptions, createNodePicker, NodePicker } from './
 import { EventsDriver, createEventsDriver } from './eventsDriver'
 import { createRepository, Repository } from './repository'
 import { createOrchester, Orchester } from './orchester'
+import { createSuscriber, Suscriber } from './suscriber'
 import { createStore } from './store'
 import { getDateNow } from './utils/utils'
 
@@ -224,6 +225,7 @@ const downAbrupt = (
 
 export type Implementables = {
     node: Node
+    , suscriber: Suscriber
     , discovery: Discovery
     , orchester: Orchester
     , transport: Transport
@@ -291,11 +293,13 @@ export const implementations = (options: KableComposedOptions): Implementables =
         }
     })
 
+    const suscriber = createSuscriber()
     // datach events of main process, to prevent overload of events emitter
     const detachHandleShutdown = handleShutdown(downAbrupt(node, discovery, transport, eventsDriver))
 
     return {
         node
+        , suscriber
         , discovery
         , orchester
         , transport
@@ -310,12 +314,21 @@ export const implementations = (options: KableComposedOptions): Implementables =
 export const KableCore = (implementables: Implementables): Kable => {
     const {
         node
+        , suscriber
         , transport
         , discovery
         , nodePicker
         , eventsDriver
         , detachHandleShutdown
     } = implementables
+
+    eventsDriver.on(EVENTS.NODE.EXTERNAL_UPDATE, (payload) => {
+        suscriber.fire(payload)
+    })
+
+    eventsDriver.on(EVENTS.SYSTEM.UP, (payload) => {
+        suscriber.fire(payload)
+    })
 
     return {
         start: start(node, eventsDriver)

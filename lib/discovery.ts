@@ -189,13 +189,18 @@ const handleNodeRegistre = (eventsDriver: EventsDriver, nodesRepository: Reposit
     addNodeToRepository(eventsDriver, nodesRepository, manageDataToStoreInRegistre(payload))
 }
 
+const handleNodeUpdate = (eventsDriver: EventsDriver, nodesRepository: Repository<NodeRegistre>, payload: NodeEmitter) => {
+    handleNodeRegistre(eventsDriver, nodesRepository, payload)
+    eventsDriver.emit(EVENTS.NODE.EXTERNAL_UPDATE, payload)
+}
+
 const handleMessageRecibed = (nodesRepository: Repository<NodeRegistre>
     , eventsDriver: EventsDriver
     , payload: NodeEmitter) => {
     const event = payload.event
     const events = {
         [EVENTS.DISCOVERY.HELLO]: () => handleNodeRegistre(eventsDriver, nodesRepository, payload)
-        , [EVENTS.DISCOVERY.UPDATE]: () => handleNodeRegistre(eventsDriver, nodesRepository, payload)
+        , [EVENTS.DISCOVERY.UPDATE]: () => handleNodeUpdate(eventsDriver, nodesRepository, payload)
         , [EVENTS.DISCOVERY.UNREGISTRE]: () => handleNodeUnregistre(eventsDriver, nodesRepository, payload)
         , [EVENTS.DISCOVERY.ADVERTISEMENT]: () => handleNodeRegistre(eventsDriver, nodesRepository, payload)
     }
