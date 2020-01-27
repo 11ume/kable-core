@@ -20,7 +20,7 @@ export enum TRANSPORT {
 
 export enum NODE {
     UPDATE = 'node_update'
-    , EXTERNAL_UPDATE = 'external_update'
+    , EXTERNAL_ACTION = 'external_action'
 }
 
 export enum NODE_REGISTRE {

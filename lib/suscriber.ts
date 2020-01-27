@@ -3,10 +3,10 @@ import { NodeEmitter } from './eventsDriver'
 export type Suscriber = {
     suscribe: (nodeId: string, fn: SuscriberFn) => void
     , unsubscribe: (fn: SuscriberFn) => void
-    , fire: (payload: Partial<NodeEmitter>) => void
+    , fire: (payload: NodeEmitter) => void
 }
 
-export type SuscriberFn = (payload: Partial<NodeEmitter>) => void
+export type SuscriberFn = (payload: NodeEmitter) => void
 
 type SuscriberPayload = {
     fn: SuscriberFn
@@ -15,17 +15,18 @@ type SuscriberPayload = {
 
 type Suscribers = Map<SuscriberFn, SuscriberPayload>
 
-const fire = (sucribers: Suscribers) => (payload: Partial<NodeEmitter>) => {
+const fire = (sucribers: Suscribers) => (payload: NodeEmitter) => {
     sucribers.forEach((suscriber) => {
-        if (suscriber.nodeId === payload.id) {
-            suscriber.fn(payload)
-        }
+        if (suscriber.nodeId !== payload.id) return
+        suscriber.fn(payload)
     })
 }
 
-const suscribe = (sucribers: Suscribers) => (nodeId: string, fn: SuscriberFn) => sucribers.set(fn, { fn, nodeId })
-
 const unsubscribe = (sucribers: Suscribers) => (fn: SuscriberFn) => sucribers.delete(fn)
+
+const suscribe = (sucribers: Suscribers) => (nodeId: string, fn: SuscriberFn) => {
+    sucribers.set(fn, { fn, nodeId })
+}
 
 const Suscriber = (): Suscriber => {
     const sucribers: Suscribers = new Map()

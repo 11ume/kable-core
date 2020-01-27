@@ -86,7 +86,6 @@ export type ErrorDuplicatedNodeEmitter = {
 }
 
 export type NodeUpdateEmitter = NodeUpdateStartEmitter | NodeUpdateStopEmitter | NodeUpdateDoingEmitter
-export type NodeExternalUpdateEmitter = NodeEmitter
 export type ErrorEmitter = ErrorDefaultEmitter | ErrorDuplicatedNodeEmitter
 
 type ErrorDefaultEmitter = {
@@ -107,7 +106,7 @@ type NodeExternalUpdateEmitterFn = (payload: NodeEmitter) => void
 export interface EventsDriver extends EventEmitter {
     on(event: EVENTS.DISCOVERY, fn: NodeEmitterFn): this
     on(event: EVENTS.NODE.UPDATE, fn: NodeUpdateEmitterFn): this
-    on(event: EVENTS.NODE.EXTERNAL_UPDATE, fn: NodeExternalUpdateEmitterFn): this
+    on(event: EVENTS.NODE.EXTERNAL_ACTION, fn: NodeExternalUpdateEmitterFn): this
     on(event: EVENTS.TRANSPORT.MESSAGE, fn: NodeEmitterFn): this
     on(event: EVENTS.UNIVERSAL.ERROR, fn: ErrorEmitterFn): this
     on(event: EVENTS.NODE_REGISTRE.ADD, fn: NodeRegistreAddEmitterFn): this
@@ -124,7 +123,7 @@ export interface EventsDriver extends EventEmitter {
     emit(event: EVENTS.NODE_REGISTRE.ADD, payload: NodeRegistreAddEmitter): boolean
     emit(event: EVENTS.NODE_REGISTRE.REMOVE, payload: NodeRegistreRemoveEmitter): boolean
     emit(event: EVENTS.NODE.UPDATE, payload: NodeUpdateEmitter): boolean
-    emit(event: EVENTS.NODE.EXTERNAL_UPDATE, payload: NodeExternalUpdateEmitter): boolean
+    emit(event: EVENTS.NODE.EXTERNAL_ACTION, payload: NodeEmitter): boolean
     emit(event: EVENTS.TRANSPORT.MESSAGE, payload: NodeEmitter): boolean
 }
 

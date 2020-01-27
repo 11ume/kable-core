@@ -57,7 +57,10 @@ export type Kable = {
      * This method can be aborted.
      */
     pick(id: string, options?: PickOptions): Promise<NodeRegistre>
+    /** start to listen node state changes */
     suscribe(id: string, fn: SuscriberFn): void
+    /** Stop listen node state changes */
+    unsubscribe(fn: SuscriberFn): void
 }
 
 type FnShutdown = (signal: string, code?: number) => Promise<void>
@@ -323,7 +326,7 @@ export const KableCore = (implementables: Implementables): Kable => {
         , detachHandleShutdown
     } = implementables
 
-    eventsDriver.on(EVENTS.NODE.EXTERNAL_UPDATE, (payload) => {
+    eventsDriver.on(EVENTS.NODE.EXTERNAL_ACTION, (payload) => {
         suscriber.fire(payload)
     })
 
@@ -344,11 +347,14 @@ export const KableCore = (implementables: Implementables): Kable => {
             , eventsDriver
             , detachHandleShutdown
         })
+        , pick: (id: string, options?: PickOptions) => {
+            return nodePicker.pick(id, options)
+        }
         , suscribe: (id: string, fn: SuscriberFn) => {
             return suscriber.suscribe(id, fn)
         }
-        , pick: (id: string, options?: PickOptions) => {
-            return nodePicker.pick(id, options)
+        , unsubscribe: (fn: SuscriberFn) => {
+            return suscriber.unsubscribe(fn)
         }
         , get id() {
             return node.id
