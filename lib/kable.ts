@@ -57,7 +57,7 @@ export type Kable = {
      * This method can be aborted.
      */
     pick(id: string, options?: PickOptions): Promise<NodeRegistre>
-    /** start to listen node state changes */
+    /** Start to listen node state changes */
     suscribe(id: string, fn: SuscriberFn): void
     /** Stop listen node state changes */
     unsubscribe(fn: SuscriberFn): void
