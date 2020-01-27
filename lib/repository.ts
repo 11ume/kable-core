@@ -1,6 +1,6 @@
-export type RepositoryRegistre<T extends Registre> = Map<number, T>
+type RepositoryRegistre<T extends Registre> = Map<number, T>
 
-export type Registre = {
+type Registre = {
     id: string
 }
 

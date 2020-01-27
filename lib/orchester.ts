@@ -18,11 +18,11 @@ export type Orchester = {
     , removeNodeAwaiter: (unique: symbol) => void
 }
 
-export type NodeStack = {
+type NodeStack = {
     [x: string]: Sequencer
 }
 
-export type Sequencer = {
+type Sequencer = {
     queue: number[]
     , next?: () => number
 }

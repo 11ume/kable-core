@@ -18,10 +18,6 @@ export type KableComposedOptions = NodeOptions
     & TransportOptionsCompose
     & DependencyManagerOptions
 
-export type KableOptions = {
-    run?: boolean
-}
-
 export type Kable = {
     /** Node id, must be unique by network */
     id: string
@@ -386,7 +382,7 @@ export const KableCore = (implementables: Implementables): Kable => {
     }
 }
 
-export const createKable = (id?: string, options?: KableComposedOptions) => {
+const createKable = (id?: string, options?: KableComposedOptions) => {
     const opts = {
         id
         , ...options

@@ -12,13 +12,13 @@ export type DependencyManagerOptions = {
     depedencies?: string | string[]
 }
 
-export type DependencyManagerArgs = {
-    nodesRepository: Repository<NodeRegistre>
-    , options: DependencyManagerOptions
+type NodeDependency = {
+    satisfied: boolean
 }
 
-export type NodeDependency = {
-    satisfied: boolean
+type DependencyManagerArgs = {
+    nodesRepository: Repository<NodeRegistre>
+    , options: DependencyManagerOptions
 }
 
 type DepedencyStack = Map<string, NodeDependency>

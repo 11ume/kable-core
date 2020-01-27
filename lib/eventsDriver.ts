@@ -10,23 +10,23 @@ import {
     , NODE_UNREGISTRE_REASON
 } from './node'
 
-export type DRIVER_EVENTS = EVENTS_TYPES.ERROR_TYPES
+type DRIVER_EVENTS = EVENTS_TYPES.ERROR_TYPES
     | EVENTS.NODE.UPDATE
     | EVENTS.NODE_REGISTRE
     | EVENTS.DISCOVERY
     | EVENTS.TRANSPORT
     | EVENTS.UNIVERSAL
 
-export type DRIVER_FN = ErrorEmitterFn | NodeEmitterFn | NodeUpdateEmitterFn
+type DRIVER_FN = ErrorEmitterFn | NodeEmitterFn | NodeUpdateEmitterFn
 
-export type NodeUpdateStartEmitter = {
+type NodeUpdateStartEmitter = {
     type?: EVENTS_TYPES.NODE_UPDATE_TYPES.START
     , payload: {
         time: number
     }
 }
 
-export type NodeUpdateStopEmitter = {
+type NodeUpdateStopEmitter = {
     type?: EVENTS_TYPES.NODE_UPDATE_TYPES.STOP
     , payload: {
         time: number
@@ -34,7 +34,7 @@ export type NodeUpdateStopEmitter = {
     }
 }
 
-export type NodeUpdateDoingEmitter = {
+type NodeUpdateDoingEmitter = {
     type?: EVENTS_TYPES.NODE_UPDATE_TYPES.DOING
     , payload: {
         time: number
@@ -57,13 +57,13 @@ export type NodeRegistreRemoveEmitter = {
     }
 }
 
-export type UpEmitter = {
+type UpEmitter = {
     payload: {
         time: number
     }
 }
 
-export type DownEmitter = {
+type DownEmitter = {
     payload: {
         time: number
         , signal?: string
@@ -78,15 +78,15 @@ export interface NodeEmitter extends NodeBase {
     , meta?: NodeMetadata
 }
 
-export type ErrorDuplicatedNodeEmitter = {
+type ErrorDuplicatedNodeEmitter = {
     type?: EVENTS_TYPES.CUSTOM_ERROR_TYPE.DUPLICATE_NODE_ID
     , err?: Error
     , message?: string
     , payload?: DuplicatedNodePayload
 }
 
-export type NodeUpdateEmitter = NodeUpdateStartEmitter | NodeUpdateStopEmitter | NodeUpdateDoingEmitter
-export type ErrorEmitter = ErrorDefaultEmitter | ErrorDuplicatedNodeEmitter
+type NodeUpdateEmitter = NodeUpdateStartEmitter | NodeUpdateStopEmitter | NodeUpdateDoingEmitter
+type ErrorEmitter = ErrorDefaultEmitter | ErrorDuplicatedNodeEmitter
 
 type ErrorDefaultEmitter = {
     type?: EVENTS_TYPES.ERROR_TYPES

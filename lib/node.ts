@@ -117,8 +117,8 @@ type NodeStates = {
     , doing: NodeDoing
 }
 
+const handleId = (initReplica: Replica, initId: string) => initReplica.is ? convertToReplicaId(initId) : initId
 export const convertToReplicaId = (id: string) => `${id}:${createUuid()}`
-export const handleId = (initReplica: Replica, initId: string) => initReplica.is ? convertToReplicaId(initId) : initId
 export const nodeStates = {
     [NODE_STATES.UP]: [NODE_STATES.RUNNING, NODE_STATES.DOING_SOMETHING, NODE_STATES.STOPPED, NODE_STATES.DOWN]
     , [NODE_STATES.DOWN]: [NODE_STATES.UP]

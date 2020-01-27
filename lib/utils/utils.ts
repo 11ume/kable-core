@@ -7,7 +7,6 @@ type StateTable = {
     [key: string]: string[]
 }
 
-export const isDev = (mode: string) => mode === 'development'
 export const objIsFalsy = <T>(obj: T) => !(typeof obj !== 'undefined' && obj !== null)
 export const arrIsEmpty = <T>(arr: T[]) => arr.length === 0
 export const arrIsNotEmpty = <T>(arr: T[]) => arr.length > 1
