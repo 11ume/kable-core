@@ -233,7 +233,6 @@ export type Implementables = {
     , eventsDriver: EventsDriver
     , nodesRepository: Repository<NodeRegistre>
     , dependencyManager: DependencyManager
-    , detachHandleShutdown: () => void
 }
 
 export const implementations = (options: KableComposedOptions): Implementables => {
@@ -295,8 +294,6 @@ export const implementations = (options: KableComposedOptions): Implementables =
 
     const suscriber = createSuscriber()
 
-    const detachHandleShutdown = handleShutdown(downAbrupt(node, discovery, transport, eventsDriver))
-
     return {
         node
         , suscriber
@@ -307,7 +304,6 @@ export const implementations = (options: KableComposedOptions): Implementables =
         , eventsDriver
         , nodesRepository
         , dependencyManager
-        , detachHandleShutdown
     }
 }
 
@@ -319,8 +315,9 @@ export const KableCore = (implementables: Implementables): Kable => {
         , discovery
         , nodePicker
         , eventsDriver
-        , detachHandleShutdown
     } = implementables
+
+    const detachHandleShutdown = handleShutdown(downAbrupt(node, discovery, transport, eventsDriver))
 
     eventsDriver.on(EVENTS.NODE.EXTERNAL_ACTION, (payload) => {
         suscriber.fire(payload)
