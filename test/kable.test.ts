@@ -331,3 +331,22 @@ test.serial('suscribe to node doing', async (t) => {
     foo.down()
     bar.down()
 })
+
+test.serial('unsuscribe to node', async (t) => {
+    const foo = kable('foo')
+    const bar = kable('bar')
+    await foo.up()
+    await bar.up()
+
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        foo.suscribe('bar', resolve)
+        foo.unsubscribe(resolve)
+        setTimeout(resolve, 2000)
+    })
+
+    const n = await check()
+    t.falsy(n)
+
+    foo.down()
+    bar.down()
+})
