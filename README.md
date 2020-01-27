@@ -9,6 +9,6 @@
 <br>
 <br>
 
-**Kable core** — Core of kable system [kable](https://github.com/11ume/kable)
+**Kable core** — Contains the main logic of **[kable](https://github.com/11ume/kable)** system 
 
 **This project is under developement 🔥**
