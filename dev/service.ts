@@ -1,22 +1,25 @@
 import { NodeEmitter } from './../lib/eventsDriver'
-import { delay } from './../lib/utils/utils'
 import kable from '../lib/kable'
 
-const foo = kable('foo')
-const bar = kable('bar')
-
-foo.up(false)
-bar.up(false)
-
-const log = (msg: NodeEmitter) => console.log(msg)
-foo.suscribe('bar', log)
-
 const main = async () => {
-    await delay(1000)
-    bar.start()
-    await delay(1000)
-    bar.stop()
-    await delay(1000)
+    const foo = kable('foo')
+    const bar = kable('bar')
+    await foo.up()
+    await bar.up(false)
+
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        foo.suscribe('bar', (payload) => {
+            if (payload.start) {
+                resolve(payload)
+            }
+        })
+
+        bar.start()
+    })
+
+    const n = await check()
+    console.log(n)
+    foo.down()
     bar.down()
 }
 
