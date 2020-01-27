@@ -8,7 +8,7 @@ import { NodePickerOptions, PickOptions, createNodePicker, NodePicker } from './
 import { EventsDriver, createEventsDriver } from './eventsDriver'
 import { createRepository, Repository } from './repository'
 import { createOrchester, Orchester } from './orchester'
-import { createSuscriber, Suscriber } from './suscriber'
+import { createSuscriber, Suscriber, SuscriberFn } from './suscriber'
 import { createStore } from './store'
 import { getDateNow } from './utils/utils'
 
@@ -57,6 +57,7 @@ export type Kable = {
      * This method can be aborted.
      */
     pick(id: string, options?: PickOptions): Promise<NodeRegistre>
+    suscribe(id: string, fn: SuscriberFn): void
 }
 
 type FnShutdown = (signal: string, code?: number) => Promise<void>
@@ -326,10 +327,6 @@ export const KableCore = (implementables: Implementables): Kable => {
         suscriber.fire(payload)
     })
 
-    eventsDriver.on(EVENTS.SYSTEM.UP, (payload) => {
-        suscriber.fire(payload)
-    })
-
     return {
         start: start(node, eventsDriver)
         , stop: stop(node, eventsDriver)
@@ -347,6 +344,9 @@ export const KableCore = (implementables: Implementables): Kable => {
             , eventsDriver
             , detachHandleShutdown
         })
+        , suscribe: (id: string, fn: SuscriberFn) => {
+            return suscriber.suscribe(id, fn)
+        }
         , pick: (id: string, options?: PickOptions) => {
             return nodePicker.pick(id, options)
         }
