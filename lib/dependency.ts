@@ -12,7 +12,7 @@ export type DependencyManagerOptions = {
     depedencies?: string | string[]
 }
 
-type NodeDependency = {
+export type NodeDependency = {
     satisfied: boolean
 }
 
