@@ -185,7 +185,7 @@ type DownArgs = {
     , transport: Transport
     , discovery: Discovery
     , eventsDriver: EventsDriver
-    , detachHandleShutdown: () => void
+    , detachHandleShutdown: () => void  // datach events of main process, to prevent overload of events emitter
 }
 
 const down = ({
@@ -298,7 +298,7 @@ export const implementations = (options: KableComposedOptions): Implementables =
     })
 
     const suscriber = createSuscriber()
-    // datach events of main process, to prevent overload of events emitter
+
     const detachHandleShutdown = handleShutdown(downAbrupt(node, discovery, transport, eventsDriver))
 
     return {
