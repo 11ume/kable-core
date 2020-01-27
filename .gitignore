@@ -6,3 +6,4 @@
 /.vscode
 postinstall.js
 yarn-error.log
+/dev

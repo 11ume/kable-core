@@ -8,6 +8,7 @@ import { NodePickerOptions, PickOptions, createNodePicker, NodePicker } from './
 import { EventsDriver, createEventsDriver } from './eventsDriver'
 import { createRepository, Repository } from './repository'
 import { createOrchester, Orchester } from './orchester'
+import { createSuscriber, Suscriber, SuscriberFn } from './suscriber'
 import { createStore } from './store'
 import { getDateNow } from './utils/utils'
 
@@ -56,6 +57,10 @@ export type Kable = {
      * This method can be aborted.
      */
     pick(id: string, options?: PickOptions): Promise<NodeRegistre>
+    /** start to listen node state changes */
+    suscribe(id: string, fn: SuscriberFn): void
+    /** Stop listen node state changes */
+    unsubscribe(fn: SuscriberFn): void
 }
 
 type FnShutdown = (signal: string, code?: number) => Promise<void>
@@ -180,7 +185,7 @@ type DownArgs = {
     , transport: Transport
     , discovery: Discovery
     , eventsDriver: EventsDriver
-    , detachHandleShutdown: () => void
+    , detachHandleShutdown: () => void  // datach events of main process, to prevent overload of events emitter
 }
 
 const down = ({
@@ -224,6 +229,7 @@ const downAbrupt = (
 
 export type Implementables = {
     node: Node
+    , suscriber: Suscriber
     , discovery: Discovery
     , orchester: Orchester
     , transport: Transport
@@ -291,11 +297,13 @@ export const implementations = (options: KableComposedOptions): Implementables =
         }
     })
 
-    // datach events of main process, to prevent overload of events emitter
+    const suscriber = createSuscriber()
+
     const detachHandleShutdown = handleShutdown(downAbrupt(node, discovery, transport, eventsDriver))
 
     return {
         node
+        , suscriber
         , discovery
         , orchester
         , transport
@@ -310,12 +318,17 @@ export const implementations = (options: KableComposedOptions): Implementables =
 export const KableCore = (implementables: Implementables): Kable => {
     const {
         node
+        , suscriber
         , transport
         , discovery
         , nodePicker
         , eventsDriver
         , detachHandleShutdown
     } = implementables
+
+    eventsDriver.on(EVENTS.NODE.EXTERNAL_ACTION, (payload) => {
+        suscriber.fire(payload)
+    })
 
     return {
         start: start(node, eventsDriver)
@@ -336,6 +349,12 @@ export const KableCore = (implementables: Implementables): Kable => {
         })
         , pick: (id: string, options?: PickOptions) => {
             return nodePicker.pick(id, options)
+        }
+        , suscribe: (id: string, fn: SuscriberFn) => {
+            return suscriber.suscribe(id, fn)
+        }
+        , unsubscribe: (fn: SuscriberFn) => {
+            return suscriber.unsubscribe(fn)
         }
         , get id() {
             return node.id

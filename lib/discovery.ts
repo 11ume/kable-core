@@ -102,48 +102,6 @@ const checkNodesTimeout = (eventsDriver: EventsDriver, nodesRepository: Reposito
     }
 }
 
-const handleNodeUnregistre = (
-    eventsDriver: EventsDriver
-    , nodesRepository: Repository<NodeRegistre>, {
-        id
-        , port
-        , host
-        , pid
-        , iid
-        , index
-        , meta
-        , replica
-        , hostname
-        , ensured
-        , up
-        , down
-        , stop
-        , state
-    }: NodeEmitter) => {
-    const nodeRegistre = {
-        id
-        , port
-        , host
-        , pid
-        , iid
-        , meta
-        , index
-        , replica
-        , hostname
-        , ensured
-        , up
-        , down
-        , stop
-        , state
-        , lastSeen: null
-    }
-
-    removeNodeFromRepository(eventsDriver
-        , nodesRepository
-        , nodeRegistre
-        , NODE_UNREGISTRE_REASON.TERMINATION)
-}
-
 const manageDataToStoreInRegistre = ({
     id
     , port
@@ -185,19 +143,80 @@ const manageDataToStoreInRegistre = ({
     return cleanDeep(data)
 }
 
-const handleNodeRegistre = (eventsDriver: EventsDriver, nodesRepository: Repository<NodeRegistre>, payload: NodeEmitter) => {
+const handleNodeUnregistre = (eventsDriver: EventsDriver
+    , nodesRepository: Repository<NodeRegistre>
+    , payload: NodeEmitter) => {
+    const {
+        id
+        , port
+        , host
+        , pid
+        , iid
+        , index
+        , meta
+        , replica
+        , hostname
+        , ensured
+        , up
+        , down
+        , stop
+        , state
+    } = payload
+
+    const nodeRegistre = {
+        id
+        , port
+        , host
+        , pid
+        , iid
+        , meta
+        , index
+        , replica
+        , hostname
+        , ensured
+        , up
+        , down
+        , stop
+        , state
+        , lastSeen: null
+    }
+
+    eventsDriver.emit(EVENTS.NODE.EXTERNAL_ACTION, payload)
+    removeNodeFromRepository(eventsDriver
+        , nodesRepository
+        , nodeRegistre
+        , NODE_UNREGISTRE_REASON.TERMINATION)
+}
+
+const handleNodeHello = (eventsDriver: EventsDriver
+    , nodesRepository: Repository<NodeRegistre>
+    , payload: NodeEmitter) => {
+    eventsDriver.emit(EVENTS.NODE.EXTERNAL_ACTION, payload)
     addNodeToRepository(eventsDriver, nodesRepository, manageDataToStoreInRegistre(payload))
 }
 
-const handleMessageRecibed = (nodesRepository: Repository<NodeRegistre>
+const handleNodeUpdate = (eventsDriver: EventsDriver
+    , nodesRepository: Repository<NodeRegistre>
+    , payload: NodeEmitter) => {
+    eventsDriver.emit(EVENTS.NODE.EXTERNAL_ACTION, payload)
+    addNodeToRepository(eventsDriver, nodesRepository, manageDataToStoreInRegistre(payload))
+}
+
+const handleNodeAdvertisement = (eventsDriver: EventsDriver
+    , nodesRepository: Repository<NodeRegistre>
+    , payload: NodeEmitter) => {
+    addNodeToRepository(eventsDriver, nodesRepository, manageDataToStoreInRegistre(payload))
+}
+
+const handleRecibedMessage = (nodesRepository: Repository<NodeRegistre>
     , eventsDriver: EventsDriver
     , payload: NodeEmitter) => {
     const event = payload.event
     const events = {
-        [EVENTS.DISCOVERY.HELLO]: () => handleNodeRegistre(eventsDriver, nodesRepository, payload)
-        , [EVENTS.DISCOVERY.UPDATE]: () => handleNodeRegistre(eventsDriver, nodesRepository, payload)
+        [EVENTS.DISCOVERY.HELLO]: () => handleNodeHello(eventsDriver, nodesRepository, payload)
+        , [EVENTS.DISCOVERY.UPDATE]: () => handleNodeUpdate(eventsDriver, nodesRepository, payload)
         , [EVENTS.DISCOVERY.UNREGISTRE]: () => handleNodeUnregistre(eventsDriver, nodesRepository, payload)
-        , [EVENTS.DISCOVERY.ADVERTISEMENT]: () => handleNodeRegistre(eventsDriver, nodesRepository, payload)
+        , [EVENTS.DISCOVERY.ADVERTISEMENT]: () => handleNodeAdvertisement(eventsDriver, nodesRepository, payload)
     }
 
     if (event in events) {
@@ -290,7 +309,7 @@ const onRecibeMessage = (node: Node
 
         if (checkIgnores(node, ignoreProcess, ignoreInstance, newPayload)) return
         newPayload = resolvetHostResolutionAddress(newPayload)
-        handleMessageRecibed(nodesRepository, eventsDriver, newPayload)
+        handleRecibedMessage(nodesRepository, eventsDriver, newPayload)
     }
 
 const sendNodeHello = (transport: Transport

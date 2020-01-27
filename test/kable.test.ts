@@ -2,8 +2,10 @@ import test from 'ava'
 import oa from 'ope-abort'
 import kable from '../lib/kable'
 import ERROR from '../lib/constants/error'
-import { checkPick, delay } from '../lib/utils/helpers'
+import { checkPick } from '../lib/utils/helpers'
+import { delay } from '../lib/utils/utils'
 import { NODE_STATES, nodeStates, NodeRegistre } from '../lib/node'
+import { NodeEmitter } from '../lib/eventsDriver'
 
 test.serial('get a node', async (t) => {
     const foo = kable('foo')
@@ -213,6 +215,137 @@ test.serial('create send and recibe node whit metadata', async (t) => {
 
     const pick = await check()
     t.deepEqual(pick.meta, { id: 'foo', description: 'im foo' })
+
+    foo.down()
+    bar.down()
+})
+
+test.serial('suscribe to node up', async (t) => {
+    const foo = kable('foo')
+    const bar = kable('bar')
+    await foo.up()
+
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        foo.suscribe('bar', (payload) => {
+            if (payload.up) {
+                resolve(payload)
+            }
+        })
+
+        bar.up()
+    })
+
+    const n = await check()
+    t.truthy(n.up.time)
+
+    foo.down()
+    bar.down()
+})
+
+test.serial('suscribe to node down', async (t) => {
+    const foo = kable('foo')
+    const bar = kable('bar')
+    await foo.up()
+    await bar.up(false)
+
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        foo.suscribe('bar', (payload) => {
+            if (payload.down) {
+                resolve(payload)
+            }
+        })
+        bar.down()
+    })
+
+    const n = await check()
+    t.truthy(n.down.time)
+
+    foo.down()
+})
+
+test.serial('suscribe and call node start', async (t) => {
+    const foo = kable('foo')
+    const bar = kable('bar')
+    await foo.up()
+    await bar.up(false)
+
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        foo.suscribe('bar', (payload) => {
+            if (payload.start) {
+                resolve(payload)
+            }
+        })
+
+        bar.start()
+    })
+
+    const n = await check()
+    t.truthy(n.start.time)
+
+    foo.down()
+    bar.down()
+})
+
+test.serial('suscribe and call node stop', async (t) => {
+    const foo = kable('foo')
+    const bar = kable('bar')
+    await foo.up()
+    await bar.up(false)
+
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        foo.suscribe('bar', (payload) => {
+            if (payload.stop) {
+                resolve(payload)
+            }
+        })
+
+        bar.stop()
+    })
+
+    const n = await check()
+    t.truthy(n.stop.time)
+
+    foo.down()
+    bar.down()
+})
+
+test.serial('suscribe to node doing', async (t) => {
+    const foo = kable('foo')
+    const bar = kable('bar')
+    await foo.up()
+    await bar.up(false)
+
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        foo.suscribe('bar', (payload) => {
+            if (payload.doing) {
+                resolve(payload)
+            }
+        })
+
+        bar.doing()
+    })
+
+    const n = await check()
+    t.truthy(n.doing.time)
+
+    foo.down()
+    bar.down()
+})
+
+test.serial('unsuscribe to node', async (t) => {
+    const foo = kable('foo')
+    const bar = kable('bar')
+    await foo.up()
+    await bar.up()
+
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        foo.suscribe('bar', resolve)
+        foo.unsubscribe(resolve)
+        setTimeout(resolve, 2000)
+    })
+
+    const n = await check()
+    t.falsy(n)
 
     foo.down()
     bar.down()

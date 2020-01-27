@@ -18,11 +18,6 @@ type CheckEmitterOptions = {
     , event: EVENTS.DISCOVERY
 }
 
-export const delay = (time: number, fn?: (...args: any[]) => any) => new Promise((r) => setTimeout(() => {
-    fn && fn()
-    r()
-}, time))
-
 export const checkPick = (
     t: ExecutionContext
     , element: Kable

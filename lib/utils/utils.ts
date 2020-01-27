@@ -18,6 +18,11 @@ export const createUuid = (options?: V4Options) => uuid(options)
 
 export const getDateNow = () => Date.now()
 
+export const delay = (time: number, fn?: (...args: any[]) => any) => new Promise((r) => setTimeout(() => {
+    fn && fn()
+    r()
+}, time))
+
 export const createError = (name: string, msg: string) => {
     const err = new Error(msg)
     err.name = name

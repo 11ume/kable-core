@@ -98,15 +98,21 @@ type ErrorEmitterFn = (payload: ErrorEmitter) => void
 type NodeRegistreAddEmitterFn = (payload: NodeRegistreAddEmitter) => void
 type NodeRegistreRemoveEmitterFn = (payload: NodeRegistreRemoveEmitter) => void
 type NodeEmitterFn = (payload: NodeEmitter) => void
+type NodeEmitterUpFn = (payload: UpEmitter) => void
+type NodeEmitterDownFn = (payload: DownEmitter) => void
 type NodeUpdateEmitterFn = (payload: NodeUpdateEmitter) => void
+type NodeExternalUpdateEmitterFn = (payload: NodeEmitter) => void
 
 export interface EventsDriver extends EventEmitter {
     on(event: EVENTS.DISCOVERY, fn: NodeEmitterFn): this
     on(event: EVENTS.NODE.UPDATE, fn: NodeUpdateEmitterFn): this
+    on(event: EVENTS.NODE.EXTERNAL_ACTION, fn: NodeExternalUpdateEmitterFn): this
     on(event: EVENTS.TRANSPORT.MESSAGE, fn: NodeEmitterFn): this
     on(event: EVENTS.UNIVERSAL.ERROR, fn: ErrorEmitterFn): this
     on(event: EVENTS.NODE_REGISTRE.ADD, fn: NodeRegistreAddEmitterFn): this
     on(event: EVENTS.NODE_REGISTRE.REMOVE, fn: NodeRegistreRemoveEmitterFn): this
+    on(event: EVENTS.SYSTEM.UP, fn: NodeEmitterUpFn): this
+    on(event: EVENTS.SYSTEM.DOWN, fn: NodeEmitterDownFn): this
 
     off(event: DRIVER_EVENTS, fn: DRIVER_FN): this
 
@@ -117,6 +123,7 @@ export interface EventsDriver extends EventEmitter {
     emit(event: EVENTS.NODE_REGISTRE.ADD, payload: NodeRegistreAddEmitter): boolean
     emit(event: EVENTS.NODE_REGISTRE.REMOVE, payload: NodeRegistreRemoveEmitter): boolean
     emit(event: EVENTS.NODE.UPDATE, payload: NodeUpdateEmitter): boolean
+    emit(event: EVENTS.NODE.EXTERNAL_ACTION, payload: NodeEmitter): boolean
     emit(event: EVENTS.TRANSPORT.MESSAGE, payload: NodeEmitter): boolean
 }
 
