@@ -1,6 +1,6 @@
 import * as EVENTS from './constants/events'
 import * as EVENTS_TYPES from './constants/eventTypes'
-import { Node, NodeOptions, NodeRegistre, NodeMetadata, createNode, NODE_STATES } from './node'
+import { Node, NodeSuper, NodeOptions, NodeRegistre, createNode, NODE_STATES } from './node'
 import { Transport, TransportOptionsCompose, TransportTypes, createTransport } from './transport/transport'
 import { Discovery, DiscoveryOptions, createDiscovery } from './discovery'
 import { DependencyManagerOptions, createdependencyManager, DependencyManager } from './dependency'
@@ -18,25 +18,7 @@ export type KableComposedOptions = NodeOptions
     & TransportOptionsCompose
     & DependencyManagerOptions
 
-export type Kable = {
-    /** Node id, must be unique by network */
-    id: string
-    /** Node process unique idetificator */
-    pid: string
-    /** Node instance unique idetificator */
-    iid: string
-    /** Node host default 0.0.0.0 */
-    host: string
-    /** Node port default 3000 */
-    port: number
-    /** Node metadata */
-    meta: NodeMetadata
-    /** Node states */
-    state: NODE_STATES
-    /** Unique random number used for organizate the nodes workflow, who own replicated nodes */
-    index: number
-    /** Node os hostname */
-    hostname: string
+export interface Kable extends NodeSuper {
     /** Set that node in running state */
     start(): void
     /** Set that node in stopped state */
@@ -380,6 +362,9 @@ export const KableCore = (impl: Implementables): Kable => {
         }
         , get hostname() {
             return node.hostname
+        }
+        , get replica() {
+            return node.replica
         }
     }
 }
