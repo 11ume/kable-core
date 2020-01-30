@@ -160,6 +160,8 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , up
         , down
         , stop
+        , start
+        , doing
         , state
     } = payload
 
@@ -177,6 +179,8 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , up
         , down
         , stop
+        , start
+        , doing
         , state
         , lastSeen: null
     }
@@ -186,13 +190,6 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , nodesRepository
         , nodeRegistre
         , NODE_UNREGISTRE_REASON.TERMINATION)
-}
-
-const handleNodeHello = (eventsDriver: EventsDriver
-    , nodesRepository: Repository<NodeRegistre>
-    , payload: NodeEmitter) => {
-    eventsDriver.emit(EVENTS.NODE.EXTERNAL_ACTION, payload)
-    addNodeToRepository(eventsDriver, nodesRepository, manageDataToStoreInRegistre(payload))
 }
 
 const handleNodeUpdate = (eventsDriver: EventsDriver
@@ -205,6 +202,7 @@ const handleNodeUpdate = (eventsDriver: EventsDriver
 const handleNodeAdvertisement = (eventsDriver: EventsDriver
     , nodesRepository: Repository<NodeRegistre>
     , payload: NodeEmitter) => {
+    eventsDriver.emit(EVENTS.NODE.EXTERNAL_ACTION, payload)
     addNodeToRepository(eventsDriver, nodesRepository, manageDataToStoreInRegistre(payload))
 }
 
@@ -213,8 +211,7 @@ const handleRecibedMessage = (nodesRepository: Repository<NodeRegistre>
     , payload: NodeEmitter) => {
     const event = payload.event
     const events = {
-        [EVENTS.DISCOVERY.HELLO]: () => handleNodeHello(eventsDriver, nodesRepository, payload)
-        , [EVENTS.DISCOVERY.UPDATE]: () => handleNodeUpdate(eventsDriver, nodesRepository, payload)
+        [EVENTS.DISCOVERY.UPDATE]: () => handleNodeUpdate(eventsDriver, nodesRepository, payload)
         , [EVENTS.DISCOVERY.UNREGISTRE]: () => handleNodeUnregistre(eventsDriver, nodesRepository, payload)
         , [EVENTS.DISCOVERY.ADVERTISEMENT]: () => handleNodeAdvertisement(eventsDriver, nodesRepository, payload)
     }
@@ -311,14 +308,6 @@ const onRecibeMessage = (node: Node
         newPayload = resolvetHostResolutionAddress(newPayload)
         handleRecibedMessage(nodesRepository, eventsDriver, newPayload)
     }
-
-const sendNodeHello = (transport: Transport
-    , node: Node
-    , eventsDriver: EventsDriver
-    , payload: SendPayload) => {
-    return send(transport, node, EVENTS.DISCOVERY.HELLO, payload)
-        .catch(onSendError(eventsDriver, EVENTS_TYPES.ERROR_TYPES.DISCOVERY_SEND_HELLO))
-}
 
 const sendNodeAdvertisement = (transport: Transport
     , node: Node
@@ -450,7 +439,7 @@ const start = ({
     , ihAdvertisamentTime }: StartArgs) => () => {
         ihAdvertisamentTime.start()
         ihNodeTimeout.start()
-        return sendNodeHello(transport, node, eventsDriver, handleState(node))
+        return sendNodeAdvertisement(transport, node, eventsDriver, handleState(node))
     }
 
 type DiscoveryArgs = {

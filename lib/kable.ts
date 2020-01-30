@@ -1,6 +1,6 @@
 import * as EVENTS from './constants/events'
 import * as EVENTS_TYPES from './constants/eventTypes'
-import { Node, NodeOptions, NodeRegistre, NodeMetadata, createNode, NODE_STATES } from './node'
+import { Node, NodeSuper, NodeOptions, NodeRegistre, createNode, NODE_STATES } from './node'
 import { Transport, TransportOptionsCompose, TransportTypes, createTransport } from './transport/transport'
 import { Discovery, DiscoveryOptions, createDiscovery } from './discovery'
 import { DependencyManagerOptions, createdependencyManager, DependencyManager } from './dependency'
@@ -18,35 +18,17 @@ export type KableComposedOptions = NodeOptions
     & TransportOptionsCompose
     & DependencyManagerOptions
 
-export type Kable = {
-    /** Node id, must be unique by network */
-    id: string
-    /** Node process unique idetificator */
-    pid: string
-    /** Node instance unique idetificator */
-    iid: string
-    /** Node host default 0.0.0.0 */
-    host: string
-    /** Node port default 3000 */
-    port: number
-    /** Node metadata */
-    meta: NodeMetadata
-    /** Node states */
-    state: NODE_STATES
-    /** Unique random number used for organizate the nodes workflow, who own replicated nodes */
-    index: number
-    /** Node os hostname */
-    hostname: string
+export interface Kable extends NodeSuper {
+    /** Start all internals processes and set that node in up state */
+    up(running?: boolean): Promise<void>
+    /** Terminate all internals processes and set that node in down state */
+    down(): Promise<void>
     /** Set that node in running state */
     start(): void
     /** Set that node in stopped state */
     stop(reason?: string): void
     /** Set that node in doing something state */
     doing(reason?: string): void
-    /** Start all internals processes and set that node in up state */
-    up(running?: boolean): Promise<void>
-    /** Terminate all internals processes and set that node in down state */
-    down(): Promise<void>
     /**
      * Request a node by you identificator.
      * This method will wait an default time, if the requested node has not been announced yet.
@@ -326,10 +308,7 @@ export const KableCore = (impl: Implementables): Kable => {
     })
 
     return {
-        start: start(node, eventsDriver)
-        , stop: stop(node, eventsDriver)
-        , doing: doing(node, eventsDriver)
-        , up: up({
+        up: up({
             node
             , transport
             , discovery
@@ -342,6 +321,9 @@ export const KableCore = (impl: Implementables): Kable => {
             , eventsDriver
             , detachHandleShutdown
         })
+        , start: start(node, eventsDriver)
+        , stop: stop(node, eventsDriver)
+        , doing: doing(node, eventsDriver)
         , pick: (id: string, options?: PickOptions) => {
             return nodePicker.pick(id, options)
         }
@@ -380,6 +362,9 @@ export const KableCore = (impl: Implementables): Kable => {
         }
         , get hostname() {
             return node.hostname
+        }
+        , get replica() {
+            return node.replica
         }
     }
 }

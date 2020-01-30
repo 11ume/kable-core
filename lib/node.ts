@@ -53,16 +53,31 @@ export enum NODE_UNREGISTRE_REASON {
     , TIMEOUT = 'TIMEOUT'
 }
 
-export interface NodeBase {
+export interface NodeSuper {
+    /** Node id, must be unique by network */
     id: string
-    , port: number
-    , host: string
-    , pid: string
-    , iid: string
-    , index: number
-    , replica: NodeReplica
-    , hostname: string
-    , up: NodeUp
+    /** Node process unique idetificator */
+    pid: string
+    /** Node instance unique idetificator */
+    iid: string
+    /** Node host default 0.0.0.0 */
+    host: string
+    /** Node port default 3000 */
+    port: number
+    /** Node metadata */
+    meta?: NodeMetadata
+    /** Node states */
+    state: NODE_STATES
+    /** Unique random number used for organizate the nodes workflow, who own replicated nodes */
+    index: number
+    /** Node os hostname */
+    hostname: string
+    /** Node is replica */
+    replica: NodeReplica
+}
+
+export interface NodeBase extends NodeSuper {
+    up: NodeUp
     , down?: NodeDown
     , stop?: NodeStop
     , start?: NodeStart

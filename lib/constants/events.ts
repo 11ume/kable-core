@@ -8,8 +8,7 @@ export enum SYSTEM {
 }
 
 export enum DISCOVERY {
-    HELLO = 'hello'
-    , UPDATE = 'update'
+    UPDATE = 'update'
     , UNREGISTRE = 'unregistre'
     , ADVERTISEMENT = 'advertisement'
 }
