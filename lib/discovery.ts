@@ -202,6 +202,7 @@ const handleNodeUpdate = (eventsDriver: EventsDriver
 const handleNodeAdvertisement = (eventsDriver: EventsDriver
     , nodesRepository: Repository<NodeRegistre>
     , payload: NodeEmitter) => {
+    eventsDriver.emit(EVENTS.NODE.EXTERNAL_ACTION, payload)
     addNodeToRepository(eventsDriver, nodesRepository, manageDataToStoreInRegistre(payload))
 }
 

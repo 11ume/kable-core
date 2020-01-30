@@ -19,16 +19,16 @@ export type KableComposedOptions = NodeOptions
     & DependencyManagerOptions
 
 export interface Kable extends NodeSuper {
+    /** Start all internals processes and set that node in up state */
+    up(running?: boolean): Promise<void>
+    /** Terminate all internals processes and set that node in down state */
+    down(): Promise<void>
     /** Set that node in running state */
     start(): void
     /** Set that node in stopped state */
     stop(reason?: string): void
     /** Set that node in doing something state */
     doing(reason?: string): void
-    /** Start all internals processes and set that node in up state */
-    up(running?: boolean): Promise<void>
-    /** Terminate all internals processes and set that node in down state */
-    down(): Promise<void>
     /**
      * Request a node by you identificator.
      * This method will wait an default time, if the requested node has not been announced yet.
@@ -308,10 +308,7 @@ export const KableCore = (impl: Implementables): Kable => {
     })
 
     return {
-        start: start(node, eventsDriver)
-        , stop: stop(node, eventsDriver)
-        , doing: doing(node, eventsDriver)
-        , up: up({
+        up: up({
             node
             , transport
             , discovery
@@ -324,6 +321,9 @@ export const KableCore = (impl: Implementables): Kable => {
             , eventsDriver
             , detachHandleShutdown
         })
+        , start: start(node, eventsDriver)
+        , stop: stop(node, eventsDriver)
+        , doing: doing(node, eventsDriver)
         , pick: (id: string, options?: PickOptions) => {
             return nodePicker.pick(id, options)
         }
