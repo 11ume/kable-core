@@ -237,7 +237,7 @@ export type Implementables = {
     , dependencyManager: DependencyManager
 }
 
-export const implementations = (options: KableComposedOptions): Implementables => {
+export const implementables = (options: KableComposedOptions): Implementables => {
     const nodesStore = createStore<NodeRegistre>()
     const eventsDriver = createEventsDriver()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
@@ -309,7 +309,7 @@ export const implementations = (options: KableComposedOptions): Implementables =
     }
 }
 
-export const KableCore = (implementables: Implementables): Kable => {
+export const KableCore = (impl: Implementables): Kable => {
     const {
         node
         , suscriber
@@ -317,7 +317,7 @@ export const KableCore = (implementables: Implementables): Kable => {
         , discovery
         , nodePicker
         , eventsDriver
-    } = implementables
+    } = impl
 
     const detachHandleShutdown = handleShutdown(downAbrupt(node, discovery, transport, eventsDriver))
 
@@ -390,7 +390,7 @@ const createKable = (id?: string, options?: KableComposedOptions) => {
         , ...options
     }
 
-    return KableCore(implementations(opts))
+    return KableCore(implementables(opts))
 }
 
 export default createKable

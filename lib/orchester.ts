@@ -18,7 +18,7 @@ export type Orchester = {
     , removeNodeAwaiter: (unique: symbol) => void
 }
 
-type NodeStack = {
+export type NodeStack = {
     [x: string]: Sequencer
 }
 
