@@ -55,6 +55,8 @@ export type Kable = {
     pick(id: string, options?: PickOptions): Promise<NodeRegistre>
     /** Start to listen node state changes */
     suscribe(id: string, fn: SuscriberFn): void
+    /** Start to listen all node state changes */
+    suscribeAll(fn: SuscriberFn): void
     /** Stop listen node state changes */
     unsubscribe(fn: SuscriberFn): void
 }
@@ -343,8 +345,11 @@ export const KableCore = (implementables: Implementables): Kable => {
         , pick: (id: string, options?: PickOptions) => {
             return nodePicker.pick(id, options)
         }
+        , suscribeAll: (fn: SuscriberFn) => {
+            return suscriber.suscribe(fn)
+        }
         , suscribe: (id: string, fn: SuscriberFn) => {
-            return suscriber.suscribe(id, fn)
+            return suscriber.suscribe(fn, id)
         }
         , unsubscribe: (fn: SuscriberFn) => {
             return suscriber.unsubscribe(fn)

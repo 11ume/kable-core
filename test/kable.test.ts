@@ -220,6 +220,37 @@ test.serial('create send and recibe node whit metadata', async (t) => {
     bar.down()
 })
 
+test.serial('suscribe all node changes', async (t) => {
+    const foo = kable('foo')
+    const faz = kable('faz')
+    const bar = kable('bar')
+    await foo.up()
+
+    const check = (): Promise<NodeEmitter[]> => new Promise((resolve) => {
+        const nodes: NodeEmitter[] = []
+        foo.suscribeAll((payload) => {
+            if (payload.up) {
+                nodes.push(payload)
+            }
+
+            if (nodes.length > 1) resolve(nodes)
+        })
+
+        faz.up()
+        bar.up()
+    })
+
+    const [nFaz, nBar] = await check()
+    t.truthy(nFaz.up.time)
+    t.is(nFaz.id, faz.id)
+    t.truthy(nBar.up.time)
+    t.is(nBar.id, bar.id)
+
+    foo.down()
+    faz.down()
+    bar.down()
+})
+
 test.serial('suscribe to node up', async (t) => {
     const foo = kable('foo')
     const bar = kable('bar')

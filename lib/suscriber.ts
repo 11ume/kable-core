@@ -1,7 +1,7 @@
 import { NodeEmitter } from './eventsDriver'
 
 export type Suscriber = {
-    suscribe: (nodeId: string, fn: SuscriberFn) => void
+    suscribe: (fn: SuscriberFn, nodeId?: string) => void
     , unsubscribe: (fn: SuscriberFn) => void
     , fire: (payload: NodeEmitter) => void
 }
@@ -17,14 +17,14 @@ type Suscribers = Map<SuscriberFn, SuscriberPayload>
 
 const fire = (sucribers: Suscribers) => (payload: NodeEmitter) => {
     sucribers.forEach((suscriber) => {
-        if (suscriber.nodeId !== payload.id) return
+        if (suscriber.nodeId && suscriber.nodeId !== payload.id) return
         suscriber.fn(payload)
     })
 }
 
 const unsubscribe = (sucribers: Suscribers) => (fn: SuscriberFn) => sucribers.delete(fn)
 
-const suscribe = (sucribers: Suscribers) => (nodeId: string, fn: SuscriberFn) => {
+const suscribe = (sucribers: Suscribers) => (fn: SuscriberFn, nodeId: string) => {
     sucribers.set(fn, { fn, nodeId })
 }
 
