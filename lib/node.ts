@@ -100,8 +100,7 @@ export interface NodePacket extends NodeBase {
 }
 
 export interface Node extends NodeBase {
-    meta: NodeMetadata
-    , resetStates: (state: NODE_STATES) => void
+    resetStates: (state: NODE_STATES) => void
     , transitState: (newState: NODE_STATES) => void
 }
 
@@ -118,10 +117,6 @@ type FnTrasitState = <T extends string>(currentState: string, newState: T) => T
 type Replica = {
     is: boolean
     , of?: string
-}
-
-type NodeArgs = {
-    options?: NodeOptions
 }
 
 type NodeStates = {
@@ -161,7 +156,7 @@ const handleReplica = (is: boolean, id: string) => {
     return replica
 }
 
-const transitState = (node: Node, smt: FnTrasitState) => (newState: NODE_STATES) => {
+const transitState = (node: NodeSuper, smt: FnTrasitState) => (newState: NODE_STATES) => {
     node.state = smt(node.state, newState)
 }
 
@@ -185,19 +180,56 @@ const resetStates = (initialState: NodeStates, states: NodeStates) => (state: NO
     }
 }
 
-const Node = ({
-    options: {
-        id: initId = nodeOptions.id
-        , host: initHost = nodeOptions.host
-        , port: initPort = nodeOptions.port
-        , meta: initMeta = nodeOptions.meta
-        , replica: initReplica = nodeOptions.replica
-    } = nodeOptions }: NodeArgs = {}): Node => {
-    const stateMachineTransition = craateStateMachine(nodeStates)
+type NodeSuperArgs = {
+    id: string
+    , host: string
+    , port: number
+    , meta: NodeMetadata
+    , replica: boolean
+}
+
+const NodeSuper = (args: NodeSuperArgs): NodeSuper => {
+    const { host, port, meta } = args
     const iid = createUuid()
     const index = genRandomNumber()
-    const replica = handleReplica(initReplica, initId)
-    const id = handleId(replica, initId)
+    const replica = handleReplica(args.replica, args.id)
+    const id = handleId(replica, args.id)
+    let state = NODE_STATES.DOWN
+
+    return {
+        id
+        , host
+        , port
+        , pid
+        , iid
+        , index
+        , replica
+        , hostname
+        , get meta() {
+            return meta
+        }
+        , set state(value: NODE_STATES) {
+            state = value
+        }
+        , get state() {
+            return state
+        }
+    }
+}
+
+type NodeArgs = {
+    options?: NodeOptions
+}
+
+const Node = ({
+    options: {
+        id = nodeOptions.id
+        , host = nodeOptions.host
+        , port = nodeOptions.port
+        , meta = nodeOptions.meta
+        , replica = nodeOptions.replica
+    } = nodeOptions }: NodeArgs): Node => {
+    const stateMachineTransition = craateStateMachine(nodeStates)
     const initialState: NodeStates = Object.freeze({
         up: {
             time: null
@@ -220,32 +252,19 @@ const Node = ({
         }
     })
 
-    let meta = initMeta
-    let state = NODE_STATES.DOWN
     const states = { ...initialState }
-    const node: Node = {
+    const nodeSuper = NodeSuper({
         id
-        , host: initHost
-        , port: initPort
-        , pid
-        , iid
-        , index
+        , host
+        , port
+        , meta
         , replica
-        , hostname
-        , transitState: null
+    })
+
+    const node: Node = {
+        ...nodeSuper
+        , transitState: transitState(nodeSuper, stateMachineTransition)
         , resetStates: resetStates(initialState, states)
-        , set meta(value: NodeMetadata) {
-            meta = value
-        }
-        , get meta() {
-            return meta
-        }
-        , set state(value: NODE_STATES) {
-            state = value
-        }
-        , get state() {
-            return state
-        }
         , set up(value: NodeUp) {
             states.up = value
         }
@@ -277,8 +296,6 @@ const Node = ({
             states.doing = value
         }
     }
-
-    node.transitState = transitState(node, stateMachineTransition)
 
     return node
 }
