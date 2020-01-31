@@ -21,7 +21,7 @@ import {
 } from './node'
 
 export type Discovery = {
-    start: () => Promise<void | Error>
+    start: (running?: boolean) => Promise<void | Error>
     , stop: (signal: string, code?: number) => Promise<void | Error>
 }
 
@@ -113,11 +113,13 @@ const manageDataToStoreInRegistre = ({
     , replica
     , hostname
     , ensured
-    , up
-    , down = null
-    , stop = null
-    , start = null
-    , doing = null
+    , stateData: {
+        up
+        , down = null
+        , stop = null
+        , start = null
+        , doing = null
+    }
     , state }: NodeEmitter): Partial<NodeRegistre> => {
     const lastSeen = getDateNow()
     const data = {
@@ -131,13 +133,15 @@ const manageDataToStoreInRegistre = ({
         , replica
         , hostname
         , ensured
-        , up
-        , down
-        , stop
-        , start
-        , doing
         , state
         , lastSeen
+        , stateData: {
+            up
+            , down
+            , stop
+            , start
+            , doing
+        }
     }
 
     return cleanDeep(data)
@@ -157,12 +161,14 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , replica
         , hostname
         , ensured
-        , up
-        , down
-        , stop
-        , start
-        , doing
         , state
+        , stateData: {
+            up
+            , down
+            , stop
+            , start
+            , doing
+        }
     } = payload
 
     const nodeRegistre = {
@@ -176,13 +182,15 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , replica
         , hostname
         , ensured
-        , up
-        , down
-        , stop
-        , start
-        , doing
         , state
         , lastSeen: null
+        , stateData: {
+            up
+            , down
+            , stop
+            , start
+            , doing
+        }
     }
 
     eventsDriver.emit(EVENTS.NODE.EXTERNAL_ACTION, payload)
@@ -281,12 +289,14 @@ const send = (transport: Transport
         , index
         , replica
         , hostname
-        , up
-        , down
-        , stop
-        , start
-        , doing
         , state
+        , stateData: {
+            up
+            , down
+            , stop
+            , start
+            , doing
+        }
     }
 
     return transport.send<NodePacket>(data)
@@ -336,9 +346,9 @@ const sendNodeUnregistre = (transport: Transport
 // node timeout always must be greater to advertisement Time
 const setNodeTimeOut = (advertisementTime: number, nodeDefaultTimeout: number) => advertisementTime + nodeDefaultTimeout
 
-const handleStateUp = (node: Node) => {
+const handleStateUp = ({ stateData }: Node) => {
     const up: NodeUp = {
-        time: node.up.time
+        time: stateData.up.time
     }
 
     return {
@@ -346,11 +356,11 @@ const handleStateUp = (node: Node) => {
     }
 }
 
-const handleStateDown = (node: Node, signal: string, code: number) => {
+const handleStateDown = ({ stateData }: Node, signal: string, code: number) => {
     const down: NodeDown = {
         signal
         , code
-        , time: node.down.time
+        , time: stateData.down.time
     }
 
     return {
@@ -358,10 +368,10 @@ const handleStateDown = (node: Node, signal: string, code: number) => {
     }
 }
 
-const handleStateStop = (node: Node) => {
+const handleStateStop = ({ stateData }: Node) => {
     const stop: NodeStop = {
-        time: node.stop.time
-        , reason: node.stop.reason
+        time: stateData.stop.time
+        , reason: stateData.stop.reason
     }
 
     return {
@@ -369,9 +379,9 @@ const handleStateStop = (node: Node) => {
     }
 }
 
-const handleStateStart = (node: Node) => {
+const handleStateStart = ({ stateData }: Node) => {
     const start: NodeStart = {
-        time: node.start.time
+        time: stateData.start.time
     }
 
     return {
@@ -379,10 +389,10 @@ const handleStateStart = (node: Node) => {
     }
 }
 
-const handleStateDoing = (node: Node) => {
+const handleStateDoing = ({ stateData }: Node) => {
     const doing: NodeDoing = {
-        time: node.doing.time
-        , reason: node.doing.reason
+        time: stateData.doing.time
+        , reason: stateData.doing.reason
     }
 
     return {
@@ -417,6 +427,7 @@ const stop = ({
     , nodesRepository
     , ihNodeTimeout
     , ihAdvertisamentTime }: StopArgs) => (signal: string, code?: number) => {
+        node.down()
         ihAdvertisamentTime.stop()
         ihNodeTimeout.stop()
         nodesRepository.clearAll()
@@ -436,7 +447,8 @@ const start = ({
     , transport
     , eventsDriver
     , ihNodeTimeout
-    , ihAdvertisamentTime }: StartArgs) => () => {
+    , ihAdvertisamentTime }: StartArgs) => (running?: boolean) => {
+        node.up(running)
         ihAdvertisamentTime.start()
         ihNodeTimeout.start()
         return sendNodeAdvertisement(transport, node, eventsDriver, handleState(node))

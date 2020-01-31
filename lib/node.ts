@@ -1,7 +1,9 @@
 import * as os from 'os'
 import * as EVENTS from './constants/events'
-import { createUuid, craateStateMachine, genRandomNumber } from './utils/utils'
+import * as EVENTS_TYPES from './constants/eventTypes'
+import { createUuid, craateStateMachine, genRandomNumber, getDateNow } from './utils/utils'
 import { pid } from './constants/core'
+import { EventsDriver } from './eventsDriver'
 
 export enum NODE_STATES {
     UP = 'UP'
@@ -53,7 +55,7 @@ export enum NODE_UNREGISTRE_REASON {
     , TIMEOUT = 'TIMEOUT'
 }
 
-export interface NodeSuper {
+export interface NodeMain {
     /** Node id, must be unique by network */
     id: string
     /** Node process unique idetificator */
@@ -76,13 +78,14 @@ export interface NodeSuper {
     replica: NodeReplica
 }
 
-export interface NodeBase extends NodeSuper {
-    up: NodeUp
-    , down?: NodeDown
-    , stop?: NodeStop
-    , start?: NodeStart
-    , doing?: NodeDoing
-    , state: NODE_STATES
+export interface NodeBase extends NodeMain {
+    stateData: {
+        up: NodeUp
+        , down?: NodeDown
+        , stop?: NodeStop
+        , start?: NodeStart
+        , doing?: NodeDoing
+    }
 }
 
 export type NodeReplica = {
@@ -100,9 +103,13 @@ export interface NodePacket extends NodeBase {
 }
 
 export interface Node extends NodeBase {
-    meta: NodeMetadata
-    , resetStates: (state: NODE_STATES) => void
-    , transitState: (newState: NODE_STATES) => void
+    up: (running?: boolean) => void
+    , down: () => void
+    , start: () => void
+    , stop: (reason?: string) => void
+    , doing: (reason?: string) => void
+    , stateReset: (state: NODE_STATES) => void
+    , stateTransit: (newState: NODE_STATES) => void
 }
 
 export type NodeOptions = {
@@ -118,10 +125,6 @@ type FnTrasitState = <T extends string>(currentState: string, newState: T) => T
 type Replica = {
     is: boolean
     , of?: string
-}
-
-type NodeArgs = {
-    options?: NodeOptions
 }
 
 type NodeStates = {
@@ -161,44 +164,171 @@ const handleReplica = (is: boolean, id: string) => {
     return replica
 }
 
-const transitState = (node: Node, smt: FnTrasitState) => (newState: NODE_STATES) => {
+const stateTransit = (node: Node, smt: FnTrasitState) => (newState: NODE_STATES) => {
     node.state = smt(node.state, newState)
 }
 
-const resetStates = (initialState: NodeStates, states: NodeStates) => (state: NODE_STATES) => {
+const stateReset = (initialState: NodeStates, stateData: NodeStates) => (state: NODE_STATES) => {
     if (state !== NODE_STATES.STOPPED) {
-        states.stop = {
+        stateData.stop = {
             ...initialState.stop
         }
     }
 
     if (state !== NODE_STATES.RUNNING) {
-        states.start = {
+        stateData.start = {
             ...initialState.start
         }
     }
 
     if (state !== NODE_STATES.DOING_SOMETHING) {
-        states.doing = {
+        stateData.doing = {
             ...initialState.doing
         }
     }
 }
 
-const Node = ({
-    options: {
-        id: initId = nodeOptions.id
-        , host: initHost = nodeOptions.host
-        , port: initPort = nodeOptions.port
-        , meta: initMeta = nodeOptions.meta
-        , replica: initReplica = nodeOptions.replica
-    } = nodeOptions }: NodeArgs = {}): Node => {
-    const stateMachineTransition = craateStateMachine(nodeStates)
+const up = (node: Node) => (running: boolean) => {
+    const { stateData } = node
+    let state: NODE_STATES = null
+    stateData.up.time = getDateNow()
+    node.stateReset(state)
+
+    if (running) {
+        state = NODE_STATES.RUNNING
+        node.stateTransit(NODE_STATES.UP)
+        node.stateTransit(NODE_STATES.RUNNING)
+        return state
+    }
+
+    state = NODE_STATES.UP
+    node.stateTransit(NODE_STATES.UP)
+
+    return state
+}
+
+const down = (node: Node) => () => {
+    const { stateData } = node
+    const state = NODE_STATES.DOWN
+    stateData.down.time = getDateNow()
+    node.stateReset(state)
+    node.stateTransit(state)
+
+    return state
+}
+
+const start = (node: Node, eventsDriver: EventsDriver) => () => {
+    const { stateData } = node
+    const time = getDateNow()
+    const state = NODE_STATES.RUNNING
+    stateData.start.time = time
+    node.stateReset(state)
+    node.stateTransit(state)
+
+    eventsDriver.emit(EVENTS.NODE.UPDATE, {
+        type: EVENTS_TYPES.NODE_UPDATE_TYPES.START
+        , payload: {
+            time
+        }
+    })
+}
+
+const stop = (node: Node, eventsDriver: EventsDriver) => (reason: string = null) => {
+    const { stateData } = node
+    const time = getDateNow()
+    const state = NODE_STATES.STOPPED
+    stateData.stop.time = time
+    stateData.stop.reason = reason
+    node.stateReset(state)
+    node.stateTransit(state)
+
+    eventsDriver.emit(EVENTS.NODE.UPDATE, {
+        type: EVENTS_TYPES.NODE_UPDATE_TYPES.STOP
+        , payload: {
+            time
+            , reason
+        }
+    })
+}
+
+const doing = (node: Node, eventsDriver: EventsDriver) => (reason: string = null) => {
+    const { stateData } = node
+    const time = getDateNow()
+    const state = NODE_STATES.DOING_SOMETHING
+    stateData.doing.time = time
+    stateData.doing.reason = reason
+    node.stateReset(state)
+    node.stateTransit(state)
+
+    eventsDriver.emit(EVENTS.NODE.UPDATE, {
+        type: EVENTS_TYPES.NODE_UPDATE_TYPES.DOING
+        , payload: {
+            time
+            , reason
+        }
+    })
+}
+
+type NodeSuperArgs = {
+    id: string
+    , host: string
+    , port: number
+    , meta: NodeMetadata
+    , replica: boolean
+}
+
+const NodeMain = (args: NodeSuperArgs): NodeMain => {
+    const { host, port, meta } = args
     const iid = createUuid()
     const index = genRandomNumber()
-    const replica = handleReplica(initReplica, initId)
-    const id = handleId(replica, initId)
-    const initialState: NodeStates = Object.freeze({
+    const replica = handleReplica(args.replica, args.id)
+    const id = handleId(replica, args.id)
+    let state = NODE_STATES.DOWN
+
+    return {
+        id
+        , host
+        , port
+        , pid
+        , iid
+        , index
+        , replica
+        , hostname
+        , get meta() {
+            return meta
+        }
+        , set state(value: NODE_STATES) {
+            state = value
+        }
+        , get state() {
+            return state
+        }
+    }
+}
+
+type NodeArgs = {
+    eventsDriver: EventsDriver
+    , options?: NodeOptions
+}
+
+const Node = ({
+    eventsDriver
+    , options: {
+        id = nodeOptions.id
+        , host = nodeOptions.host
+        , port = nodeOptions.port
+        , meta = nodeOptions.meta
+        , replica = nodeOptions.replica
+    } = nodeOptions }: NodeArgs): Node => {
+    const nodeSuper = NodeMain({
+        id
+        , host
+        , port
+        , meta
+        , replica
+    })
+
+    const initialStateData: NodeStates = {
         up: {
             time: null
         }
@@ -218,71 +348,63 @@ const Node = ({
             time: null
             , reason: null
         }
-    })
+    }
 
-    let meta = initMeta
-    let state = NODE_STATES.DOWN
-    const states = { ...initialState }
+    const stateMachineTransition = craateStateMachine(nodeStates)
+    const stateData = { ...initialStateData }
+
     const node: Node = {
-        id
-        , host: initHost
-        , port: initPort
-        , pid
-        , iid
-        , index
-        , replica
-        , hostname
-        , transitState: null
-        , resetStates: resetStates(initialState, states)
-        , set meta(value: NodeMetadata) {
-            meta = value
-        }
-        , get meta() {
-            return meta
-        }
-        , set state(value: NODE_STATES) {
-            state = value
-        }
-        , get state() {
-            return state
-        }
-        , set up(value: NodeUp) {
-            states.up = value
-        }
-        , get up() {
-            return states.up
-        }
-        , set down(value: NodeDown) {
-            states.down = value
-        }
-        , get down() {
-            return states.down
-        }
-        , get stop() {
-            return states.stop
-        }
-        , set stop(value: NodeStop) {
-            states.stop = value
-        }
-        , get start() {
-            return states.start
-        }
-        , set start(value: NodeStart) {
-            states.start = value
-        }
-        , get doing() {
-            return states.doing
-        }
-        , set doing(value: NodeDoing) {
-            states.doing = value
+        ...nodeSuper
+        , stateTransit: null
+        , stateReset: stateReset(initialStateData, stateData)
+        , up: null
+        , down: null
+        , start: null
+        , stop: null
+        , doing: null
+        , stateData: {
+            set up(value: NodeUp) {
+                stateData.up = value
+            }
+            , get up() {
+                return stateData.up
+            }
+            , set down(value: NodeDown) {
+                stateData.down = value
+            }
+            , get down() {
+                return stateData.down
+            }
+            , get stop() {
+                return stateData.stop
+            }
+            , set stop(value: NodeStop) {
+                stateData.stop = value
+            }
+            , get start() {
+                return stateData.start
+            }
+            , set start(value: NodeStart) {
+                stateData.start = value
+            }
+            , get doing() {
+                return stateData.doing
+            }
+            , set doing(value: NodeDoing) {
+                stateData.doing = value
+            }
         }
     }
 
-    node.transitState = transitState(node, stateMachineTransition)
-
+    node.up = up(node)
+    node.down = down(node)
+    node.start = start(node, eventsDriver)
+    node.stop = stop(node, eventsDriver)
+    node.doing = doing(node, eventsDriver)
+    node.stateTransit = stateTransit(node, stateMachineTransition)
     return node
 }
 
-export const createNode = (args?: NodeArgs) => {
+export const createNode = (args: NodeArgs) => {
     return Node(args)
 }

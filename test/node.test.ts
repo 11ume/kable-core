@@ -2,6 +2,7 @@ import test from 'ava'
 import * as os from 'os'
 import { createNode, nodeStates, NODE_STATES } from '../lib/node'
 import ERROR from '../lib/constants/error'
+import { createEventsDriver } from '../lib/eventsDriver'
 
 test('create node whitout options', (t) => {
     const options = {
@@ -16,8 +17,8 @@ test('create node whitout options', (t) => {
         , ignoreInstance: true
 
     }
-
-    const n = createNode()
+    const eventsDriver = createEventsDriver()
+    const n = createNode({ eventsDriver })
     t.is(n.id, options.id)
     t.is(n.port, options.port)
     t.is(n.host, options.host)
@@ -44,7 +45,8 @@ test('create node whit options', (t) => {
         , ignoreProcess: false
     }
 
-    const n = createNode({ options })
+    const eventsDriver = createEventsDriver()
+    const n = createNode({ eventsDriver, options })
     t.is(n.id, options.id)
     t.is(n.port, options.port)
     t.is(n.host, options.host)
@@ -55,60 +57,63 @@ test('create node whit options', (t) => {
 })
 
 test('check node legal state transition', async (t) => {
-    const n = createNode()
+    const eventsDriver = createEventsDriver()
+    const n = createNode({ eventsDriver })
     t.is(n.state, NODE_STATES.DOWN)
-    n.transitState(NODE_STATES.UP)
+    n.stateTransit(NODE_STATES.UP)
     t.is(n.state, NODE_STATES.UP)
 })
 
 test('check node ilegal state transition', async (t) => {
-    const n = createNode()
-    const err = t.throws(() => n.transitState(NODE_STATES.DOWN))
+    const eventsDriver = createEventsDriver()
+    const n = createNode({ eventsDriver })
+    const err = t.throws(() => n.stateTransit(NODE_STATES.DOWN))
     const customErr = ERROR.ILLEGAL_TRANSITION_STATE
     t.is(err.name, customErr.name)
     t.is(err.message, customErr.message(NODE_STATES.DOWN, NODE_STATES.DOWN, nodeStates[n.state]))
 })
 
 test('check node resetStates', async (t) => {
-    const n = createNode()
+    const eventsDriver = createEventsDriver()
+    const n = createNode({ eventsDriver })
+    const { stateData } = n
+    stateData.up.time = 1
+    n.stateReset(NODE_STATES.UP)
 
-    n.up.time = 1
-    n.resetStates(NODE_STATES.UP)
-
-    t.deepEqual(n.up, {
-        time: n.up.time
+    t.deepEqual(stateData.up, {
+        time: stateData.up.time
     })
-    t.deepEqual(n.down, {
+    t.deepEqual(stateData.down, {
         time: null
         , signal: null
         , code: null
     })
-    t.deepEqual(n.stop, {
+    t.deepEqual(stateData.stop, {
         time: null
         , reason: null
     })
-    t.deepEqual(n.doing, {
+    t.deepEqual(stateData.doing, {
         time: null
         , reason: null
     })
 
-    n.stop.time = 1
-    n.stop.reason = 'any reason'
-    n.resetStates(NODE_STATES.STOPPED)
+    stateData.stop.time = 1
+    stateData.stop.reason = 'any reason'
+    n.stateReset(NODE_STATES.STOPPED)
 
-    t.deepEqual(n.up, {
-        time: n.up.time
+    t.deepEqual(stateData.up, {
+        time: stateData.up.time
     })
-    t.deepEqual(n.down, {
+    t.deepEqual(stateData.down, {
         time: null
         , signal: null
         , code: null
     })
-    t.deepEqual(n.stop, {
+    t.deepEqual(stateData.stop, {
         time: 1
-        , reason: n.stop.reason
+        , reason: stateData.stop.reason
     })
-    t.deepEqual(n.doing, {
+    t.deepEqual(stateData.doing, {
         time: null
         , reason: null
     })
