@@ -355,13 +355,13 @@ const Node = ({
 
     const node: Node = {
         ...nodeSuper
-        , stateTransit: null
-        , stateReset: stateReset(initialStateData, stateData)
         , up: null
         , down: null
         , start: null
         , stop: null
         , doing: null
+        , stateTransit: null
+        , stateReset: stateReset(initialStateData, stateData)
         , stateData: {
             set up(value: NodeUp) {
                 stateData.up = value

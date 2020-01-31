@@ -199,7 +199,7 @@ export const implementables = (options: KableComposedOptions): Implementables =>
         }
     })
 
-    const suscriber = createSuscriber()
+    const suscriber = createSuscriber({ eventsDriver })
 
     return {
         node
@@ -225,10 +225,6 @@ export const KableCore = (impl: Implementables): Kable => {
     } = impl
 
     const detachHandleShutdown = handleShutdown(downAbrupt(node, discovery, transport, eventsDriver))
-
-    eventsDriver.on(EVENTS.NODE.EXTERNAL_ACTION, (payload) => {
-        suscriber.fire(payload)
-    })
 
     return {
         up: up({
