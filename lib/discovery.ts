@@ -21,7 +21,7 @@ import {
 } from './node'
 
 export type Discovery = {
-    start: () => Promise<void | Error>
+    start: (running?: boolean) => Promise<void | Error>
     , stop: (signal: string, code?: number) => Promise<void | Error>
 }
 
@@ -427,6 +427,7 @@ const stop = ({
     , nodesRepository
     , ihNodeTimeout
     , ihAdvertisamentTime }: StopArgs) => (signal: string, code?: number) => {
+        node.down()
         ihAdvertisamentTime.stop()
         ihNodeTimeout.stop()
         nodesRepository.clearAll()
@@ -446,7 +447,8 @@ const start = ({
     , transport
     , eventsDriver
     , ihNodeTimeout
-    , ihAdvertisamentTime }: StartArgs) => () => {
+    , ihAdvertisamentTime }: StartArgs) => (running?: boolean) => {
+        node.up(running)
         ihAdvertisamentTime.start()
         ihNodeTimeout.start()
         return sendNodeAdvertisement(transport, node, eventsDriver, handleState(node))

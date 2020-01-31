@@ -72,9 +72,9 @@ const up = ({
     , eventsDriver
 }: UpArgs) => async (running = true) => {
     const { stateData } = node
-    node.up(running)
     await transport.bind()
-    await discovery.start()
+    await discovery.start(running)
+
     eventsDriver.emit(EVENTS.SYSTEM.UP, {
         payload: {
             time: stateData.up.time
@@ -97,7 +97,6 @@ const down = ({
     , eventsDriver
     , detachHandleShutdown }: DownArgs) => async () => {
         const { stateData } = node
-        node.down()
         detachHandleShutdown()
         await discovery.stop('down', null)
         await transport.close()
@@ -120,7 +119,6 @@ const downAbrupt = (
     , transport: Transport
     , eventsDriver: EventsDriver) => async (signal: string, code?: number) => {
         const { stateData } = node
-        node.down()
         await discovery.stop(signal, code)
         await transport.close()
 
