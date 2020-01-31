@@ -156,7 +156,7 @@ const handleReplica = (is: boolean, id: string) => {
     return replica
 }
 
-const transitState = (node: NodeSuper, smt: FnTrasitState) => (newState: NODE_STATES) => {
+const transitState = (node: Node, smt: FnTrasitState) => (newState: NODE_STATES) => {
     node.state = smt(node.state, newState)
 }
 
@@ -230,7 +230,7 @@ const Node = ({
         , replica = nodeOptions.replica
     } = nodeOptions }: NodeArgs): Node => {
     const stateMachineTransition = craateStateMachine(nodeStates)
-    const initialState: NodeStates = Object.freeze({
+    const initialState: NodeStates = {
         up: {
             time: null
         }
@@ -250,7 +250,7 @@ const Node = ({
             time: null
             , reason: null
         }
-    })
+    }
 
     const states = { ...initialState }
     const nodeSuper = NodeSuper({
@@ -263,7 +263,7 @@ const Node = ({
 
     const node: Node = {
         ...nodeSuper
-        , transitState: transitState(nodeSuper, stateMachineTransition)
+        , transitState: null
         , resetStates: resetStates(initialState, states)
         , set up(value: NodeUp) {
             states.up = value
@@ -297,6 +297,7 @@ const Node = ({
         }
     }
 
+    node.transitState = transitState(node, stateMachineTransition)
     return node
 }
 
