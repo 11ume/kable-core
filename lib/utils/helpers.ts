@@ -31,7 +31,7 @@ export const checkPick = (
     t.is(element.pid, target.pid)
     t.is(element.port, target.port)
     t.true(Object.values(NODE_STATES).includes(target.state))
-    t.truthy(target.up.time)
+    t.truthy(target.stateData.up.time)
     t.deepEqual(target.replica, {
         is: false
     })
@@ -76,8 +76,10 @@ export const createNodeRegistre = (id: string
         , ensured: false
         , lastSeen: 0
         , state
-        , up: {
-            time: 0
+        , stateData: {
+            up: {
+                time: 0
+            }
         }
     }
 }

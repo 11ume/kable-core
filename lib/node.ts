@@ -1,7 +1,9 @@
 import * as os from 'os'
 import * as EVENTS from './constants/events'
-import { createUuid, craateStateMachine, genRandomNumber } from './utils/utils'
+import * as EVENTS_TYPES from './constants/eventTypes'
+import { createUuid, craateStateMachine, genRandomNumber, getDateNow } from './utils/utils'
 import { pid } from './constants/core'
+import { EventsDriver } from './eventsDriver'
 
 export enum NODE_STATES {
     UP = 'UP'
@@ -53,7 +55,7 @@ export enum NODE_UNREGISTRE_REASON {
     , TIMEOUT = 'TIMEOUT'
 }
 
-export interface NodeSuper {
+export interface NodeMain {
     /** Node id, must be unique by network */
     id: string
     /** Node process unique idetificator */
@@ -76,13 +78,14 @@ export interface NodeSuper {
     replica: NodeReplica
 }
 
-export interface NodeBase extends NodeSuper {
-    up: NodeUp
-    , down?: NodeDown
-    , stop?: NodeStop
-    , start?: NodeStart
-    , doing?: NodeDoing
-    , state: NODE_STATES
+export interface NodeBase extends NodeMain {
+    stateData: {
+        up: NodeUp
+        , down?: NodeDown
+        , stop?: NodeStop
+        , start?: NodeStart
+        , doing?: NodeDoing
+    }
 }
 
 export type NodeReplica = {
@@ -100,8 +103,13 @@ export interface NodePacket extends NodeBase {
 }
 
 export interface Node extends NodeBase {
-    resetStates: (state: NODE_STATES) => void
-    , transitState: (newState: NODE_STATES) => void
+    stateReset: (state: NODE_STATES) => void
+    , stateTransit: (newState: NODE_STATES) => void
+    , up: (running?: boolean) => void
+    , down: () => void
+    , start: () => void
+    , stop: (reason?: string) => void
+    , doing: (reason?: string) => void
 }
 
 export type NodeOptions = {
@@ -156,28 +164,109 @@ const handleReplica = (is: boolean, id: string) => {
     return replica
 }
 
-const transitState = (node: Node, smt: FnTrasitState) => (newState: NODE_STATES) => {
+const stateTransit = (node: Node, smt: FnTrasitState) => (newState: NODE_STATES) => {
     node.state = smt(node.state, newState)
 }
 
-const resetStates = (initialState: NodeStates, states: NodeStates) => (state: NODE_STATES) => {
+const stateReset = (initialState: NodeStates, stateData: NodeStates) => (state: NODE_STATES) => {
     if (state !== NODE_STATES.STOPPED) {
-        states.stop = {
+        stateData.stop = {
             ...initialState.stop
         }
     }
 
     if (state !== NODE_STATES.RUNNING) {
-        states.start = {
+        stateData.start = {
             ...initialState.start
         }
     }
 
     if (state !== NODE_STATES.DOING_SOMETHING) {
-        states.doing = {
+        stateData.doing = {
             ...initialState.doing
         }
     }
+}
+
+const up = (node: Node) => (running: boolean) => {
+    const { stateData } = node
+    let state: NODE_STATES = null
+    stateData.up.time = getDateNow()
+    node.stateReset(state)
+
+    if (running) {
+        state = NODE_STATES.RUNNING
+        node.stateTransit(NODE_STATES.UP)
+        node.stateTransit(NODE_STATES.RUNNING)
+        return state
+    }
+
+    state = NODE_STATES.UP
+    node.stateTransit(NODE_STATES.UP)
+
+    return state
+}
+
+const down = (node: Node) => () => {
+    const { stateData } = node
+    const state = NODE_STATES.DOWN
+    stateData.down.time = getDateNow()
+    node.stateReset(state)
+    node.stateTransit(state)
+
+    return state
+}
+
+const start = (node: Node, eventsDriver: EventsDriver) => () => {
+    const { stateData } = node
+    const time = getDateNow()
+    const state = NODE_STATES.RUNNING
+    stateData.start.time = time
+    node.stateReset(state)
+    node.stateTransit(state)
+
+    eventsDriver.emit(EVENTS.NODE.UPDATE, {
+        type: EVENTS_TYPES.NODE_UPDATE_TYPES.START
+        , payload: {
+            time
+        }
+    })
+}
+
+const stop = (node: Node, eventsDriver: EventsDriver) => (reason: string = null) => {
+    const { stateData } = node
+    const time = getDateNow()
+    const state = NODE_STATES.STOPPED
+    stateData.stop.time = time
+    stateData.stop.reason = reason
+    node.stateReset(state)
+    node.stateTransit(state)
+
+    eventsDriver.emit(EVENTS.NODE.UPDATE, {
+        type: EVENTS_TYPES.NODE_UPDATE_TYPES.STOP
+        , payload: {
+            time
+            , reason
+        }
+    })
+}
+
+const doing = (node: Node, eventsDriver: EventsDriver) => (reason: string = null) => {
+    const { stateData } = node
+    const time = getDateNow()
+    const state = NODE_STATES.DOING_SOMETHING
+    stateData.doing.time = time
+    stateData.doing.reason = reason
+    node.stateReset(state)
+    node.stateTransit(state)
+
+    eventsDriver.emit(EVENTS.NODE.UPDATE, {
+        type: EVENTS_TYPES.NODE_UPDATE_TYPES.DOING
+        , payload: {
+            time
+            , reason
+        }
+    })
 }
 
 type NodeSuperArgs = {
@@ -188,7 +277,7 @@ type NodeSuperArgs = {
     , replica: boolean
 }
 
-const NodeSuper = (args: NodeSuperArgs): NodeSuper => {
+const NodeMain = (args: NodeSuperArgs): NodeMain => {
     const { host, port, meta } = args
     const iid = createUuid()
     const index = genRandomNumber()
@@ -218,19 +307,28 @@ const NodeSuper = (args: NodeSuperArgs): NodeSuper => {
 }
 
 type NodeArgs = {
-    options?: NodeOptions
+    eventsDriver: EventsDriver
+    , options?: NodeOptions
 }
 
 const Node = ({
-    options: {
+    eventsDriver
+    , options: {
         id = nodeOptions.id
         , host = nodeOptions.host
         , port = nodeOptions.port
         , meta = nodeOptions.meta
         , replica = nodeOptions.replica
     } = nodeOptions }: NodeArgs): Node => {
-    const stateMachineTransition = craateStateMachine(nodeStates)
-    const initialState: NodeStates = {
+    const nodeSuper = NodeMain({
+        id
+        , host
+        , port
+        , meta
+        , replica
+    })
+
+    const initialStateData: NodeStates = {
         up: {
             time: null
         }
@@ -252,52 +350,58 @@ const Node = ({
         }
     }
 
-    const states = { ...initialState }
-    const nodeSuper = NodeSuper({
-        id
-        , host
-        , port
-        , meta
-        , replica
-    })
+    const stateMachineTransition = craateStateMachine(nodeStates)
+    const stateData = { ...initialStateData }
 
     const node: Node = {
         ...nodeSuper
-        , transitState: null
-        , resetStates: resetStates(initialState, states)
-        , set up(value: NodeUp) {
-            states.up = value
-        }
-        , get up() {
-            return states.up
-        }
-        , set down(value: NodeDown) {
-            states.down = value
-        }
-        , get down() {
-            return states.down
-        }
-        , get stop() {
-            return states.stop
-        }
-        , set stop(value: NodeStop) {
-            states.stop = value
-        }
-        , get start() {
-            return states.start
-        }
-        , set start(value: NodeStart) {
-            states.start = value
-        }
-        , get doing() {
-            return states.doing
-        }
-        , set doing(value: NodeDoing) {
-            states.doing = value
+        , stateTransit: null
+        , stateReset: stateReset(initialStateData, stateData)
+        , up: null
+        , down: null
+        , start: null
+        , stop: null
+        , doing: null
+        , stateData: {
+            set up(value: NodeUp) {
+                stateData.up = value
+            }
+            , get up() {
+                return stateData.up
+            }
+            , set down(value: NodeDown) {
+                stateData.down = value
+            }
+            , get down() {
+                return stateData.down
+            }
+            , get stop() {
+                return stateData.stop
+            }
+            , set stop(value: NodeStop) {
+                stateData.stop = value
+            }
+            , get start() {
+                return stateData.start
+            }
+            , set start(value: NodeStart) {
+                stateData.start = value
+            }
+            , get doing() {
+                return stateData.doing
+            }
+            , set doing(value: NodeDoing) {
+                stateData.doing = value
+            }
         }
     }
 
-    node.transitState = transitState(node, stateMachineTransition)
+    node.up = up(node)
+    node.down = down(node)
+    node.start = start(node, eventsDriver)
+    node.stop = stop(node, eventsDriver)
+    node.doing = doing(node, eventsDriver)
+    node.stateTransit = stateTransit(node, stateMachineTransition)
     return node
 }
 

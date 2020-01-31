@@ -1,6 +1,5 @@
 import * as EVENTS from './constants/events'
-import * as EVENTS_TYPES from './constants/eventTypes'
-import { Node, NodeSuper, NodeOptions, NodeRegistre, createNode, NODE_STATES } from './node'
+import { Node, NodeMain, NodeOptions, NodeRegistre, createNode } from './node'
 import { Transport, TransportOptionsCompose, TransportTypes, createTransport } from './transport/transport'
 import { Discovery, DiscoveryOptions, createDiscovery } from './discovery'
 import { DependencyManagerOptions, createdependencyManager, DependencyManager } from './dependency'
@@ -10,7 +9,6 @@ import { createRepository, Repository } from './repository'
 import { createOrchester, Orchester } from './orchester'
 import { createSuscriber, Suscriber, SuscriberFn } from './suscriber'
 import { createStore } from './store'
-import { getDateNow } from './utils/utils'
 
 export type KableComposedOptions = NodeOptions
     & DiscoveryOptions
@@ -18,7 +16,7 @@ export type KableComposedOptions = NodeOptions
     & TransportOptionsCompose
     & DependencyManagerOptions
 
-export interface Kable extends NodeSuper {
+export interface Kable extends NodeMain {
     /** Start all internals processes and set that node in up state */
     up(running?: boolean): Promise<void>
     /** Terminate all internals processes and set that node in down state */
@@ -60,82 +58,6 @@ const handleShutdown = (invoke: FnShutdown) => {
     }
 }
 
-const handleRunState = (node: Node, running: boolean) => {
-    let state: NODE_STATES = null
-    node.up.time = getDateNow()
-    node.resetStates(state)
-
-    if (running) {
-        state = NODE_STATES.RUNNING
-        node.transitState(NODE_STATES.UP)
-        node.transitState(NODE_STATES.RUNNING)
-        return state
-    }
-
-    state = NODE_STATES.UP
-    node.transitState(NODE_STATES.UP)
-
-    return state
-}
-
-const handleTerminateState = (node: Node) => {
-    const state = NODE_STATES.DOWN
-    node.down.time = getDateNow()
-    node.resetStates(state)
-    node.transitState(state)
-
-    return state
-}
-
-const start = (node: Node, eventsDriver: EventsDriver) => () => {
-    const time = getDateNow()
-    const state = NODE_STATES.RUNNING
-    node.start.time = time
-    node.resetStates(state)
-    node.transitState(state)
-
-    eventsDriver.emit(EVENTS.NODE.UPDATE, {
-        type: EVENTS_TYPES.NODE_UPDATE_TYPES.START
-        , payload: {
-            time
-        }
-    })
-}
-
-const stop = (node: Node, eventsDriver: EventsDriver) => (reason: string = null) => {
-    const time = getDateNow()
-    const state = NODE_STATES.STOPPED
-    node.stop.time = time
-    node.stop.reason = reason
-    node.resetStates(state)
-    node.transitState(state)
-
-    eventsDriver.emit(EVENTS.NODE.UPDATE, {
-        type: EVENTS_TYPES.NODE_UPDATE_TYPES.STOP
-        , payload: {
-            time
-            , reason
-        }
-    })
-}
-
-const doing = (node: Node, eventsDriver: EventsDriver) => (reason: string = null) => {
-    const time = getDateNow()
-    const state = NODE_STATES.DOING_SOMETHING
-    node.doing.time = time
-    node.doing.reason = reason
-    node.resetStates(state)
-    node.transitState(state)
-
-    eventsDriver.emit(EVENTS.NODE.UPDATE, {
-        type: EVENTS_TYPES.NODE_UPDATE_TYPES.DOING
-        , payload: {
-            time
-            , reason
-        }
-    })
-}
-
 type UpArgs = {
     node: Node
     , transport: Transport
@@ -149,13 +71,13 @@ const up = ({
     , discovery
     , eventsDriver
 }: UpArgs) => async (running = true) => {
-    handleRunState(node, running)
+    const { stateData } = node
+    node.up(running)
     await transport.bind()
     await discovery.start()
-
     eventsDriver.emit(EVENTS.SYSTEM.UP, {
         payload: {
-            time: node.up.time
+            time: stateData.up.time
         }
     })
 }
@@ -174,14 +96,15 @@ const down = ({
     , discovery
     , eventsDriver
     , detachHandleShutdown }: DownArgs) => async () => {
-        handleTerminateState(node)
+        const { stateData } = node
+        node.down()
         detachHandleShutdown()
         await discovery.stop('down', null)
         await transport.close()
 
         eventsDriver.emit(EVENTS.SYSTEM.DOWN, {
             payload: {
-                time: node.down.time
+                time: stateData.down.time
             }
         })
     }
@@ -196,13 +119,14 @@ const downAbrupt = (
     , discovery: Discovery
     , transport: Transport
     , eventsDriver: EventsDriver) => async (signal: string, code?: number) => {
-        handleTerminateState(node)
+        const { stateData } = node
+        node.down()
         await discovery.stop(signal, code)
         await transport.close()
 
         eventsDriver.emit(EVENTS.SYSTEM.DOWN, {
             payload: {
-                time: node.down.time
+                time: stateData.down.time
             }
         })
     }
@@ -224,7 +148,8 @@ export const implementables = (options: KableComposedOptions): Implementables =>
     const eventsDriver = createEventsDriver()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const node = createNode({
-        options: {
+        eventsDriver
+        , options: {
             id: options.id
             , host: options.host
             , port: options.port
@@ -321,9 +246,15 @@ export const KableCore = (impl: Implementables): Kable => {
             , eventsDriver
             , detachHandleShutdown
         })
-        , start: start(node, eventsDriver)
-        , stop: stop(node, eventsDriver)
-        , doing: doing(node, eventsDriver)
+        , start: () => {
+            node.start()
+        }
+        , stop: () => {
+            node.stop()
+        }
+        , doing: () => {
+            node.doing()
+        }
         , pick: (id: string, options?: PickOptions) => {
             return nodePicker.pick(id, options)
         }

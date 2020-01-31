@@ -114,12 +114,13 @@ test.serial('state transition, check node registre only up', async (t) => {
     await bar.up()
 
     const pick = await foo.pick('bar')
+    const { stateData } = pick
 
-    t.truthy(pick.up.time)
-    t.falsy(pick.down)
-    t.falsy(pick.start)
-    t.falsy(pick.stop)
-    t.falsy(pick.doing)
+    t.truthy(stateData.up.time)
+    t.falsy(stateData.down)
+    t.falsy(stateData.start)
+    t.falsy(stateData.stop)
+    t.falsy(stateData.doing)
 
     bar.down()
     foo.down()
@@ -138,12 +139,13 @@ test.serial('state transition, check node registre on start', async (t) => {
     })
 
     const pick = await check()
+    const { stateData } = pick
 
-    t.truthy(pick.up)
-    t.truthy(pick.start.time)
-    t.falsy(pick.down)
-    t.falsy(pick.stop)
-    t.falsy(pick.doing)
+    t.truthy(stateData.up)
+    t.truthy(stateData.start.time)
+    t.falsy(stateData.down)
+    t.falsy(stateData.stop)
+    t.falsy(stateData.doing)
 
     foo.down()
     bar.down()
@@ -164,13 +166,14 @@ test.serial('state transition, check node registre on stop', async (t) => {
     })
 
     const pick = await check()
+    const { stateData } = pick
 
-    t.truthy(pick.up)
-    t.truthy(pick.stop.time)
-    t.is(pick.stop.reason, reason)
-    t.falsy(pick.start)
-    t.falsy(pick.down)
-    t.falsy(pick.doing)
+    t.truthy(stateData.up)
+    t.truthy(stateData.stop.time)
+    t.is(stateData.stop.reason, reason)
+    t.falsy(stateData.start)
+    t.falsy(stateData.down)
+    t.falsy(stateData.doing)
 
     foo.down()
     bar.down()
@@ -191,13 +194,13 @@ test.serial('state transition, check node registre on doing', async (t) => {
     })
 
     const pick = await check()
-
-    t.truthy(pick.up)
-    t.truthy(pick.doing.time)
-    t.truthy(pick.doing.reason)
-    t.falsy(pick.stop)
-    t.falsy(pick.start)
-    t.falsy(pick.down)
+    const { stateData } = pick
+    t.truthy(stateData.up)
+    t.truthy(stateData.doing.time)
+    t.truthy(stateData.doing.reason)
+    t.falsy(stateData.stop)
+    t.falsy(stateData.start)
+    t.falsy(stateData.down)
 
     foo.down()
     bar.down()
@@ -229,7 +232,7 @@ test.serial('suscribe all node changes', async (t) => {
     const check = (): Promise<NodeEmitter[]> => new Promise((resolve) => {
         const nodes: NodeEmitter[] = []
         foo.suscribeAll((payload) => {
-            if (payload.up) {
+            if (payload.stateData.up) {
                 nodes.push(payload)
             }
 
@@ -241,9 +244,9 @@ test.serial('suscribe all node changes', async (t) => {
     })
 
     const [nFaz, nBar] = await check()
-    t.truthy(nFaz.up.time)
+    t.truthy(nFaz.stateData.up.time)
     t.is(nFaz.id, faz.id)
-    t.truthy(nBar.up.time)
+    t.truthy(nBar.stateData.up.time)
     t.is(nBar.id, bar.id)
 
     foo.down()
@@ -258,7 +261,7 @@ test.serial('suscribe to node up', async (t) => {
 
     const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
         foo.suscribe('bar', (payload) => {
-            if (payload.up) {
+            if (payload.stateData.up) {
                 resolve(payload)
             }
         })
@@ -267,7 +270,7 @@ test.serial('suscribe to node up', async (t) => {
     })
 
     const n = await check()
-    t.truthy(n.up.time)
+    t.truthy(n.stateData.up.time)
 
     foo.down()
     bar.down()
@@ -281,7 +284,7 @@ test.serial('suscribe to node down', async (t) => {
 
     const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
         foo.suscribe('bar', (payload) => {
-            if (payload.down) {
+            if (payload.stateData.down) {
                 resolve(payload)
             }
         })
@@ -289,7 +292,7 @@ test.serial('suscribe to node down', async (t) => {
     })
 
     const n = await check()
-    t.truthy(n.down.time)
+    t.truthy(n.stateData.down.time)
 
     foo.down()
 })
@@ -302,7 +305,7 @@ test.serial('suscribe and call node start', async (t) => {
 
     const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
         foo.suscribe('bar', (payload) => {
-            if (payload.start) {
+            if (payload.stateData.start) {
                 resolve(payload)
             }
         })
@@ -311,7 +314,7 @@ test.serial('suscribe and call node start', async (t) => {
     })
 
     const n = await check()
-    t.truthy(n.start.time)
+    t.truthy(n.stateData.start.time)
 
     foo.down()
     bar.down()
@@ -325,7 +328,7 @@ test.serial('suscribe and call node stop', async (t) => {
 
     const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
         foo.suscribe('bar', (payload) => {
-            if (payload.stop) {
+            if (payload.stateData.stop) {
                 resolve(payload)
             }
         })
@@ -334,7 +337,7 @@ test.serial('suscribe and call node stop', async (t) => {
     })
 
     const n = await check()
-    t.truthy(n.stop.time)
+    t.truthy(n.stateData.stop.time)
 
     foo.down()
     bar.down()
@@ -348,7 +351,7 @@ test.serial('suscribe to node doing', async (t) => {
 
     const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
         foo.suscribe('bar', (payload) => {
-            if (payload.doing) {
+            if (payload.stateData.doing) {
                 resolve(payload)
             }
         })
@@ -357,7 +360,7 @@ test.serial('suscribe to node doing', async (t) => {
     })
 
     const n = await check()
-    t.truthy(n.doing.time)
+    t.truthy(n.stateData.doing.time)
 
     foo.down()
     bar.down()
