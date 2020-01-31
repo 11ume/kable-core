@@ -249,11 +249,11 @@ export const KableCore = (impl: Implementables): Kable => {
         , start: () => {
             node.start()
         }
-        , stop: () => {
-            node.stop()
+        , stop: (reason?: string) => {
+            node.stop(reason)
         }
-        , doing: () => {
-            node.doing()
+        , doing: (reason?: string) => {
+            node.doing(reason)
         }
         , pick: (id: string, options?: PickOptions) => {
             return nodePicker.pick(id, options)
