@@ -17,8 +17,8 @@ test('create node whitout options', (t) => {
         , ignoreInstance: true
 
     }
-
-    const n = createNode()
+    const eventsDriver = createEventsDriver()
+    const n = createNode({ eventsDriver })
     t.is(n.id, options.id)
     t.is(n.port, options.port)
     t.is(n.host, options.host)
@@ -57,14 +57,16 @@ test('create node whit options', (t) => {
 })
 
 test('check node legal state transition', async (t) => {
-    const n = createNode()
+    const eventsDriver = createEventsDriver()
+    const n = createNode({ eventsDriver })
     t.is(n.state, NODE_STATES.DOWN)
     n.stateTransit(NODE_STATES.UP)
     t.is(n.state, NODE_STATES.UP)
 })
 
 test('check node ilegal state transition', async (t) => {
-    const n = createNode()
+    const eventsDriver = createEventsDriver()
+    const n = createNode({ eventsDriver })
     const err = t.throws(() => n.stateTransit(NODE_STATES.DOWN))
     const customErr = ERROR.ILLEGAL_TRANSITION_STATE
     t.is(err.name, customErr.name)
@@ -72,7 +74,8 @@ test('check node ilegal state transition', async (t) => {
 })
 
 test('check node resetStates', async (t) => {
-    const n = createNode()
+    const eventsDriver = createEventsDriver()
+    const n = createNode({ eventsDriver })
     const { stateData } = n
     stateData.up.time = 1
     n.stateReset(NODE_STATES.UP)

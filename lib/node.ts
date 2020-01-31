@@ -103,13 +103,13 @@ export interface NodePacket extends NodeBase {
 }
 
 export interface Node extends NodeBase {
-    stateReset: (state: NODE_STATES) => void
-    , stateTransit: (newState: NODE_STATES) => void
-    , up: (running?: boolean) => void
+    up: (running?: boolean) => void
     , down: () => void
     , start: () => void
     , stop: (reason?: string) => void
     , doing: (reason?: string) => void
+    , stateReset: (state: NODE_STATES) => void
+    , stateTransit: (newState: NODE_STATES) => void
 }
 
 export type NodeOptions = {
@@ -405,6 +405,6 @@ const Node = ({
     return node
 }
 
-export const createNode = (args?: NodeArgs) => {
+export const createNode = (args: NodeArgs) => {
     return Node(args)
 }
