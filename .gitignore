@@ -7,3 +7,4 @@
 postinstall.js
 yarn-error.log
 /dev
+/yarn.lock
