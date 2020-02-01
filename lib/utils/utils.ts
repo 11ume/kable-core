@@ -15,7 +15,7 @@ export const arrIfCheckExist = <T>(arr: T[], key: T) => Boolean(arr.filter((i) =
 
 export const createUuid = (options?: V4Options) => uuid(options)
 
-export const getDateNow = () => Date.now() / 1000 | 0
+export const getDateNow = () => Math.floor(Date.now() / 1000)
 
 export const delay = (time: number, fn?: (...args: any[]) => any) => new Promise((r) => setTimeout(() => {
     fn && fn()
