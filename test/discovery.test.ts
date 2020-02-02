@@ -14,11 +14,12 @@ import {
 } from '../lib/eventsDriver'
 
 const create = (id: string, ignoreInstance = false) => {
-    const nodesStore = createStore<NodeRegistre>()
     const eventsDriver = createEventsDriver()
+    const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const node = createNode({
-        eventsDriver
+        nodesRepository
+        , eventsDriver
         , options: {
             id
         }

@@ -1,7 +1,8 @@
+import { Repository } from './repository'
 import * as os from 'os'
 import * as EVENTS from './constants/events'
 import * as EVENTS_TYPES from './constants/eventTypes'
-import { createUuid, craateStateMachine, genRandomNumber, getDateNow } from './utils/utils'
+import { createUuid, craateStateMachine, genRandomNumber, getDateNow, fnPatch } from './utils/utils'
 import { pid } from './constants/core'
 import { EventsDriver } from './eventsDriver'
 
@@ -76,6 +77,8 @@ export interface NodeMain {
     hostname: string
     /** Node is replica */
     replica: NodeReplica
+    /** Node registre */
+    registre?: string[]
 }
 
 export interface NodeBase extends NodeMain {
@@ -269,21 +272,40 @@ const doing = (node: Node, eventsDriver: EventsDriver) => (reason: string = null
     })
 }
 
+const onAddNodeRegistre = (nodeIdsRegistre: string[], id: string) => {
+    if (nodeIdsRegistre.includes(id)) return
+    nodeIdsRegistre.push(id)
+}
+
+const onRemoveNodeRegistre = (nodeIdsRegistre: string[], id: string) => {
+    return nodeIdsRegistre.filter((i) => i !== id)
+}
+
 type NodeSuperArgs = {
     id: string
     , host: string
     , port: number
     , meta: NodeMetadata
     , replica: boolean
+    , nodesRepository: Repository<NodeRegistre>
 }
 
 const NodeMain = (args: NodeSuperArgs): NodeMain => {
-    const { host, port, meta } = args
+    const { host, port, meta, nodesRepository } = args
     const iid = createUuid()
     const index = genRandomNumber()
     const replica = handleReplica(args.replica, args.id)
     const id = handleId(replica, args.id)
+    const nodeIdsRegistre: string[] = []
     let state = NODE_STATES.DOWN
+
+    fnPatch('add', nodesRepository, (_: string, nodeRegistre: NodeRegistre) => {
+        onAddNodeRegistre(nodeIdsRegistre, nodeRegistre.id)
+    })
+
+    fnPatch('remove', nodesRepository, (_: string, nodeRegistre: NodeRegistre) => {
+        onRemoveNodeRegistre(nodeIdsRegistre, nodeRegistre.id)
+    })
 
     return {
         id
@@ -294,6 +316,9 @@ const NodeMain = (args: NodeSuperArgs): NodeMain => {
         , index
         , replica
         , hostname
+        , get registre() {
+            return nodeIdsRegistre
+        }
         , get meta() {
             return meta
         }
@@ -308,11 +333,13 @@ const NodeMain = (args: NodeSuperArgs): NodeMain => {
 
 type NodeArgs = {
     eventsDriver: EventsDriver
+    , nodesRepository: Repository<NodeRegistre>
     , options?: NodeOptions
 }
 
 const Node = ({
     eventsDriver
+    , nodesRepository
     , options: {
         id = nodeOptions.id
         , host = nodeOptions.host
@@ -326,8 +353,8 @@ const Node = ({
         , port
         , meta
         , replica
+        , nodesRepository
     })
-
     const initialStateData: NodeStates = {
         up: {
             time: null
@@ -349,10 +376,8 @@ const Node = ({
             , reason: null
         }
     }
-
     const stateMachineTransition = craateStateMachine(nodeStates)
     const stateData = { ...initialStateData }
-
     const node: Node = {
         ...nodeSuper
         , up: null

@@ -1,10 +1,16 @@
 import test from 'ava'
 import * as os from 'os'
-import { createNode, nodeStates, NODE_STATES } from '../lib/node'
+import { createNode, nodeStates, NODE_STATES, NodeRegistre } from '../lib/node'
 import ERROR from '../lib/constants/error'
 import { createEventsDriver } from '../lib/eventsDriver'
+import { createStore } from '../lib/store'
+import { createRepository } from '../lib/repository'
 
 test('create node whitout options', (t) => {
+    const nodesStore = createStore<NodeRegistre>()
+    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
+    const eventsDriver = createEventsDriver()
+
     const options = {
         id: os.hostname()
         , port: 3000
@@ -17,8 +23,7 @@ test('create node whitout options', (t) => {
         , ignoreInstance: true
 
     }
-    const eventsDriver = createEventsDriver()
-    const n = createNode({ eventsDriver })
+    const n = createNode({ nodesRepository, eventsDriver })
     t.is(n.id, options.id)
     t.is(n.port, options.port)
     t.is(n.host, options.host)
@@ -29,8 +34,11 @@ test('create node whitout options', (t) => {
 })
 
 test('create node whit options', (t) => {
+    const nodesStore = createStore<NodeRegistre>()
+    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const metaMessage = 'foo buffer'
     const payload = Buffer.alloc(metaMessage.length)
+
     const options = {
         id: 'foo'
         , port: 3000
@@ -46,7 +54,7 @@ test('create node whit options', (t) => {
     }
 
     const eventsDriver = createEventsDriver()
-    const n = createNode({ eventsDriver, options })
+    const n = createNode({ nodesRepository, eventsDriver, options })
     t.is(n.id, options.id)
     t.is(n.port, options.port)
     t.is(n.host, options.host)
@@ -57,16 +65,20 @@ test('create node whit options', (t) => {
 })
 
 test('check node legal state transition', async (t) => {
+    const nodesStore = createStore<NodeRegistre>()
+    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const eventsDriver = createEventsDriver()
-    const n = createNode({ eventsDriver })
+    const n = createNode({ nodesRepository, eventsDriver })
     t.is(n.state, NODE_STATES.DOWN)
     n.stateTransit(NODE_STATES.UP)
     t.is(n.state, NODE_STATES.UP)
 })
 
 test('check node ilegal state transition', async (t) => {
+    const nodesStore = createStore<NodeRegistre>()
+    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const eventsDriver = createEventsDriver()
-    const n = createNode({ eventsDriver })
+    const n = createNode({ nodesRepository, eventsDriver })
     const err = t.throws(() => n.stateTransit(NODE_STATES.DOWN))
     const customErr = ERROR.ILLEGAL_TRANSITION_STATE
     t.is(err.name, customErr.name)
@@ -74,8 +86,10 @@ test('check node ilegal state transition', async (t) => {
 })
 
 test('check node resetStates', async (t) => {
+    const nodesStore = createStore<NodeRegistre>()
+    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const eventsDriver = createEventsDriver()
-    const n = createNode({ eventsDriver })
+    const n = createNode({ nodesRepository, eventsDriver })
     const { stateData } = n
     stateData.up.time = 1
     n.stateReset(NODE_STATES.UP)

@@ -6,12 +6,12 @@ type Registre = {
 
 export interface Repository<T extends Registre> {
     add: (key: number, registre: T) => void
-    remove: (key: number, _nodeRegistre?: T) => boolean
-    clearAll: () => void
-    getOne: (key: number) => T
-    getAll: () => IterableIterator<T>
-    getOneById: (id: string) => T
-    size: () => number
+    , remove: (key: number, _nodeRegistre?: T) => boolean
+    , clearAll: () => void
+    , getOne: (key: number) => T
+    , getAll: () => IterableIterator<T>
+    , getOneById: (id: string) => T
+    , size: () => number
 }
 
 const size = <T extends Registre>(registres: RepositoryRegistre<T>) => () => registres.size

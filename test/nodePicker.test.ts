@@ -11,10 +11,11 @@ import { NodeRegistre, NODE_STATES } from '../lib/node'
 import { createEventsDriver } from '../lib/eventsDriver'
 
 const create = (id: string, options: NodePickerOptions = {}) => {
+    const nodesStore = createStore<NodeRegistre>()
+    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const eventsDriver = createEventsDriver()
-    const node = createNode({ eventsDriver, options: { id } })
+    const node = createNode({ nodesRepository, eventsDriver, options: { id } })
     const nodeStore = createStore<NodeRegistre>()
-    const nodesRepository = createRepository<NodeRegistre>(nodeStore)
     const orchester = createOrchester(nodesRepository)
     const nodePicker = createNodePicker({
         orchester

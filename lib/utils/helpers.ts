@@ -75,6 +75,7 @@ export const createNodeRegistre = (id: string
         , hostname: ''
         , ensured: false
         , lastSeen: 0
+        , registre: ['bar']
         , state
         , stateData: {
             up: {
