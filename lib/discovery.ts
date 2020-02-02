@@ -111,8 +111,9 @@ const manageDataToStoreInRegistre = ({
     , meta = null
     , index
     , replica
-    , hostname
     , ensured
+    , hostname
+    , registre
     , stateData: {
         up
         , down = null
@@ -122,7 +123,7 @@ const manageDataToStoreInRegistre = ({
     }
     , state }: NodeEmitter): Partial<NodeRegistre> => {
     const lastSeen = getDateNow()
-    const data = {
+    const data: NodeRegistre = {
         id
         , port
         , host
@@ -131,8 +132,9 @@ const manageDataToStoreInRegistre = ({
         , meta
         , index
         , replica
-        , hostname
         , ensured
+        , hostname
+        , registre
         , state
         , lastSeen
         , stateData: {
@@ -159,8 +161,9 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , index
         , meta
         , replica
-        , hostname
         , ensured
+        , hostname
+        , registre
         , state
         , stateData: {
             up
@@ -180,8 +183,9 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , meta
         , index
         , replica
-        , hostname
         , ensured
+        , hostname
+        , registre
         , state
         , lastSeen: null
         , stateData: {
@@ -264,7 +268,12 @@ const resolvetHostResolutionAddress = (payload: NodeEmitter) => {
 const send = (transport: Transport
     , node: Node
     , event: EVENTS.DISCOVERY
-    , { state, up, down = null, start = null, stop = null, doing = null }: SendPayload) => {
+    , { state
+        , up
+        , down = null
+        , start = null
+        , stop = null
+        , doing = null }: SendPayload) => {
 
     const {
         id
@@ -276,6 +285,7 @@ const send = (transport: Transport
         , index
         , replica
         , hostname
+        , registre
     } = node
 
     const data = {
@@ -289,6 +299,7 @@ const send = (transport: Transport
         , index
         , replica
         , hostname
+        , registre
         , state
         , stateData: {
             up

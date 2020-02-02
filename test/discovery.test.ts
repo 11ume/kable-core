@@ -18,7 +18,8 @@ const create = (id: string, ignoreInstance = false) => {
     const eventsDriver = createEventsDriver()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const node = createNode({
-        eventsDriver
+        nodesRepository
+        , eventsDriver
         , options: {
             id
         }

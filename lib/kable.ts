@@ -146,7 +146,8 @@ export const implementables = (options: KableComposedOptions): Implementables =>
     const eventsDriver = createEventsDriver()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const node = createNode({
-        eventsDriver
+        nodesRepository
+        , eventsDriver
         , options: {
             id: options.id
             , host: options.host
@@ -155,9 +156,7 @@ export const implementables = (options: KableComposedOptions): Implementables =>
             , replica: options.replica
         }
     })
-
     const orchester = createOrchester(nodesRepository)
-
     const transport = createTransport({
         type: TransportTypes.DGRAM
         , eventsDriver
@@ -172,7 +171,6 @@ export const implementables = (options: KableComposedOptions): Implementables =>
             , protocol: options.protocol
         }
     })
-
     const discovery = createDiscovery({
         node
         , transport
@@ -184,21 +182,18 @@ export const implementables = (options: KableComposedOptions): Implementables =>
             , ignoreInstance: options.ignoreInstance
         }
     })
-
     const dependencyManager = createdependencyManager({
         nodesRepository
         , options: {
             depedencies: options.depedencies
         }
     })
-
     const nodePicker = createNodePicker({
         orchester
         , options: {
             pickTimeoutOut: options.pickTimeoutOut
         }
     })
-
     const suscriber = createSuscriber({ eventsDriver })
 
     return {
@@ -223,7 +218,6 @@ export const KableCore = (impl: Implementables): Kable => {
         , nodePicker
         , eventsDriver
     } = impl
-
     const detachHandleShutdown = handleShutdown(downAbrupt(node, discovery, transport, eventsDriver))
 
     return {
@@ -290,6 +284,9 @@ export const KableCore = (impl: Implementables): Kable => {
         }
         , get replica() {
             return node.replica
+        }
+        , get registre() {
+            return node.registre
         }
     }
 }

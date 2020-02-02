@@ -223,7 +223,7 @@ test.serial('create send and recibe node whit metadata', async (t) => {
     bar.down()
 })
 
-test.serial('suscribe all node changes', async (t) => {
+test.serial('subscribe to all available nodes changes', async (t) => {
     const foo = kable('foo')
     const faz = kable('faz')
     const bar = kable('bar')
@@ -254,7 +254,30 @@ test.serial('suscribe all node changes', async (t) => {
     bar.down()
 })
 
-test.serial('suscribe to node up', async (t) => {
+test.serial('suscribe and check registred node', async (t) => {
+    const foo = kable('foo')
+    const bar = kable('bar')
+    await foo.up()
+
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        foo.suscribe('bar', (payload) => {
+            if (payload.registre) {
+                resolve(payload)
+            }
+        })
+
+        bar.up()
+    })
+
+    const n = await check()
+    t.true(Array.isArray(n.registre))
+    t.is(n.registre.length, 1)
+
+    foo.down()
+    bar.down()
+})
+
+test.serial('suscribe and call node up', async (t) => {
     const foo = kable('foo')
     const bar = kable('bar')
     await foo.up()
@@ -276,7 +299,7 @@ test.serial('suscribe to node up', async (t) => {
     bar.down()
 })
 
-test.serial('suscribe to node down', async (t) => {
+test.serial('suscribe and call node down', async (t) => {
     const foo = kable('foo')
     const bar = kable('bar')
     await foo.up()
