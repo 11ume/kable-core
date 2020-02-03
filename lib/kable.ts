@@ -154,6 +154,7 @@ export const implementables = (options: KableComposedOptions): Implementables =>
             , port: options.port
             , meta: options.meta
             , replica: options.replica
+            , ignorable: options.ignorable
         }
     })
     const orchester = createOrchester(nodesRepository)
@@ -287,6 +288,9 @@ export const KableCore = (impl: Implementables): Kable => {
         }
         , get registre() {
             return node.registre
+        }
+        , get ignorable() {
+            return node.ignorable
         }
     }
 }

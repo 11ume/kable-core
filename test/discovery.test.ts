@@ -13,7 +13,12 @@ import {
     , NodeRegistreAddEmitter
 } from '../lib/eventsDriver'
 
-const create = (id: string, ignoreInstance = false) => {
+type CreateOptions = {
+    ignorable?: boolean
+    , ignoreInstance?: boolean
+}
+
+const create = (id: string, options: CreateOptions = { ignorable: false, ignoreInstance: false }) => {
     const eventsDriver = createEventsDriver()
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
@@ -22,6 +27,7 @@ const create = (id: string, ignoreInstance = false) => {
         , eventsDriver
         , options: {
             id
+            , ignorable: options.ignorable
         }
     })
     const transport = createTransport({
@@ -35,7 +41,7 @@ const create = (id: string, ignoreInstance = false) => {
         , eventsDriver
         , nodesRepository
         , options: {
-            ignoreInstance
+            ignoreInstance: options.ignoreInstance
         }
     })
 
@@ -89,8 +95,8 @@ test.serial('get node unregistre event', async (t) => {
 })
 
 test.serial('check node remove event', async (t) => {
-    const foo = create('foo', true)
-    const bar = create('bar', true)
+    const foo = create('foo', { ignoreInstance: true })
+    const bar = create('bar', { ignoreInstance: true })
     const check = (): Promise<NodeRegistreRemoveEmitter> => new Promise((resolve) => {
         foo.eventsDriver.on(EVENTS.NODE_REGISTRE.REMOVE, resolve)
     })
@@ -110,8 +116,8 @@ test.serial('check node remove event', async (t) => {
 })
 
 test.serial('check node add event', async (t) => {
-    const foo = create('foo', true)
-    const bar = create('bar', true)
+    const foo = create('foo', { ignoreInstance: true })
+    const bar = create('bar', { ignoreInstance: true })
     const check = (): Promise<NodeRegistreAddEmitter> => new Promise((resolve) => {
         foo.eventsDriver.on(EVENTS.NODE_REGISTRE.ADD, resolve)
     })
@@ -128,4 +134,26 @@ test.serial('check node add event', async (t) => {
     foo.discovery.stop('down')
     foo.transport.close()
     bar.transport.close()
+})
+
+test.serial('check ingnorable', async (t) => {
+    const fNode = create('foo', { ignoreInstance: true })
+    const bNode = create('bar', { ignorable: true })
+    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+        fNode.eventsDriver.on(EVENTS.DISCOVERY.ADVERTISEMENT, resolve)
+        setTimeout(resolve, 2000)
+    })
+
+    await fNode.transport.bind()
+    await fNode.discovery.start()
+    await bNode.transport.bind()
+    await bNode.discovery.start()
+
+    const n = await check()
+    t.falsy(n)
+
+    fNode.discovery.stop('down')
+    fNode.transport.close()
+    bNode.discovery.stop('down')
+    bNode.transport.close()
 })

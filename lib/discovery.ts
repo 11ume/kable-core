@@ -114,6 +114,7 @@ const manageDataToStoreInRegistre = ({
     , ensured
     , hostname
     , registre
+    , ignorable
     , stateData: {
         up
         , down = null
@@ -135,6 +136,7 @@ const manageDataToStoreInRegistre = ({
         , ensured
         , hostname
         , registre
+        , ignorable
         , state
         , lastSeen
         , stateData: {
@@ -164,6 +166,7 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , ensured
         , hostname
         , registre
+        , ignorable
         , state
         , stateData: {
             up
@@ -186,6 +189,7 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , ensured
         , hostname
         , registre
+        , ignorable
         , state
         , lastSeen: null
         , stateData: {
@@ -248,7 +252,7 @@ const checkNodeDuplicateId = (node: Node, { id, iid, port, rinfo: { address } }:
 }
 
 // Ignore messages from: self process | self instances
-const checkIgnores = (node: Node, ignoreProcess: boolean, ignoreInstance: boolean, payload: NodeEmitter) => {
+const checkNodeIgnore = (node: Node, ignoreProcess: boolean, ignoreInstance: boolean, payload: NodeEmitter) => {
     const isSameProcess = ignoreProcess && payload.pid === node.pid
     const isSameInstance = ignoreInstance && payload.iid === node.iid
     return (isSameProcess || isSameInstance) ? true : false
@@ -286,6 +290,7 @@ const send = (transport: Transport
         , replica
         , hostname
         , registre
+        , ignorable
     } = node
 
     const data = {
@@ -300,6 +305,7 @@ const send = (transport: Transport
         , replica
         , hostname
         , registre
+        , ignorable
         , state
         , stateData: {
             up
@@ -325,7 +331,8 @@ const onRecibeMessage = (node: Node
             return
         }
 
-        if (checkIgnores(node, ignoreProcess, ignoreInstance, newPayload)) return
+        if (payload.ignorable) return
+        if (checkNodeIgnore(node, ignoreProcess, ignoreInstance, newPayload)) return
         newPayload = resolvetHostResolutionAddress(newPayload)
         handleRecibedMessage(nodesRepository, eventsDriver, newPayload)
     }

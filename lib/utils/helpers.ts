@@ -77,6 +77,7 @@ export const createNodeRegistre = (id: string
         , lastSeen: 0
         , registre: ['bar']
         , state
+        , ignorable: false
         , stateData: {
             up: {
                 time: 0
