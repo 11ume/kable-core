@@ -78,7 +78,9 @@ export interface NodeMain {
     /** Node is replica */
     replica: NodeReplica
     /** Node registre */
-    registre?: string[]
+    registre: string[]
+    /** Make this node ignorable for all others nodes */
+    ignorable: boolean
 }
 
 export interface NodeBase extends NodeMain {
@@ -121,6 +123,7 @@ export type NodeOptions = {
     , port?: number
     , meta?: NodeMetadata
     , replica?: boolean
+    , ignorable?: boolean
 }
 
 type FnTrasitState = <T extends string>(currentState: string, newState: T) => T
@@ -155,6 +158,7 @@ const nodeOptions: NodeOptions = {
     , host: '0.0.0.0'
     , meta: null
     , replica: false
+    , ignorable: false
 }
 
 const handleReplica = (is: boolean, id: string) => {
@@ -287,11 +291,12 @@ type NodeSuperArgs = {
     , port: number
     , meta: NodeMetadata
     , replica: boolean
+    , ignorable: boolean
     , nodesRepository: Repository<NodeRegistre>
 }
 
 const NodeMain = (args: NodeSuperArgs): NodeMain => {
-    const { host, port, meta, nodesRepository } = args
+    const { host, port, meta, ignorable, nodesRepository } = args
     const iid = createUuid()
     const index = genRandomNumber()
     const replica = handleReplica(args.replica, args.id)
@@ -316,6 +321,7 @@ const NodeMain = (args: NodeSuperArgs): NodeMain => {
         , index
         , replica
         , hostname
+        , ignorable
         , get registre() {
             return nodeIdsRegistre
         }
@@ -346,6 +352,7 @@ const Node = ({
         , port = nodeOptions.port
         , meta = nodeOptions.meta
         , replica = nodeOptions.replica
+        , ignorable = nodeOptions.ignorable
     } = nodeOptions }: NodeArgs): Node => {
     const nodeSuper = NodeMain({
         id
@@ -353,6 +360,7 @@ const Node = ({
         , port
         , meta
         , replica
+        , ignorable
         , nodesRepository
     })
     const initialStateData: NodeStates = {
