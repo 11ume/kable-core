@@ -90,10 +90,13 @@ const removeNodeFromRepository = (eventsDriver: EventsDriver
     })
 }
 
-const checkNodesTimeout = (eventsDriver: EventsDriver, nodesRepository: Repository<NodeRegistre>, nodeTimeout: number) => {
+const checkNodesTimeout = (eventsDriver: EventsDriver
+    , nodesRepository: Repository<NodeRegistre>
+    , nodeTimeout: number) => {
     for (const node of nodesRepository.getAll()) {
-        const timeElapsed = Math.abs(node.lastSeen - Date.now())
-        if (timeElapsed >= nodeTimeout) {
+        const timeElapsed = Math.abs(node.lastSeen - getDateNow())
+        const timeOut = Math.abs(nodeTimeout / 1000)
+        if (timeElapsed >= timeOut) {
             removeNodeFromRepository(eventsDriver
                 , nodesRepository
                 , node

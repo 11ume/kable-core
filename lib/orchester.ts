@@ -124,7 +124,7 @@ const onAddNodeRegistre = (nodesRepository: Repository<NodeRegistre>
     onRegistreHandleAwaitPool(nodesRepository, nodeWorkPool, nodeAwaitPool, nodeRegistre)
 }
 
-// check existence of sequencer cant be irrelevant!
+// !check existence of sequencer, this assertion can be irrelevant
 const removeNodeFromStack = (nodeWorkPool: NodeWorkPool, id: string, index: number) => {
     const sequencer = nodeWorkPool.get(id)
     if (objIsFalsy(sequencer)) return

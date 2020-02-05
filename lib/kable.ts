@@ -33,11 +33,11 @@ export interface Kable extends NodeMain {
      * This method can be aborted.
      */
     pick(id: string, options?: PickOptions): Promise<NodeRegistre>
-    /** Start to listen node state changes */
+    /** Start to listen only one node state update | registre | unregistred */
     suscribe(id: string, fn: SuscriberFn): void
-    /** Start to listen all node state changes */
+    /** Start to listen all node state update | registre | unregistred */
     suscribeAll(fn: SuscriberFn): void
-    /** Stop listen node state changes */
+    /** Stop listen node state update | registre | unregistred */
     unsubscribe(fn: SuscriberFn): void
 }
 
@@ -141,6 +141,7 @@ export type Implementables = {
     , dependencyManager: DependencyManager
 }
 
+// injectable modules
 export const implementables = (options: KableComposedOptions): Implementables => {
     const nodesStore = createStore<NodeRegistre>()
     const eventsDriver = createEventsDriver()

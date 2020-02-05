@@ -7,20 +7,17 @@ type StateTable = {
     [key: string]: string[]
 }
 
+/**
+ * Get date now in timestamp format
+ */
+export const getDateNow = () => Math.floor(Date.now() / 1000)
+
+export const createUuid = (options?: V4Options) => uuid(options)
 export const objIsFalsy = <T>(obj: T) => !(typeof obj !== 'undefined' && obj !== null)
 export const arrIsEmpty = <T>(arr: T[]) => arr.length === 0
 export const arrIsNotEmpty = <T>(arr: T[]) => arr.length > 1
 export const arrNumbSortAc = (arr: number[]) => arr.sort((a, b) => a - b)
 export const arrIfCheckExist = <T>(arr: T[], key: T) => Boolean(arr.filter((i) => i === key).length)
-
-export const createUuid = (options?: V4Options) => uuid(options)
-
-export const getDateNow = () => Math.floor(Date.now() / 1000)
-
-export const delay = (time: number, fn?: (...args: any[]) => any) => new Promise((r) => setTimeout(() => {
-    fn && fn()
-    r()
-}, time))
 
 export const createError = (name: string, msg: string) => {
     const err = new Error(msg)
@@ -41,6 +38,11 @@ export const fnPatch = <T, S extends object>(name: string, source: S, invokerFn:
         return ret
     }
 }
+
+export const delay = (time: number, fn?: (...args: any[]) => any) => new Promise((r) => setTimeout(() => {
+    fn && fn()
+    r()
+}, time))
 
 export const genRandomNumber = () => {
     const random = crypto.randomBytes(8).toString('hex')
