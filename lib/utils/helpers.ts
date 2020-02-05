@@ -51,6 +51,7 @@ export const checkEmitterData = (
     t.is(target.index, element.index)
     t.is(target.pid, element.pid)
     t.is(target.port, element.port)
+    t.is(target.advertisementTime, element.advertisementTime)
     t.deepEqual(target.replica, {
         is: false
     })
@@ -76,6 +77,7 @@ export const createNodeRegistre = (id: string
         , ensured: false
         , lastSeen: 0
         , registre: ['bar']
+        , advertisementTime: 2000
         , state
         , ignorable: false
         , stateData: {

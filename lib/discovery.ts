@@ -41,8 +41,7 @@ type SendPayload = {
 }
 
 const discoveryOptions: DiscoveryOptions = {
-    advertisementTime: 2000
-    , ignoreProcess: false
+    ignoreProcess: false
     , ignoreInstance: true
 }
 
@@ -118,6 +117,7 @@ const manageDataToStoreInRegistre = ({
     , hostname
     , registre
     , ignorable
+    , advertisementTime
     , stateData: {
         up
         , down = null
@@ -140,6 +140,7 @@ const manageDataToStoreInRegistre = ({
         , hostname
         , registre
         , ignorable
+        , advertisementTime
         , state
         , lastSeen
         , stateData: {
@@ -170,6 +171,7 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , hostname
         , registre
         , ignorable
+        , advertisementTime
         , state
         , stateData: {
             up
@@ -193,6 +195,7 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , hostname
         , registre
         , ignorable
+        , advertisementTime
         , state
         , lastSeen: null
         , stateData: {
@@ -294,6 +297,7 @@ const send = (transport: Transport
         , hostname
         , registre
         , ignorable
+        , advertisementTime
     } = node
 
     const data = {
@@ -309,6 +313,7 @@ const send = (transport: Transport
         , hostname
         , registre
         , ignorable
+        , advertisementTime
         , state
         , stateData: {
             up
@@ -489,17 +494,25 @@ const Discovery = ({
     , eventsDriver
     , nodesRepository
     , options: {
-        advertisementTime: initAdvertisementTime = discoveryOptions.advertisementTime
-        , ignoreProcess: initIgnoreProcess = discoveryOptions.ignoreProcess
-        , ignoreInstance: initIgnoreInstance = discoveryOptions.ignoreInstance
+        advertisementTime
+        , ignoreProcess = discoveryOptions.ignoreProcess
+        , ignoreInstance = discoveryOptions.ignoreInstance
     } = discoveryOptions }: DiscoveryArgs): Discovery => {
     const nodeDefaultTimeout = 1000
-    const nodeTimeout = setNodeTimeOut(initAdvertisementTime, nodeDefaultTimeout)
+    const nodeTimeout = setNodeTimeOut(advertisementTime, nodeDefaultTimeout)
     const ihNodeTimeout = createIntervalHandler(nodeTimeout, () => checkNodesTimeout(eventsDriver, nodesRepository, nodeTimeout))
-    const ihAdvertisamentTime = createIntervalHandler(initAdvertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleState(node)))
+    const ihAdvertisamentTime = createIntervalHandler(advertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleState(node)))
 
-    eventsDriver.on(EVENTS.TRANSPORT.MESSAGE, onRecibeMessage(node, initIgnoreProcess, initIgnoreInstance, nodesRepository, eventsDriver))
-    eventsDriver.on(EVENTS.NODE.UPDATE, () => sendNodeUpdate(transport, node, eventsDriver, handleState(node)))
+    eventsDriver.on(EVENTS.TRANSPORT.MESSAGE, onRecibeMessage(node
+        , ignoreProcess
+        , ignoreInstance
+        , nodesRepository
+        , eventsDriver))
+
+    eventsDriver.on(EVENTS.NODE.UPDATE, () => sendNodeUpdate(transport
+        , node
+        , eventsDriver
+        , handleState(node)))
 
     return {
         start: start({

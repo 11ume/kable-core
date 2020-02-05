@@ -81,6 +81,8 @@ export interface NodeMain {
     registre: string[]
     /** Make this node ignorable for all others nodes */
     ignorable: boolean
+    /** How often this node is advertised */
+    advertisementTime: number
 }
 
 export interface NodeBase extends NodeMain {
@@ -124,6 +126,7 @@ export type NodeOptions = {
     , meta?: NodeMetadata
     , replica?: boolean
     , ignorable?: boolean
+    , advertisementTime?: number
 }
 
 type FnTrasitState = <T extends string>(currentState: string, newState: T) => T
@@ -159,6 +162,7 @@ const nodeOptions: NodeOptions = {
     , meta: null
     , replica: false
     , ignorable: false
+    , advertisementTime: 2000
 }
 
 const handleReplica = (is: boolean, id: string) => {
@@ -292,11 +296,19 @@ type NodeSuperArgs = {
     , meta: NodeMetadata
     , replica: boolean
     , ignorable: boolean
+    , advertisementTime: number
     , nodesRepository: Repository<NodeRegistre>
 }
 
 const NodeMain = (args: NodeSuperArgs): NodeMain => {
-    const { host, port, meta, ignorable, nodesRepository } = args
+    const {
+        host
+        , port
+        , meta
+        , ignorable
+        , advertisementTime
+        , nodesRepository } = args
+
     const iid = createUuid()
     const index = genRandomNumber()
     const replica = handleReplica(args.replica, args.id)
@@ -322,6 +334,7 @@ const NodeMain = (args: NodeSuperArgs): NodeMain => {
         , replica
         , hostname
         , ignorable
+        , advertisementTime
         , get registre() {
             return nodeIdsRegistre
         }
@@ -353,6 +366,7 @@ const Node = ({
         , meta = nodeOptions.meta
         , replica = nodeOptions.replica
         , ignorable = nodeOptions.ignorable
+        , advertisementTime = nodeOptions.advertisementTime
     } = nodeOptions }: NodeArgs): Node => {
     const nodeSuper = NodeMain({
         id
@@ -361,6 +375,7 @@ const Node = ({
         , meta
         , replica
         , ignorable
+        , advertisementTime
         , nodesRepository
     })
     const initialStateData: NodeStates = {
