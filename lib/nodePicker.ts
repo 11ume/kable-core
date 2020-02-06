@@ -41,7 +41,7 @@ const handleTimeLimitExceded = (id: string) => {
     return createError(errExcededLimit.name, errExcededLimit.message(id))
 }
 
-const pickNodeAwaiter = (orchester: Orchester
+const pickFromAwaiter = (orchester: Orchester
     , timeout: number
     , id: string
     , opAbort: OperationAbort = null): Promise<NodeRegistre> => new Promise((resolve, reject) => {
@@ -78,7 +78,7 @@ const getNodeRegistreFromCache = (orchester: Orchester, id: string): NodeRegistr
     return getNode(orchester, id)
 }
 
-const pickHandlerFromCache = (orchester: Orchester, id: string) => {
+const pickFromCache = (orchester: Orchester, id: string) => {
     const nodeRegistre = getNodeRegistreFromCache(orchester, id)
     return nodeRegistre ? nodeRegistre : null
 }
@@ -86,22 +86,21 @@ const pickHandlerFromCache = (orchester: Orchester, id: string) => {
 type PickArgs = {
     orchester: Orchester
     , pickQueue: PickQueue
-    , picktimeoutOut: number
+    , pickTimeoutOut: number
 }
 
 const pick = ({
     orchester
     , pickQueue
-    , picktimeoutOut
+    , pickTimeoutOut
 }: PickArgs) => (id: string
-    , { timeout = picktimeoutOut, opAbort: opAbort = null }: PickOptions = pickOptions(picktimeoutOut)): Promise<NodeRegistre> => {
+    , { timeout = pickTimeoutOut, opAbort: opAbort = null }: PickOptions = pickOptions(pickTimeoutOut)): Promise<NodeRegistre> => {
         return new Promise((resolve) => {
-            const nodeRegistre = pickHandlerFromCache(orchester, id)
+            const nodeRegistre = pickFromCache(orchester, id)
             if (nodeRegistre) return resolve(nodeRegistre)
 
-            const nodeRegistresAwaiter = pickNodeAwaiter(orchester, timeout, id, opAbort)
+            const nodeRegistresAwaiter = pickFromAwaiter(orchester, timeout, id, opAbort)
             const clearQueue = addAwaiterToPickQueue(pickQueue, id)
-
             return resolve(nodeRegistresAwaiter.finally(clearQueue))
         })
     }
@@ -111,7 +110,7 @@ const getPickQueue = (queue: PickQueue) => () => new Map(queue)
 const NodePicker = ({
     orchester
     , options: {
-        pickTimeoutOut: picktimeoutOut = nodePickerOptions.pickTimeoutOut
+        pickTimeoutOut = nodePickerOptions.pickTimeoutOut
     } = nodePickerOptions
 }: NodePickerArgs): NodePicker => {
     const pickQueue = new Map()
@@ -119,7 +118,7 @@ const NodePicker = ({
         pick: pick({
             orchester
             , pickQueue
-            , picktimeoutOut
+            , pickTimeoutOut
         })
         , getPickQueue: getPickQueue(pickQueue)
     }
