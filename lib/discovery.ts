@@ -26,8 +26,7 @@ export type Discovery = {
 }
 
 export type DiscoveryOptions = {
-    advertisementTime?: number
-    , ignoreProcess?: boolean
+    ignoreProcess?: boolean
     , ignoreInstance?: boolean
 }
 
@@ -40,7 +39,9 @@ type SendPayload = {
     , doing?: NodeDoing
 }
 
-const discoveryOptions: DiscoveryOptions = {
+type TodoPreview = Omit<DiscoveryOptions, 'adTime'>
+
+const discoveryOptions: TodoPreview = {
     ignoreProcess: false
     , ignoreInstance: true
 }
@@ -116,8 +117,8 @@ const manageDataToStoreInRegistre = ({
     , ensured
     , hostname
     , registre
+    , adTime
     , ignorable
-    , advertisementTime
     , stateData: {
         up
         , down = null
@@ -139,8 +140,8 @@ const manageDataToStoreInRegistre = ({
         , ensured
         , hostname
         , registre
+        , adTime
         , ignorable
-        , advertisementTime
         , state
         , lastSeen
         , stateData: {
@@ -170,8 +171,8 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , ensured
         , hostname
         , registre
+        , adTime
         , ignorable
-        , advertisementTime
         , state
         , stateData: {
             up
@@ -194,8 +195,8 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
         , ensured
         , hostname
         , registre
+        , adTime
         , ignorable
-        , advertisementTime
         , state
         , lastSeen: null
         , stateData: {
@@ -296,8 +297,8 @@ const send = (transport: Transport
         , replica
         , hostname
         , registre
+        , adTime
         , ignorable
-        , advertisementTime
     } = node
 
     const data = {
@@ -312,8 +313,8 @@ const send = (transport: Transport
         , replica
         , hostname
         , registre
+        , adTime
         , ignorable
-        , advertisementTime
         , state
         , stateData: {
             up
@@ -370,7 +371,7 @@ const sendNodeUnregistre = (transport: Transport
 }
 
 // node timeout always must be greater to advertisement Time
-const setNodeTimeOut = (advertisementTime: number, nodeDefaultTimeout: number) => advertisementTime + nodeDefaultTimeout
+const setNodeTimeOut = (adTime: number, nodeDefaultTimeout: number) => adTime + nodeDefaultTimeout
 
 const handleStateUp = ({ stateData }: Node) => {
     const up: NodeUp = {
@@ -485,6 +486,7 @@ type DiscoveryArgs = {
     , transport: Transport
     , eventsDriver: EventsDriver
     , nodesRepository: Repository<NodeRegistre>
+    , adTime: number
     , options?: DiscoveryOptions
 }
 
@@ -493,15 +495,15 @@ const Discovery = ({
     , transport
     , eventsDriver
     , nodesRepository
+    , adTime
     , options: {
-        advertisementTime
-        , ignoreProcess = discoveryOptions.ignoreProcess
+        ignoreProcess = discoveryOptions.ignoreProcess
         , ignoreInstance = discoveryOptions.ignoreInstance
     } = discoveryOptions }: DiscoveryArgs): Discovery => {
     const nodeDefaultTimeout = 1000
-    const nodeTimeout = setNodeTimeOut(advertisementTime, nodeDefaultTimeout)
+    const nodeTimeout = setNodeTimeOut(adTime, nodeDefaultTimeout)
     const ihNodeTimeout = createIntervalHandler(nodeTimeout, () => checkNodesTimeout(eventsDriver, nodesRepository, nodeTimeout))
-    const ihAdvertisamentTime = createIntervalHandler(advertisementTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleState(node)))
+    const ihAdvertisamentTime = createIntervalHandler(adTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleState(node)))
 
     eventsDriver.on(EVENTS.TRANSPORT.MESSAGE, onRecibeMessage(node
         , ignoreProcess

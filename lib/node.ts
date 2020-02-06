@@ -79,10 +79,10 @@ export interface NodeMain {
     replica: NodeReplica
     /** Node registre */
     registre: string[]
+    /** How often this node is advertised */
+    adTime: number
     /** Make this node ignorable for all others nodes */
     ignorable: boolean
-    /** How often this node is advertised */
-    advertisementTime: number
 }
 
 export interface NodeBase extends NodeMain {
@@ -125,8 +125,8 @@ export type NodeOptions = {
     , port?: number
     , meta?: NodeMetadata
     , replica?: boolean
+    , adTime?: number
     , ignorable?: boolean
-    , advertisementTime?: number
 }
 
 type FnTrasitState = <T extends string>(currentState: string, newState: T) => T
@@ -162,7 +162,7 @@ const nodeOptions: NodeOptions = {
     , meta: null
     , replica: false
     , ignorable: false
-    , advertisementTime: 2000
+    , adTime: 2000
 }
 
 const handleReplica = (is: boolean, id: string) => {
@@ -289,30 +289,29 @@ const onRemoveNodeRegistre = (nodeIdsRegistre: string[], id: string) => {
     return nodeIdsRegistre.filter((i) => i !== id)
 }
 
-type NodeSuperArgs = {
+type NodeSuperOptions = {
     id: string
     , host: string
     , port: number
     , meta: NodeMetadata
     , replica: boolean
+    , adTime: number
     , ignorable: boolean
-    , advertisementTime: number
-    , nodesRepository: Repository<NodeRegistre>
 }
 
-const NodeMain = (args: NodeSuperArgs): NodeMain => {
+const NodeMain = (nodesRepository: Repository<NodeRegistre>
+    , options: NodeSuperOptions): NodeMain => {
     const {
         host
         , port
         , meta
-        , ignorable
-        , advertisementTime
-        , nodesRepository } = args
+        , adTime
+        , ignorable } = options
 
     const iid = createUuid()
     const index = genRandomNumber()
-    const replica = handleReplica(args.replica, args.id)
-    const id = handleId(replica, args.id)
+    const replica = handleReplica(options.replica, options.id)
+    const id = handleId(replica, options.id)
     const nodeIdsRegistre: string[] = []
     let state = NODE_STATES.DOWN
 
@@ -333,8 +332,8 @@ const NodeMain = (args: NodeSuperArgs): NodeMain => {
         , index
         , replica
         , hostname
+        , adTime
         , ignorable
-        , advertisementTime
         , get registre() {
             return nodeIdsRegistre
         }
@@ -365,18 +364,17 @@ const Node = ({
         , port = nodeOptions.port
         , meta = nodeOptions.meta
         , replica = nodeOptions.replica
+        , adTime = nodeOptions.adTime
         , ignorable = nodeOptions.ignorable
-        , advertisementTime = nodeOptions.advertisementTime
     } = nodeOptions }: NodeArgs): Node => {
-    const nodeSuper = NodeMain({
+    const nodeSuper = NodeMain(nodesRepository, {
         id
         , host
         , port
         , meta
         , replica
+        , adTime
         , ignorable
-        , advertisementTime
-        , nodesRepository
     })
     const initialStateData: NodeStates = {
         up: {

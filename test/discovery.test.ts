@@ -13,12 +13,12 @@ import {
     , NodeRegistreAddEmitter
 } from '../lib/eventsDriver'
 
-type CreateOptions = {
+type DiscoveryMockOptions = {
     ignorable?: boolean
     , ignoreInstance?: boolean
 }
 
-const create = (id: string, options: CreateOptions = { ignorable: false, ignoreInstance: false }) => {
+const createDiscoveryMock = (id: string, options: DiscoveryMockOptions = { ignorable: false, ignoreInstance: false }) => {
     const eventsDriver = createEventsDriver()
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
@@ -40,6 +40,7 @@ const create = (id: string, options: CreateOptions = { ignorable: false, ignoreI
         , transport
         , eventsDriver
         , nodesRepository
+        , adTime: node.adTime
         , options: {
             ignoreInstance: options.ignoreInstance
         }
@@ -55,7 +56,7 @@ const create = (id: string, options: CreateOptions = { ignorable: false, ignoreI
 }
 
 test.serial('get node advertisement event', async (t) => {
-    const { node, eventsDriver, transport, discovery } = create('foo')
+    const { node, eventsDriver, transport, discovery } = createDiscoveryMock('foo')
     const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
         eventsDriver.on(EVENTS.DISCOVERY.ADVERTISEMENT, resolve)
     })
@@ -75,7 +76,7 @@ test.serial('get node advertisement event', async (t) => {
 })
 
 test.serial('get node unregistre event', async (t) => {
-    const { node, eventsDriver, transport, discovery } = create('foo')
+    const { node, eventsDriver, transport, discovery } = createDiscoveryMock('foo')
     const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
         eventsDriver.on(EVENTS.DISCOVERY.UNREGISTRE, resolve)
     })
@@ -95,8 +96,8 @@ test.serial('get node unregistre event', async (t) => {
 })
 
 test.serial('check node remove event', async (t) => {
-    const foo = create('foo', { ignoreInstance: true })
-    const bar = create('bar', { ignoreInstance: true })
+    const foo = createDiscoveryMock('foo', { ignoreInstance: true })
+    const bar = createDiscoveryMock('bar', { ignoreInstance: true })
     const check = (): Promise<NodeRegistreRemoveEmitter> => new Promise((resolve) => {
         foo.eventsDriver.on(EVENTS.NODE_REGISTRE.REMOVE, resolve)
     })
@@ -116,8 +117,8 @@ test.serial('check node remove event', async (t) => {
 })
 
 test.serial('check node add event', async (t) => {
-    const foo = create('foo', { ignoreInstance: true })
-    const bar = create('bar', { ignoreInstance: true })
+    const foo = createDiscoveryMock('foo', { ignoreInstance: true })
+    const bar = createDiscoveryMock('bar', { ignoreInstance: true })
     const check = (): Promise<NodeRegistreAddEmitter> => new Promise((resolve) => {
         foo.eventsDriver.on(EVENTS.NODE_REGISTRE.ADD, resolve)
     })
@@ -137,8 +138,8 @@ test.serial('check node add event', async (t) => {
 })
 
 test.serial('check ingnorable', async (t) => {
-    const fNode = create('foo', { ignoreInstance: true })
-    const bNode = create('bar', { ignorable: true })
+    const fNode = createDiscoveryMock('foo', { ignoreInstance: true })
+    const bNode = createDiscoveryMock('bar', { ignorable: true })
     const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
         fNode.eventsDriver.on(EVENTS.DISCOVERY.ADVERTISEMENT, resolve)
         setTimeout(resolve, 2000)

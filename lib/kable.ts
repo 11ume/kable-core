@@ -155,8 +155,8 @@ export const implementables = (options: KableComposedOptions): Implementables =>
             , port: options.port
             , meta: options.meta
             , replica: options.replica
+            , adTime: options.adTime
             , ignorable: options.ignorable
-            , advertisementTime: options.advertisementTime
         }
     })
     const orchester = createOrchester(nodesRepository)
@@ -179,9 +179,9 @@ export const implementables = (options: KableComposedOptions): Implementables =>
         , transport
         , eventsDriver
         , nodesRepository
+        , adTime: node.adTime
         , options: {
-            advertisementTime: node.advertisementTime
-            , ignoreProcess: options.ignoreProcess
+            ignoreProcess: options.ignoreProcess
             , ignoreInstance: options.ignoreInstance
         }
     })
@@ -294,8 +294,8 @@ export const KableCore = (impl: Implementables): Kable => {
         , get ignorable() {
             return node.ignorable
         }
-        , get advertisementTime() {
-            return node.advertisementTime
+        , get adTime() {
+            return node.adTime
         }
     }
 }
