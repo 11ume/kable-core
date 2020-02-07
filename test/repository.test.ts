@@ -3,10 +3,12 @@ import { createStore } from '../lib/store'
 import { NodeRegistre, NODE_STATES } from '../lib/node'
 import { createRepository } from '../lib/repository'
 import { createNodeRegistre } from '../lib/utils/helpers'
+import { createEventsDriver } from '../lib/eventsDriver'
 
 test('add new registre', (t) => {
     const nodesStore = createStore<NodeRegistre>()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
+    const eventsDriver = createEventsDriver()
+    const nodesRepository = createRepository<NodeRegistre>({ eventsDriver, registres: nodesStore })
     const foo = createNodeRegistre('foo', NODE_STATES.UP)
     nodesRepository.add(foo.index, foo)
 
@@ -15,7 +17,8 @@ test('add new registre', (t) => {
 
 test('get registre by id', (t) => {
     const nodesStore = createStore<NodeRegistre>()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
+    const eventsDriver = createEventsDriver()
+    const nodesRepository = createRepository<NodeRegistre>({ eventsDriver, registres: nodesStore })
     const foo = createNodeRegistre('foo', NODE_STATES.UP)
     nodesRepository.add(foo.index, foo)
 
@@ -24,7 +27,8 @@ test('get registre by id', (t) => {
 
 test('get all registres', (t) => {
     const nodesStore = createStore<NodeRegistre>()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
+    const eventsDriver = createEventsDriver()
+    const nodesRepository = createRepository<NodeRegistre>({ eventsDriver, registres: nodesStore })
     const foo = createNodeRegistre('foo', NODE_STATES.UP)
     const bar = createNodeRegistre('bar', NODE_STATES.UP)
     nodesRepository.add(foo.index, foo)
@@ -37,7 +41,8 @@ test('get all registres', (t) => {
 
 test('remove registre', (t) => {
     const nodesStore = createStore<NodeRegistre>()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
+    const eventsDriver = createEventsDriver()
+    const nodesRepository = createRepository<NodeRegistre>({ eventsDriver, registres: nodesStore })
     const foo = createNodeRegistre('foo', NODE_STATES.UP)
     nodesRepository.add(foo.index, foo)
     nodesRepository.remove(foo.index, foo)

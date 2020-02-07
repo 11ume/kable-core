@@ -52,7 +52,7 @@ export type NodeRegistreAddEmitter = {
 export type NodeRegistreRemoveEmitter = {
     payload: {
         time: number
-        , nodeRegistre?: NodeRegistre
+        , nodeRegistre: Partial<NodeRegistre>
         , reason: NODE_UNREGISTRE_REASON
     }
 }

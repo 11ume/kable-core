@@ -1,3 +1,13 @@
+import { EventsDriver } from './eventsDriver'
+import * as EVENTS from './constants/events'
+import { NODE_UNREGISTRE_REASON } from './node'
+import { getDateNow } from './utils/utils'
+
+type RepositoryArgs<T extends Registre> = {
+    eventsDriver: EventsDriver
+    , registres: RepositoryRegistre<T>
+}
+
 type RepositoryRegistre<T extends Registre> = Map<number, T>
 
 type Registre = {
@@ -5,8 +15,8 @@ type Registre = {
 }
 
 export interface Repository<T extends Registre> {
-    add: (key: number, registre: T) => void
-    , remove: (key: number, _nodeRegistre?: T) => boolean
+    add: (key: number, nodeRegistre: T) => void
+    , remove: (key: number, nodeRegistre: T, reason?: NODE_UNREGISTRE_REASON) => void
     , clearAll: () => void
     , getOne: (key: number) => T
     , getAll: () => IterableIterator<T>
@@ -16,13 +26,28 @@ export interface Repository<T extends Registre> {
 
 const size = <T extends Registre>(registres: RepositoryRegistre<T>) => () => registres.size
 
-const add = <T extends Registre>(registres: RepositoryRegistre<T>) => (key: number, node: T) => {
-    registres.set(key, node)
+const add = <T extends Registre>(eventsDriver: EventsDriver, registres: RepositoryRegistre<T>) => (key: number, nodeRegistre: T) => {
+    registres.set(key, nodeRegistre)
+    eventsDriver.emit(EVENTS.NODE_REGISTRE.ADD, {
+        payload: {
+            time: getDateNow()
+            , nodeRegistre
+        }
+    })
+}
+
+const remove = <T extends Registre>(eventsDriver: EventsDriver, registres: RepositoryRegistre<T>) => (key: number, nodeRegistre: T, reason?: NODE_UNREGISTRE_REASON) => {
+    registres.delete(key)
+    eventsDriver.emit(EVENTS.NODE_REGISTRE.REMOVE, {
+        payload: {
+            time: getDateNow()
+            , reason
+            , nodeRegistre
+        }
+    })
 }
 
 const clear = <T extends Registre>(registres: RepositoryRegistre<T>) => () => registres.clear()
-
-const remove = <T extends Registre>(registres: RepositoryRegistre<T>) => (key: number, _nodeRegistre?: T) => registres.delete(key)
 
 const getAll = <T extends Registre>(registres: RepositoryRegistre<T>) => () => registres.values()
 
@@ -38,10 +63,10 @@ const getOneById = <T extends Registre>(registres: RepositoryRegistre<T>) => (id
     return null
 }
 
-const Repository = <T extends Registre>(registres: RepositoryRegistre<T>): Repository<T> => {
+const Repository = <T extends Registre>({ eventsDriver, registres }: RepositoryArgs<T>): Repository<T> => {
     return {
-        add: add(registres)
-        , remove: remove(registres)
+        add: add(eventsDriver, registres)
+        , remove: remove(eventsDriver, registres)
         , clearAll: clear(registres)
         , getOne: getOne(registres)
         , getAll: getAll(registres)
@@ -50,6 +75,6 @@ const Repository = <T extends Registre>(registres: RepositoryRegistre<T>): Repos
     }
 }
 
-export const createRepository = <T extends Registre>(registres: RepositoryRegistre<T>): Repository<T> => {
-    return Repository(registres)
+export const createRepository = <T extends Registre>(args: RepositoryArgs<T>): Repository<T> => {
+    return Repository(args)
 }

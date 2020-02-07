@@ -30,15 +30,6 @@ export const roundRound = <T>(array: T[], index = 0) => () => {
     return array[index++]
 }
 
-export const fnPatch = <T, S extends object>(name: string, source: S, invokerFn: (...args: any[]) => T) => {
-    const call: (...args: any[]) => any = source[name]
-    source[name] = (...args: any[]) => {
-        const ret = call(...args)
-        invokerFn(...args)
-        return ret
-    }
-}
-
 export const delay = (time: number, fn?: (...args: any[]) => any) => new Promise((r) => setTimeout(() => {
     fn && fn()
     r()

@@ -1,10 +1,14 @@
-import { Repository } from './repository'
 import * as os from 'os'
 import * as EVENTS from './constants/events'
 import * as EVENTS_TYPES from './constants/eventTypes'
-import { createUuid, craateStateMachine, genRandomNumber, getDateNow, fnPatch } from './utils/utils'
 import { pid } from './constants/core'
 import { EventsDriver } from './eventsDriver'
+import {
+    createUuid
+    , getDateNow
+    , genRandomNumber
+    , craateStateMachine
+} from './utils/utils'
 
 export enum NODE_STATES {
     UP = 'UP'
@@ -299,7 +303,8 @@ type NodeSuperOptions = {
     , ignorable: boolean
 }
 
-const NodeMain = (nodesRepository: Repository<NodeRegistre>
+const NodeMain = (
+    eventsDriver: EventsDriver
     , options: NodeSuperOptions): NodeMain => {
     const {
         host
@@ -315,12 +320,12 @@ const NodeMain = (nodesRepository: Repository<NodeRegistre>
     const nodeIdsRegistre: string[] = []
     let state = NODE_STATES.DOWN
 
-    fnPatch('add', nodesRepository, (_: string, nodeRegistre: NodeRegistre) => {
-        onAddNodeRegistre(nodeIdsRegistre, nodeRegistre.id)
+    eventsDriver.on(EVENTS.NODE_REGISTRE.ADD, ({ payload }) => {
+        onAddNodeRegistre(nodeIdsRegistre, payload.nodeRegistre.id)
     })
 
-    fnPatch('remove', nodesRepository, (_: string, nodeRegistre: NodeRegistre) => {
-        onRemoveNodeRegistre(nodeIdsRegistre, nodeRegistre.id)
+    eventsDriver.on(EVENTS.NODE_REGISTRE.REMOVE, ({ payload }) => {
+        onRemoveNodeRegistre(nodeIdsRegistre, payload.nodeRegistre.id)
     })
 
     return {
@@ -351,13 +356,11 @@ const NodeMain = (nodesRepository: Repository<NodeRegistre>
 
 type NodeArgs = {
     eventsDriver: EventsDriver
-    , nodesRepository: Repository<NodeRegistre>
     , options?: NodeOptions
 }
 
 const Node = ({
     eventsDriver
-    , nodesRepository
     , options: {
         id = nodeOptions.id
         , host = nodeOptions.host
@@ -367,7 +370,7 @@ const Node = ({
         , adTime = nodeOptions.adTime
         , ignorable = nodeOptions.ignorable
     } = nodeOptions }: NodeArgs): Node => {
-    const nodeSuper = NodeMain(nodesRepository, {
+    const nodeSuper = NodeMain(eventsDriver, {
         id
         , host
         , port

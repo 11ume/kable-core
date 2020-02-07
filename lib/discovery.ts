@@ -64,41 +64,24 @@ const onDuplicatedIdError = (eventsDriver: EventsDriver, duplicatedId: Duplicate
     })
 }
 
-const addNodeToRepository = (eventsDriver: EventsDriver
-    , nodesRepository: Repository<NodeRegistre>
+const addNodeToRepository = (nodesRepository: Repository<NodeRegistre>
     , nodeRegistre: Partial<NodeRegistre>) => {
     nodesRepository.add(nodeRegistre.index, (nodeRegistre as NodeRegistre))
-    eventsDriver.emit(EVENTS.NODE_REGISTRE.ADD, {
-        payload: {
-            time: getDateNow()
-            , nodeRegistre
-        }
-    })
 }
 
-const removeNodeFromRepository = (eventsDriver: EventsDriver
-    , nodesRepository: Repository<NodeRegistre>
+const removeNodeFromRepository = (nodesRepository: Repository<NodeRegistre>
     , nodeRegistre: NodeRegistre
     , reason: NODE_UNREGISTRE_REASON) => {
-    nodesRepository.remove(nodeRegistre.index, nodeRegistre)
-    eventsDriver.emit(EVENTS.NODE_REGISTRE.REMOVE, {
-        payload: {
-            time: getDateNow()
-            , reason
-            , nodeRegistre
-        }
-    })
+    nodesRepository.remove(nodeRegistre.index, nodeRegistre, reason)
 }
 
-const checkNodesTimeout = (eventsDriver: EventsDriver
-    , nodesRepository: Repository<NodeRegistre>
+const checkNodesTimeout = (nodesRepository: Repository<NodeRegistre>
     , nodeTimeout: number) => {
     for (const node of nodesRepository.getAll()) {
         const timeElapsed = Math.abs(node.lastSeen - getDateNow())
         const timeOut = Math.abs(nodeTimeout / 1000)
         if (timeElapsed >= timeOut) {
-            removeNodeFromRepository(eventsDriver
-                , nodesRepository
+            removeNodeFromRepository(nodesRepository
                 , node
                 , NODE_UNREGISTRE_REASON.TIMEOUT)
         }
@@ -209,8 +192,7 @@ const handleNodeUnregistre = (eventsDriver: EventsDriver
     }
 
     eventsDriver.emit(EVENTS.NODE.EXTERNAL_ACTION, payload)
-    removeNodeFromRepository(eventsDriver
-        , nodesRepository
+    removeNodeFromRepository(nodesRepository
         , nodeRegistre
         , NODE_UNREGISTRE_REASON.TERMINATION)
 }
@@ -219,14 +201,14 @@ const handleNodeUpdate = (eventsDriver: EventsDriver
     , nodesRepository: Repository<NodeRegistre>
     , payload: NodeEmitter) => {
     eventsDriver.emit(EVENTS.NODE.EXTERNAL_ACTION, payload)
-    addNodeToRepository(eventsDriver, nodesRepository, manageDataToStoreInRegistre(payload))
+    addNodeToRepository(nodesRepository, manageDataToStoreInRegistre(payload))
 }
 
 const handleNodeAdvertisement = (eventsDriver: EventsDriver
     , nodesRepository: Repository<NodeRegistre>
     , payload: NodeEmitter) => {
     eventsDriver.emit(EVENTS.NODE.EXTERNAL_ACTION, payload)
-    addNodeToRepository(eventsDriver, nodesRepository, manageDataToStoreInRegistre(payload))
+    addNodeToRepository(nodesRepository, manageDataToStoreInRegistre(payload))
 }
 
 const handleRecibedMessage = (nodesRepository: Repository<NodeRegistre>
@@ -502,7 +484,7 @@ const Discovery = ({
     } = discoveryOptions }: DiscoveryArgs): Discovery => {
     const nodeDefaultTimeout = 1000
     const nodeTimeout = setNodeTimeOut(adTime, nodeDefaultTimeout)
-    const ihNodeTimeout = createIntervalHandler(nodeTimeout, () => checkNodesTimeout(eventsDriver, nodesRepository, nodeTimeout))
+    const ihNodeTimeout = createIntervalHandler(nodeTimeout, () => checkNodesTimeout(nodesRepository, nodeTimeout))
     const ihAdvertisamentTime = createIntervalHandler(adTime, () => sendNodeAdvertisement(transport, node, eventsDriver, handleState(node)))
 
     eventsDriver.on(EVENTS.TRANSPORT.MESSAGE, onRecibeMessage(node
