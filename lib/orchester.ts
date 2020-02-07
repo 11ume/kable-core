@@ -14,8 +14,8 @@ export type Orchester = {
     nodePoolStack: NodePoolStack
     , getNode: (id: string) => NodeRegistre
     , getNodePoolStack: () => NodePoolStackEntries
-    , addNodeAwaiterToPoolStack: (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => void
-    , removeNodeAwaiterFromPoolStack: (unique: symbol) => void
+    , addNodeAwaiterStack: (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => void
+    , removeNodeAwaiterFromStack: (unique: symbol) => void
 }
 
 export type NodePoolStackEntries = {
@@ -60,14 +60,14 @@ const handleGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeReg
     return nodesRepository.getOne(sequencer.queue[0])
 }
 
-const addNodeAwaiterToPoolStack = (nodeAwaitStack: NodeAwaitStack) => (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => {
+const addNodeAwaiterStack = (nodeAwaitStack: NodeAwaitStack) => (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => {
     nodeAwaitStack.set(unique, {
         id
         , invoker
     })
 }
 
-const removeNodeAwaiterFromPoolStack = (nodeAwaitStack: NodeAwaitStack) => (unique: symbol) => {
+const removeNodeAwaiterFromStack = (nodeAwaitStack: NodeAwaitStack) => (unique: symbol) => {
     nodeAwaitStack.delete(unique)
 }
 
@@ -171,8 +171,8 @@ const Orchester = (nodesRepository: Repository<NodeRegistre>): Orchester => {
         }
         , getNode: getNode(nodesRepository, nodePoolStack)
         , getNodePoolStack: getNodePoolStack(nodePoolStack)
-        , addNodeAwaiterToPoolStack: addNodeAwaiterToPoolStack(nodeAwaitStack)
-        , removeNodeAwaiterFromPoolStack: removeNodeAwaiterFromPoolStack(nodeAwaitStack)
+        , addNodeAwaiterStack: addNodeAwaiterStack(nodeAwaitStack)
+        , removeNodeAwaiterFromStack: removeNodeAwaiterFromStack(nodeAwaitStack)
     }
 }
 

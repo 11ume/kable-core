@@ -49,7 +49,7 @@ const pickFromAwaiter = (orchester: Orchester
         const timeoutout = setTimeout(reject, timeout, handleTimeLimitExceded(id))
         const resolveAwaiter = (nodeRegistre: NodeRegistre = null) => {
             clearTimeout(timeoutout)
-            orchester.removeNodeAwaiterFromPoolStack(unique)
+            orchester.removeNodeAwaiterFromStack(unique)
             resolve(nodeRegistre)
         }
 
@@ -57,7 +57,7 @@ const pickFromAwaiter = (orchester: Orchester
             opAbort.onAbort(resolveAwaiter)
         }
 
-        orchester.addNodeAwaiterToPoolStack(unique, id, resolveAwaiter)
+        orchester.addNodeAwaiterStack(unique, id, resolveAwaiter)
     })
 
 const addAwaiterToPickQueue = (pickQueue: PickQueue, id: string) => {
