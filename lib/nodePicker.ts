@@ -57,7 +57,7 @@ const pickFromAwaiter = (orchester: Orchester
             opAbort.onAbort(resolveAwaiter)
         }
 
-        orchester.addNodeAwaiterStack(unique, id, resolveAwaiter)
+        orchester.addNodeAwaiterToStack(unique, id, resolveAwaiter)
     })
 
 const addAwaiterToPickQueue = (pickQueue: PickQueue, id: string) => {

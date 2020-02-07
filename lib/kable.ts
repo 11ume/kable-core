@@ -29,15 +29,17 @@ export interface Kable extends NodeMain {
     doing(reason?: string): void
     /**
      * Request a node by you identificator.
-     * This method will wait an default time, if the requested node has not been announced yet.
-     * This method can be aborted.
+     * This method will wait an default time, if the requested node has not been announced yet once the time is up,
+     * a timeout error will be issued.
+     * This request is a promise and can be aborted, using an operation controller.
+     * @link https://github.com/11ume/op-abort
      */
     pick(id: string, options?: PickOptions): Promise<NodeRegistre>
-    /** Start to listen only one node state update | registre | unregistred */
+    /** Start to listening events of a node */
     suscribe(id: string, fn: SuscriberFn): void
-    /** Start to listen all node state update | registre | unregistred */
+    /** Start to listen events in all available nodes */
     suscribeAll(fn: SuscriberFn): void
-    /** Stop listen node state update | registre | unregistred */
+    /** Stop listening events */
     unsubscribe(fn: SuscriberFn): void
 }
 

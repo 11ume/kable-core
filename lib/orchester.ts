@@ -15,7 +15,7 @@ export type Orchester = {
     nodePoolStack: NodePoolStack
     , getNode: (id: string) => NodeRegistre
     , getNodePoolStack: () => NodePoolStackEntries
-    , addNodeAwaiterStack: (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => void
+    , addNodeAwaiterToStack: (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => void
     , removeNodeAwaiterFromStack: (unique: symbol) => void
 }
 
@@ -68,7 +68,7 @@ const handleGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeReg
     return nodesRepository.getOne(sequencer.queue[0])
 }
 
-const addNodeAwaiterStack = (nodeAwaitStack: NodeAwaitStack) => (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => {
+const addNodeAwaiterToStack = (nodeAwaitStack: NodeAwaitStack) => (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => {
     nodeAwaitStack.set(unique, {
         id
         , invoker
@@ -178,7 +178,7 @@ const orchester = ({ eventsDriver, nodesRepository }: OrchesterArgs): Orchester 
         }
         , getNode: getNode(nodesRepository, nodePoolStack)
         , getNodePoolStack: getNodePoolStack(nodePoolStack)
-        , addNodeAwaiterStack: addNodeAwaiterStack(nodeAwaitStack)
+        , addNodeAwaiterToStack: addNodeAwaiterToStack(nodeAwaitStack)
         , removeNodeAwaiterFromStack: removeNodeAwaiterFromStack(nodeAwaitStack)
     }
 }
