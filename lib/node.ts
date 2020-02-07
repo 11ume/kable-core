@@ -303,7 +303,7 @@ type NodeSuperOptions = {
     , ignorable: boolean
 }
 
-const NodeMain = (
+const nodeMain = (
     eventsDriver: EventsDriver
     , options: NodeSuperOptions): NodeMain => {
     const {
@@ -359,7 +359,8 @@ type NodeArgs = {
     , options?: NodeOptions
 }
 
-const Node = ({
+// This module contains the configuration and administration of each node
+const node = ({
     eventsDriver
     , options: {
         id = nodeOptions.id
@@ -370,7 +371,7 @@ const Node = ({
         , adTime = nodeOptions.adTime
         , ignorable = nodeOptions.ignorable
     } = nodeOptions }: NodeArgs): Node => {
-    const nodeSuper = NodeMain(eventsDriver, {
+    const nodeSuper = nodeMain(eventsDriver, {
         id
         , host
         , port
@@ -402,7 +403,7 @@ const Node = ({
     }
     const stateMachineTransition = craateStateMachine(nodeStates)
     const stateData = { ...initialStateData }
-    const node: Node = {
+    const n: Node = {
         ...nodeSuper
         , up: null
         , down: null
@@ -445,15 +446,15 @@ const Node = ({
         }
     }
 
-    node.up = up(node)
-    node.down = down(node)
-    node.start = start(node, eventsDriver)
-    node.stop = stop(node, eventsDriver)
-    node.doing = doing(node, eventsDriver)
-    node.stateTransit = stateTransit(node, stateMachineTransition)
-    return node
+    n.up = up(n)
+    n.down = down(n)
+    n.start = start(n, eventsDriver)
+    n.stop = stop(n, eventsDriver)
+    n.doing = doing(n, eventsDriver)
+    n.stateTransit = stateTransit(n, stateMachineTransition)
+    return n
 }
 
 export const createNode = (args: NodeArgs) => {
-    return Node(args)
+    return node(args)
 }

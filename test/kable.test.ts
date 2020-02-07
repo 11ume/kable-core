@@ -3,7 +3,7 @@ import oa from 'ope-abort'
 import kable from '../lib/kable'
 import ERROR from '../lib/constants/error'
 import { checkPick } from '../lib/utils/helpers'
-import { delay } from '../lib/utils/utils'
+import { delay } from '../lib/utils/helpers'
 import { NODE_STATES, nodeStates, NodeRegistre } from '../lib/node'
 import { NodeEmitter } from '../lib/eventsDriver'
 
