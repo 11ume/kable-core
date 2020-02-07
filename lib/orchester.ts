@@ -29,13 +29,13 @@ type Sequencer = {
 
 type FnNodeAwaiterInvoker = (nodeRegistre: NodeRegistre) => void
 
-type NodeAwaitStack = {
+type AwaitStack = {
     id: string
     , invoker: FnNodeAwaiterInvoker
 }
 
 type NodePoolStack = Map<string, Sequencer>
-type NodeAwaitPool = Map<symbol, NodeAwaitStack>
+type NodeAwaitStack = Map<symbol, AwaitStack>
 
 const roundGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeRegistre>) => {
     return nodesRepository.getOne(sequencer.next())
@@ -60,15 +60,15 @@ const handleGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeReg
     return nodesRepository.getOne(sequencer.queue[0])
 }
 
-const addNodeAwaiterToPoolStack = (nodeAwaitPoolStack: NodeAwaitPool) => (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => {
-    nodeAwaitPoolStack.set(unique, {
+const addNodeAwaiterToPoolStack = (nodeAwaitStack: NodeAwaitStack) => (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => {
+    nodeAwaitStack.set(unique, {
         id
         , invoker
     })
 }
 
-const removeNodeAwaiterFromPoolStack = (nodeAwaitPoolStack: NodeAwaitPool) => (unique: symbol) => {
-    nodeAwaitPoolStack.delete(unique)
+const removeNodeAwaiterFromPoolStack = (nodeAwaitStack: NodeAwaitStack) => (unique: symbol) => {
+    nodeAwaitStack.delete(unique)
 }
 
 const getNode = (nodesRepository: Repository<NodeRegistre>, nodePoolStack: NodePoolStack) => (id: string) => {
@@ -106,11 +106,11 @@ const onRegistreHandlePoolStack = (nodePoolStack: NodePoolStack, { id, index, re
     addNodeToStack(nodePoolStack, id, index)
 }
 
-const onRegistreHandleAwaitPoolStack = (nodesRepository: Repository<NodeRegistre>
+const onRegistreHandleAwaitStack = (nodesRepository: Repository<NodeRegistre>
     , nodePoolStack: NodePoolStack
-    , nodeAwaitPool: NodeAwaitPool
+    , nodeAwaitStack: NodeAwaitStack
     , nodeRegistre: NodeRegistre) => {
-    nodeAwaitPool.forEach((pool) => {
+    nodeAwaitStack.forEach((pool) => {
         if (nodeRegistre.id !== pool.id) return
         pool.invoker(getNode(nodesRepository, nodePoolStack)(pool.id))
     })
@@ -118,10 +118,10 @@ const onRegistreHandleAwaitPoolStack = (nodesRepository: Repository<NodeRegistre
 
 const onAddNodeRegistre = (nodesRepository: Repository<NodeRegistre>
     , nodePoolStack: NodePoolStack
-    , nodeAwaitPool: NodeAwaitPool
+    , nodeAwaitStack: NodeAwaitStack
     , nodeRegistre: NodeRegistre) => {
     onRegistreHandlePoolStack(nodePoolStack, nodeRegistre)
-    onRegistreHandleAwaitPoolStack(nodesRepository, nodePoolStack, nodeAwaitPool, nodeRegistre)
+    onRegistreHandleAwaitStack(nodesRepository, nodePoolStack, nodeAwaitStack, nodeRegistre)
 }
 
 // !check existence of sequencer, this assertion can be irrelevant
@@ -155,10 +155,10 @@ const getNodePoolStack = (nodePoolStack: NodePoolStack) => () => {
 
 const Orchester = (nodesRepository: Repository<NodeRegistre>): Orchester => {
     const nodePoolStack: NodePoolStack = new Map()
-    const nodeAwaitPoolStack: NodeAwaitPool = new Map()
+    const nodeAwaitStack: NodeAwaitStack = new Map()
 
     fnPatch('add', nodesRepository, (_: string, nodeRegistre: NodeRegistre) => {
-        onAddNodeRegistre(nodesRepository, nodePoolStack, nodeAwaitPoolStack, nodeRegistre)
+        onAddNodeRegistre(nodesRepository, nodePoolStack, nodeAwaitStack, nodeRegistre)
     })
 
     fnPatch('remove', nodesRepository, (_: string, nodeRegistre: NodeRegistre) => {
@@ -171,8 +171,8 @@ const Orchester = (nodesRepository: Repository<NodeRegistre>): Orchester => {
         }
         , getNode: getNode(nodesRepository, nodePoolStack)
         , getNodePoolStack: getNodePoolStack(nodePoolStack)
-        , addNodeAwaiterToPoolStack: addNodeAwaiterToPoolStack(nodeAwaitPoolStack)
-        , removeNodeAwaiterFromPoolStack: removeNodeAwaiterFromPoolStack(nodeAwaitPoolStack)
+        , addNodeAwaiterToPoolStack: addNodeAwaiterToPoolStack(nodeAwaitStack)
+        , removeNodeAwaiterFromPoolStack: removeNodeAwaiterFromPoolStack(nodeAwaitStack)
     }
 }
 

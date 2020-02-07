@@ -7,8 +7,8 @@ import { createRepository } from '../lib/repository'
 import { createNodeRegistre } from '../lib/utils/helpers'
 import { convertToReplicaId, NODE_STATES } from '../lib/node'
 
-const getNodeInStack = (index: number, { nodeWorkPool }: Orchester): boolean => {
-    for (const nodes of nodeWorkPool.values()) {
+const getNodeInStack = (index: number, { nodePoolStack }: Orchester): boolean => {
+    for (const nodes of nodePoolStack.values()) {
         for (const i of nodes.queue) {
             if (index === i) return true
         }
@@ -51,13 +51,13 @@ test('remove all replica nodes of foo but leave bar', async (t) => {
     nodesRepository.add(foo1.index, foo1)
 
     // stack -> bar, foo -> Array<2>
-    t.is(orchester.nodeWorkPool.size, 2)
+    t.is(orchester.nodePoolStack.size, 2)
 
     nodesRepository.remove(foo.index, foo)
     nodesRepository.remove(foo1.index, foo1)
 
     // stack -> bar
-    t.is(orchester.nodeWorkPool.size, 1)
+    t.is(orchester.nodePoolStack.size, 1)
 })
 
 test('remove all replica nodes of foo', async (t) => {
@@ -73,14 +73,14 @@ test('remove all replica nodes of foo', async (t) => {
     nodesRepository.add(foo1.index, foo1)
     nodesRepository.add(foo2.index, foo2)
 
-    t.is(orchester.nodeWorkPool.size, 1)
+    t.is(orchester.nodePoolStack.size, 1)
 
     // stack -> empty
     nodesRepository.remove(foo.index, foo)
     nodesRepository.remove(foo1.index, foo1)
     nodesRepository.remove(foo2.index, foo2)
 
-    t.is(orchester.nodeWorkPool.size, 0)
+    t.is(orchester.nodePoolStack.size, 0)
 })
 
 test('test round robin normal flow', async (t) => {
