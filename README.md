@@ -49,5 +49,3 @@
    
 * Others code smells.
 
-* .
-
