@@ -145,7 +145,7 @@ export type Implementables = {
 export const implementables = (options: KableComposedOptions): Implementables => {
     const nodesStore = createStore<NodeRegistre>()
     const eventsDriver = createEventsDriver()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
+    const nodesRepository = createRepository<NodeRegistre>({ eventsDriver, registres: nodesStore })
     const node = createNode({
         eventsDriver
         , options: {

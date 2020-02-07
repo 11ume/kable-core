@@ -20,8 +20,8 @@ const getNodeInStack = (index: number, { nodePoolStack }: Orchester): boolean =>
 
 test('add node', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const eventsDriver = createEventsDriver()
+    const nodesRepository = createRepository<NodeRegistre>({ eventsDriver, registres: nodesStore })
     const orchester = createOrchester({ eventsDriver, nodesRepository })
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
 
@@ -31,8 +31,8 @@ test('add node', async (t) => {
 
 test('remove node', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const eventsDriver = createEventsDriver()
+    const nodesRepository = createRepository<NodeRegistre>({ eventsDriver, registres: nodesStore })
     const orchester = createOrchester({ eventsDriver, nodesRepository })
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
 
@@ -43,8 +43,8 @@ test('remove node', async (t) => {
 
 test('remove all replica nodes of foo but leave bar', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const eventsDriver = createEventsDriver()
+    const nodesRepository = createRepository<NodeRegistre>({ eventsDriver, registres: nodesStore })
     const orchester = createOrchester({ eventsDriver, nodesRepository })
     const bar = createNodeRegistre('bar', NODE_STATES.RUNNING)
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
@@ -66,8 +66,8 @@ test('remove all replica nodes of foo but leave bar', async (t) => {
 
 test('remove all replica nodes of foo', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const eventsDriver = createEventsDriver()
+    const nodesRepository = createRepository<NodeRegistre>({ eventsDriver, registres: nodesStore })
     const orchester = createOrchester({ eventsDriver, nodesRepository })
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
     const foo1 = createNodeRegistre(convertToReplicaId('foo'), NODE_STATES.RUNNING, { is: true, of: 'foo' })
@@ -90,8 +90,8 @@ test('remove all replica nodes of foo', async (t) => {
 
 test('test round robin normal flow', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const eventsDriver = createEventsDriver()
+    const nodesRepository = createRepository<NodeRegistre>({ eventsDriver, registres: nodesStore })
     const orchester = createOrchester({ eventsDriver, nodesRepository })
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
     const foo1 = createNodeRegistre(convertToReplicaId('foo'), NODE_STATES.RUNNING, { is: true, of: 'foo' })
@@ -121,8 +121,8 @@ test('test round robin normal flow', async (t) => {
 
 test('test round robin flow on remove one node', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
-    const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const eventsDriver = createEventsDriver()
+    const nodesRepository = createRepository<NodeRegistre>({ eventsDriver, registres: nodesStore })
     const orchester = createOrchester({ eventsDriver, nodesRepository })
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
     const foo1 = createNodeRegistre(convertToReplicaId('foo'), NODE_STATES.RUNNING, { is: true, of: 'foo' })

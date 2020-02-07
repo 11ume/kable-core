@@ -1,9 +1,8 @@
 import test from 'ava'
 import * as os from 'os'
-import { createNode, nodeStates, NODE_STATES, NodeRegistre } from '../lib/node'
 import ERROR from '../lib/constants/error'
+import { createNode, nodeStates, NODE_STATES } from '../lib/node'
 import { createEventsDriver } from '../lib/eventsDriver'
-import { createStore } from '../lib/store'
 
 test('create node whitout options', (t) => {
     const eventsDriver = createEventsDriver()
@@ -59,7 +58,6 @@ test('create node whit options', (t) => {
 })
 
 test('check node legal state transition', async (t) => {
-    const nodesStore = createStore<NodeRegistre>()
     const eventsDriver = createEventsDriver()
     const n = createNode({ eventsDriver })
     t.is(n.state, NODE_STATES.DOWN)

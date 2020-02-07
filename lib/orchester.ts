@@ -51,7 +51,9 @@ const checkNodeIsNotAvaliable = (node: NodeRegistre) => node.state === NODE_STAT
     || node.state === NODE_STATES.STOPPED
     || node.state === NODE_STATES.DOING_SOMETHING
 
-const handleGetReplicasNodes = (sequencer: Sequencer, nodesRepository: Repository<NodeRegistre>, count = 0) => {
+const handleGetReplicasNodes = (sequencer: Sequencer
+    , nodesRepository: Repository<NodeRegistre>
+    , count = 0) => {
     const node = roundGetNode(sequencer, nodesRepository)
     const len = sequencer.queue.length
     if (checkNodeIsNotAvaliable(node)) {
@@ -146,7 +148,7 @@ const removeNodeFromStack = (nodePoolStack: NodePoolStack, id: string, index: nu
     }
 }
 
-const onRemoveNodeRegistre = (nodePoolStack: NodePoolStack, { id, index, replica }: NodeRegistre) => {
+const onRemoveNodeRegistre = (nodePoolStack: NodePoolStack, { id, index, replica }: Partial<NodeRegistre>) => {
     if (replica.of) {
         removeNodeFromStack(nodePoolStack, replica.of, index)
         return
@@ -162,12 +164,12 @@ const getNodePoolStack = (nodePoolStack: NodePoolStack) => () => {
 const Orchester = ({ eventsDriver, nodesRepository }: OrchesterArgs): Orchester => {
     const nodePoolStack: NodePoolStack = new Map()
     const nodeAwaitStack: NodeAwaitStack = new Map()
-    eventsDriver.on(EVENTS.NODE_REGISTRE.ADD, ({ payload }) => {
-        onAddNodeRegistre(nodesRepository, nodePoolStack, nodeAwaitStack, payload.nodeRegistre)
+    eventsDriver.on(EVENTS.NODE_REGISTRE.ADD, (emitter) => {
+        onAddNodeRegistre(nodesRepository, nodePoolStack, nodeAwaitStack, emitter.payload.nodeRegistre)
     })
 
-    eventsDriver.on(EVENTS.NODE_REGISTRE.REMOVE, ({ payload }) => {
-        onRemoveNodeRegistre(nodePoolStack, payload.nodeRegistre)
+    eventsDriver.on(EVENTS.NODE_REGISTRE.REMOVE, (emitter) => {
+        onRemoveNodeRegistre(nodePoolStack, emitter.payload.nodeRegistre)
     })
 
     return {
