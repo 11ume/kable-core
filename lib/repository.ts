@@ -63,7 +63,8 @@ const getOneById = <T extends Registre>(registres: RepositoryRegistre<T>) => (id
     return null
 }
 
-const Repository = <T extends Registre>({ eventsDriver, registres }: RepositoryArgs<T>): Repository<T> => {
+// This module is a handle the store of each node registre, or any other type of registre
+const repository = <T extends Registre>({ eventsDriver, registres }: RepositoryArgs<T>): Repository<T> => {
     return {
         add: add(eventsDriver, registres)
         , remove: remove(eventsDriver, registres)
@@ -76,5 +77,5 @@ const Repository = <T extends Registre>({ eventsDriver, registres }: RepositoryA
 }
 
 export const createRepository = <T extends Registre>(args: RepositoryArgs<T>): Repository<T> => {
-    return Repository(args)
+    return repository(args)
 }

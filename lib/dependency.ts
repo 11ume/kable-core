@@ -44,7 +44,8 @@ const addDependeciesToStack = (depedencies: string | string[], dependecyStack: D
     else dependecyStack.set(depedencies, { satisfied: false })
 }
 
-const DependencyManager = ({ eventsDriver, options: { depedencies = null } }: DependencyManagerArgs): DependencyManager => {
+// This module contains the main logic of the management of dependencies
+const dependencyManager = ({ eventsDriver, options: { depedencies = null } }: DependencyManagerArgs): DependencyManager => {
     const depedencyStack: DepedencyStack = new Map()
     const dependecyManager: DependencyManager = {
         add: add(depedencyStack)
@@ -67,5 +68,5 @@ const DependencyManager = ({ eventsDriver, options: { depedencies = null } }: De
 }
 
 export const createdependencyManager = (args: DependencyManagerArgs) => {
-    return DependencyManager(args)
+    return dependencyManager(args)
 }

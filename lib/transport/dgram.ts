@@ -342,7 +342,7 @@ const close = (connection: Connection): Promise<void> => new Promise((resolve) =
     })
 })
 
-const DgramTransport = ({
+const dgramTransport = ({
     eventsDriver
     , options: {
         key = dgramOptions.key
@@ -400,5 +400,5 @@ const DgramTransport = ({
 }
 
 export const createDgramTransport = (args: DgramArgs) => {
-    return DgramTransport(args)
+    return dgramTransport(args)
 }

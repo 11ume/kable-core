@@ -107,7 +107,8 @@ const pick = ({
 
 const getPickQueue = (queue: PickQueue) => () => new Map(queue)
 
-const NodePicker = ({
+// This module contains the main logic of obtaining nodes
+const nodePicker = ({
     orchester
     , options: {
         pickTimeoutOut = nodePickerOptions.pickTimeoutOut
@@ -125,5 +126,5 @@ const NodePicker = ({
 }
 
 export const createNodePicker = (args: NodePickerArgs) => {
-    return NodePicker(args)
+    return nodePicker(args)
 }

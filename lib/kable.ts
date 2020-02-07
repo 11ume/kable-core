@@ -1,13 +1,13 @@
 import * as EVENTS from './constants/events'
 import { Node, NodeMain, NodeOptions, NodeRegistre, createNode } from './node'
 import { Transport, TransportOptionsCompose, TransportTypes, createTransport } from './transport/transport'
+import { DependencyManager, DependencyManagerOptions, createdependencyManager } from './dependency'
+import { NodePicker, NodePickerOptions, PickOptions, createNodePicker } from './nodePicker'
 import { Discovery, DiscoveryOptions, createDiscovery } from './discovery'
-import { DependencyManagerOptions, createdependencyManager, DependencyManager } from './dependency'
-import { NodePickerOptions, PickOptions, createNodePicker, NodePicker } from './nodePicker'
 import { EventsDriver, createEventsDriver } from './eventsDriver'
 import { createRepository, Repository } from './repository'
 import { createOrchester, Orchester } from './orchester'
-import { createSuscriber, Suscriber, SuscriberFn } from './suscriber'
+import { Suscriber, createSuscriber, SuscriberFn } from './suscriber'
 import { createStore } from './store'
 
 export type KableComposedOptions = NodeOptions
@@ -87,7 +87,7 @@ type DownArgs = {
     , transport: Transport
     , discovery: Discovery
     , eventsDriver: EventsDriver
-    , detachHandleShutdown: () => void  // datach events of main process, to prevent overload of events emitter
+    , detachHandleShutdown: () => void
 }
 
 const down = ({
@@ -97,6 +97,7 @@ const down = ({
     , eventsDriver
     , detachHandleShutdown }: DownArgs) => async () => {
         const { stateData } = node
+        // Datach events of main process, to prevent overload of process event emitter
         detachHandleShutdown()
         await discovery.stop('down', null)
         await transport.close()
@@ -141,7 +142,7 @@ export type Implementables = {
     , dependencyManager: DependencyManager
 }
 
-// injectable modules
+// Modules for make implementations by injection
 export const implementables = (options: KableComposedOptions): Implementables => {
     const nodesStore = createStore<NodeRegistre>()
     const eventsDriver = createEventsDriver()
@@ -214,6 +215,7 @@ export const implementables = (options: KableComposedOptions): Implementables =>
     }
 }
 
+// Main module
 export const KableCore = (impl: Implementables): Kable => {
     const {
         node

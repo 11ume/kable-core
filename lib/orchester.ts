@@ -132,7 +132,6 @@ const onAddNodeRegistre = (nodesRepository: Repository<NodeRegistre>
     onRegistreHandleAwaitStack(nodesRepository, nodePoolStack, nodeAwaitStack, nodeRegistre)
 }
 
-// !check existence of sequencer, this assertion can be irrelevant
 const removeNodeFromStack = (nodePoolStack: NodePoolStack, id: string, index: number) => {
     const sequencer = nodePoolStack.get(id)
     if (objIsFalsy(sequencer)) return
@@ -161,7 +160,8 @@ const getNodePoolStack = (nodePoolStack: NodePoolStack) => () => {
     return Object.fromEntries(nodePoolStack.entries())
 }
 
-const Orchester = ({ eventsDriver, nodesRepository }: OrchesterArgs): Orchester => {
+// This module contains the main logic of the load balancing between nodes
+const orchester = ({ eventsDriver, nodesRepository }: OrchesterArgs): Orchester => {
     const nodePoolStack: NodePoolStack = new Map()
     const nodeAwaitStack: NodeAwaitStack = new Map()
     eventsDriver.on(EVENTS.NODE_REGISTRE.ADD, (emitter) => {
@@ -184,5 +184,5 @@ const Orchester = ({ eventsDriver, nodesRepository }: OrchesterArgs): Orchester 
 }
 
 export const createOrchester = (args: OrchesterArgs) => {
-    return Orchester(args)
+    return orchester(args)
 }

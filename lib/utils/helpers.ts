@@ -87,3 +87,8 @@ export const createNodeRegistre = (id: string
         }
     }
 }
+
+export const delay = (time: number, fn?: (...args: any[]) => any) => new Promise((r) => setTimeout(() => {
+    fn && fn()
+    r()
+}, time))

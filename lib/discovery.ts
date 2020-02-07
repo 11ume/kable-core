@@ -227,7 +227,6 @@ const handleRecibedMessage = (nodesRepository: Repository<NodeRegistre>
     }
 }
 
-// Detect duplicated nodes ids
 const checkNodeDuplicateId = (node: Node, { id, iid, port, rinfo: { address } }: NodeEmitter): DuplicatedNodePayload => {
     const ref: DuplicatedNodePayload = {
         id
@@ -240,7 +239,6 @@ const checkNodeDuplicateId = (node: Node, { id, iid, port, rinfo: { address } }:
     return checkIsDuplicatedNode ? ref : null
 }
 
-// Ignore messages from: self process | self instances
 const checkNodeIgnore = (node: Node, ignoreProcess: boolean, ignoreInstance: boolean, payload: NodeEmitter) => {
     const isSameProcess = ignoreProcess && payload.pid === node.pid
     const isSameInstance = ignoreInstance && payload.iid === node.iid
@@ -472,7 +470,8 @@ type DiscoveryArgs = {
     , options?: DiscoveryOptions
 }
 
-const Discovery = ({
+// This module contains the main logic of the service discovery
+const discovery = ({
     node
     , transport
     , eventsDriver
@@ -517,4 +516,4 @@ const Discovery = ({
     }
 }
 
-export const createDiscovery = (args: DiscoveryArgs) => Discovery(args)
+export const createDiscovery = (args: DiscoveryArgs) => discovery(args)

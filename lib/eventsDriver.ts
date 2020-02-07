@@ -127,11 +127,11 @@ export interface EventsDriver extends EventEmitter {
     emit(event: EVENTS.TRANSPORT.MESSAGE, payload: NodeEmitter): boolean
 }
 
-const EventsDriver = (): EventsDriver => {
+const eventsDriver = (): EventsDriver => {
     const emitter = new events.EventEmitter()
     return emitter
 }
 
 export const createEventsDriver = () => {
-    return EventsDriver()
+    return eventsDriver()
 }

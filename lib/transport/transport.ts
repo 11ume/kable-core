@@ -1,6 +1,6 @@
 import ERROR from '../constants/error'
 import { EventsDriver } from '../eventsDriver'
-import { createDgramTransport, DgramTransportOptions } from './dgram'
+import { DgramTransportOptions, createDgramTransport } from './dgram'
 import { createError } from '../utils/utils'
 
 export enum TransportTypes {
@@ -34,6 +34,7 @@ const transportOptions: TransportOptions = {
     , taddress: '0.0.0.0'
 }
 
+// This is a factory function, handle the configuration and administration of data traportation
 export const createTransport = ({ type, ...args }: TransporArgs): Transport => {
     const options = args.options || transportOptions
     const {

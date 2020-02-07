@@ -33,7 +33,7 @@ type SuscriberArgs = {
     eventsDriver: EventsDriver
 }
 
-const Suscriber = ({ eventsDriver }: SuscriberArgs): Suscriber => {
+const suscriber = ({ eventsDriver }: SuscriberArgs): Suscriber => {
     const sucribers: Suscribers = new Map()
     eventsDriver.on(EVENTS.NODE.EXTERNAL_ACTION, (payload) => {
         fire(sucribers, payload)
@@ -46,5 +46,5 @@ const Suscriber = ({ eventsDriver }: SuscriberArgs): Suscriber => {
 }
 
 export const createSuscriber = (args: SuscriberArgs) => {
-    return Suscriber(args)
+    return suscriber(args)
 }
