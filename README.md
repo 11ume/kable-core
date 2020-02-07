@@ -23,7 +23,7 @@
 
 * Always make **[clean code](https://github.com/ryanmcdermott/clean-code-javascript)**.
 
-* If a line or block of code needs to be commented, it is because it is very complex or the code is not eloquent.
+* If a line or block of code needs to be commented, it is because it is very complex or the code is not eloquent (Use concise and light comments if necessary).
 
 * Try to make pure functions whenever you can.
 
