@@ -94,7 +94,7 @@ test('test round robin normal flow', async (t) => {
     nodesRepository.add(foo.index, foo)
     nodesRepository.add(foo1.index, foo1)
     nodesRepository.add(foo2.index, foo2)
-    const workPoolFlow = orchester.getNodeWorkPool().foo
+    const workPoolFlow = orchester.getNodePoolStack().foo
     const max = Math.max(...workPoolFlow.queue)
 
     orchester.getNode('foo')
@@ -128,7 +128,7 @@ test('test round robin flow on remove one node', async (t) => {
     orchester.getNode('foo')
     orchester.getNode('foo')
     nodesRepository.remove(foo1.index, foo1)
-    const workPoolFlow = orchester.getNodeWorkPool().foo
+    const workPoolFlow = orchester.getNodePoolStack().foo
     const max = Math.min(...workPoolFlow.queue)
     const node = orchester.getNode('foo')
 
