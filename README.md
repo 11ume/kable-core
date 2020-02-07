@@ -37,7 +37,7 @@
 
 * Refactor the code every time you can.
 
-* Don't make elegant code, the code too elegant can be difficult to understand for others.
+* Don't make too elegant the code, this type of code can be difficult to understand for others.
 
 * Avoid switch statement, use object literals.
 
