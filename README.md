@@ -46,6 +46,8 @@
 * No multiples returns.
   
 * Avoid primitive obsession always u can.
+
+* Reduce the complexity of code in modules, objects, functions.
    
-* Others code smells.
+* Others code smells 🧟‍♂️.
 
