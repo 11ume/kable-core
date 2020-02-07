@@ -32,7 +32,7 @@
 
 * Implement allways instead of inherit.
 
-* Reduces the coercion between modules.
+* Reduces the  high cohesión between modules.
 
 * Refactor the code every time you can.
 
