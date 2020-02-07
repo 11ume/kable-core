@@ -17,6 +17,7 @@
 <br>
 
 > Some rules im implement as a code of conduct, to write this code.
+> This code of conduct will be moved to a suitable place, when im have time :shipit:.
 
 * Avoid the use of reserved word **this**.
 
@@ -38,4 +39,15 @@
 
 * Don't make elegant code, the code too elegant can be difficult to understand for others.
 
-* Others.
+* Avoid switch statement, use object literals.
+
+* Avoid nested if else.
+  
+* No multiples returns.
+  
+* Avoid primitive obsession always u can.
+   
+* Others code smells.
+
+* .
+
