@@ -1,8 +1,9 @@
+import { EventsDriver } from './eventsDriver'
+import * as EVENTS from './constants/events'
 import { NodeRegistre, NODE_STATES } from './node'
 import { Repository } from './repository'
 import {
-    fnPatch
-    , roundRound
+    roundRound
     , arrIsEmpty
     , objIsFalsy
     , arrIsNotEmpty
@@ -20,6 +21,11 @@ export type Orchester = {
 
 export type NodePoolStackEntries = {
     [x: string]: Sequencer
+}
+
+type OrchesterArgs = {
+    eventsDriver: EventsDriver
+    , nodesRepository: Repository<NodeRegistre>
 }
 
 type Sequencer = {
@@ -97,7 +103,7 @@ const addNodeToStack = (nodePoolStack: NodePoolStack, id: string, index: number)
     })
 }
 
-const onRegistreHandlePoolStack = (nodePoolStack: NodePoolStack, { id, index, replica }: NodeRegistre) => {
+const onRegistreHandlePoolStack = (nodePoolStack: NodePoolStack, { id, index, replica }: Partial<NodeRegistre>) => {
     if (replica.of) {
         addNodeToStack(nodePoolStack, replica.of, index)
         return
@@ -109,7 +115,7 @@ const onRegistreHandlePoolStack = (nodePoolStack: NodePoolStack, { id, index, re
 const onRegistreHandleAwaitStack = (nodesRepository: Repository<NodeRegistre>
     , nodePoolStack: NodePoolStack
     , nodeAwaitStack: NodeAwaitStack
-    , nodeRegistre: NodeRegistre) => {
+    , nodeRegistre: Partial<NodeRegistre>) => {
     nodeAwaitStack.forEach((pool) => {
         if (nodeRegistre.id !== pool.id) return
         pool.invoker(getNode(nodesRepository, nodePoolStack)(pool.id))
@@ -119,7 +125,7 @@ const onRegistreHandleAwaitStack = (nodesRepository: Repository<NodeRegistre>
 const onAddNodeRegistre = (nodesRepository: Repository<NodeRegistre>
     , nodePoolStack: NodePoolStack
     , nodeAwaitStack: NodeAwaitStack
-    , nodeRegistre: NodeRegistre) => {
+    , nodeRegistre: Partial<NodeRegistre>) => {
     onRegistreHandlePoolStack(nodePoolStack, nodeRegistre)
     onRegistreHandleAwaitStack(nodesRepository, nodePoolStack, nodeAwaitStack, nodeRegistre)
 }
@@ -153,16 +159,15 @@ const getNodePoolStack = (nodePoolStack: NodePoolStack) => () => {
     return Object.fromEntries(nodePoolStack.entries())
 }
 
-const Orchester = (nodesRepository: Repository<NodeRegistre>): Orchester => {
+const Orchester = ({ eventsDriver, nodesRepository }: OrchesterArgs): Orchester => {
     const nodePoolStack: NodePoolStack = new Map()
     const nodeAwaitStack: NodeAwaitStack = new Map()
-
-    fnPatch('add', nodesRepository, (_: string, nodeRegistre: NodeRegistre) => {
-        onAddNodeRegistre(nodesRepository, nodePoolStack, nodeAwaitStack, nodeRegistre)
+    eventsDriver.on(EVENTS.NODE_REGISTRE.ADD, ({ payload }) => {
+        onAddNodeRegistre(nodesRepository, nodePoolStack, nodeAwaitStack, payload.nodeRegistre)
     })
 
-    fnPatch('remove', nodesRepository, (_: string, nodeRegistre: NodeRegistre) => {
-        onRemoveNodeRegistre(nodePoolStack, nodeRegistre)
+    eventsDriver.on(EVENTS.NODE_REGISTRE.REMOVE, ({ payload }) => {
+        onRemoveNodeRegistre(nodePoolStack, payload.nodeRegistre)
     })
 
     return {
@@ -176,6 +181,6 @@ const Orchester = (nodesRepository: Repository<NodeRegistre>): Orchester => {
     }
 }
 
-export const createOrchester = (nodesRepository: Repository<NodeRegistre>) => {
-    return Orchester(nodesRepository)
+export const createOrchester = (args: OrchesterArgs) => {
+    return Orchester(args)
 }

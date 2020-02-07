@@ -1,6 +1,7 @@
+import { EventsDriver } from './eventsDriver'
+import * as EVENTS from './constants/events'
 import { NodeRegistre } from './node'
-import { Repository } from './repository'
-import { fnPatch, objIsFalsy } from './utils/utils'
+import { objIsFalsy } from './utils/utils'
 
 export type DependencyManager = {
     add: (id: string) => void
@@ -17,7 +18,7 @@ export type NodeDependency = {
 }
 
 type DependencyManagerArgs = {
-    nodesRepository: Repository<NodeRegistre>
+    eventsDriver: EventsDriver
     , options: DependencyManagerOptions
 }
 
@@ -27,7 +28,7 @@ const add = (depedencyStack: DepedencyStack) => (id: string) => depedencyStack.s
 const remove = (depedencyStack: DepedencyStack) => (id: string) => depedencyStack.delete(id)
 const getAll = (depedencyStack: DepedencyStack) => () => new Map(depedencyStack)
 
-const handleDepedencyStack = (depedencyStack: DepedencyStack, { id }: NodeRegistre) => {
+const handleDepedencyStack = (depedencyStack: DepedencyStack, { id }: Partial<NodeRegistre>) => {
     const dependency = depedencyStack.get(id)
     if (dependency) {
         const satisfied = !dependency.satisfied
@@ -43,7 +44,7 @@ const addDependeciesToStack = (depedencies: string | string[], dependecyStack: D
     else dependecyStack.set(depedencies, { satisfied: false })
 }
 
-const DependencyManager = ({ nodesRepository, options: { depedencies = null } }: DependencyManagerArgs): DependencyManager => {
+const DependencyManager = ({ eventsDriver, options: { depedencies = null } }: DependencyManagerArgs): DependencyManager => {
     const depedencyStack: DepedencyStack = new Map()
     const dependecyManager: DependencyManager = {
         add: add(depedencyStack)
@@ -53,8 +54,14 @@ const DependencyManager = ({ nodesRepository, options: { depedencies = null } }:
 
     if (objIsFalsy(depedencies)) return dependecyManager
     addDependeciesToStack(depedencies, depedencyStack)
-    fnPatch('add', nodesRepository, (_: string, nodeRegistre: NodeRegistre) => handleDepedencyStack(depedencyStack, nodeRegistre))
-    fnPatch('remove', nodesRepository, (_: string, nodeRegistre: NodeRegistre) => handleDepedencyStack(depedencyStack, nodeRegistre))
+
+    eventsDriver.on(EVENTS.NODE_REGISTRE.ADD, ({ payload }) => {
+        handleDepedencyStack(depedencyStack, payload.nodeRegistre)
+    })
+
+    eventsDriver.on(EVENTS.NODE_REGISTRE.REMOVE, ({ payload }) => {
+        handleDepedencyStack(depedencyStack, payload.nodeRegistre)
+    })
 
     return dependecyManager
 }

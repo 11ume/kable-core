@@ -23,8 +23,7 @@ const createDiscoveryMock = (id: string, options: DiscoveryMockOptions = { ignor
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const node = createNode({
-        nodesRepository
-        , eventsDriver
+        eventsDriver
         , options: {
             id
             , ignorable: options.ignorable

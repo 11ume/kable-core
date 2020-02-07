@@ -6,6 +6,7 @@ import { createOrchester } from '../lib/orchester'
 import { createRepository } from '../lib/repository'
 import { createNodeRegistre } from '../lib/utils/helpers'
 import { convertToReplicaId, NODE_STATES } from '../lib/node'
+import { createEventsDriver } from '../lib/eventsDriver'
 
 const getNodeInStack = (index: number, { nodePoolStack }: Orchester): boolean => {
     for (const nodes of nodePoolStack.values()) {
@@ -20,7 +21,8 @@ const getNodeInStack = (index: number, { nodePoolStack }: Orchester): boolean =>
 test('add node', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
-    const orchester = createOrchester(nodesRepository)
+    const eventsDriver = createEventsDriver()
+    const orchester = createOrchester({ eventsDriver, nodesRepository })
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
 
     nodesRepository.add(foo.index, foo)
@@ -30,7 +32,8 @@ test('add node', async (t) => {
 test('remove node', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
-    const orchester = createOrchester(nodesRepository)
+    const eventsDriver = createEventsDriver()
+    const orchester = createOrchester({ eventsDriver, nodesRepository })
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
 
     nodesRepository.add(foo.index, foo)
@@ -41,7 +44,8 @@ test('remove node', async (t) => {
 test('remove all replica nodes of foo but leave bar', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
-    const orchester = createOrchester(nodesRepository)
+    const eventsDriver = createEventsDriver()
+    const orchester = createOrchester({ eventsDriver, nodesRepository })
     const bar = createNodeRegistre('bar', NODE_STATES.RUNNING)
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
     const foo1 = createNodeRegistre(convertToReplicaId('foo'), NODE_STATES.RUNNING, { is: true, of: 'foo' })
@@ -63,7 +67,8 @@ test('remove all replica nodes of foo but leave bar', async (t) => {
 test('remove all replica nodes of foo', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
-    const orchester = createOrchester(nodesRepository)
+    const eventsDriver = createEventsDriver()
+    const orchester = createOrchester({ eventsDriver, nodesRepository })
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
     const foo1 = createNodeRegistre(convertToReplicaId('foo'), NODE_STATES.RUNNING, { is: true, of: 'foo' })
     const foo2 = createNodeRegistre(convertToReplicaId('foo'), NODE_STATES.RUNNING, { is: true, of: 'foo' })
@@ -86,7 +91,8 @@ test('remove all replica nodes of foo', async (t) => {
 test('test round robin normal flow', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
-    const orchester = createOrchester(nodesRepository)
+    const eventsDriver = createEventsDriver()
+    const orchester = createOrchester({ eventsDriver, nodesRepository })
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
     const foo1 = createNodeRegistre(convertToReplicaId('foo'), NODE_STATES.RUNNING, { is: true, of: 'foo' })
     const foo2 = createNodeRegistre(convertToReplicaId('foo'), NODE_STATES.RUNNING, { is: true, of: 'foo' })
@@ -116,7 +122,8 @@ test('test round robin normal flow', async (t) => {
 test('test round robin flow on remove one node', async (t) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
-    const orchester = createOrchester(nodesRepository)
+    const eventsDriver = createEventsDriver()
+    const orchester = createOrchester({ eventsDriver, nodesRepository })
     const foo = createNodeRegistre('foo', NODE_STATES.RUNNING)
     const foo1 = createNodeRegistre(convertToReplicaId('foo'), NODE_STATES.RUNNING, { is: true, of: 'foo' })
     const foo2 = createNodeRegistre(convertToReplicaId('foo'), NODE_STATES.RUNNING, { is: true, of: 'foo' })

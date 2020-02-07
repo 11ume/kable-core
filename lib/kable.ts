@@ -147,8 +147,7 @@ export const implementables = (options: KableComposedOptions): Implementables =>
     const eventsDriver = createEventsDriver()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const node = createNode({
-        nodesRepository
-        , eventsDriver
+        eventsDriver
         , options: {
             id: options.id
             , host: options.host
@@ -159,7 +158,10 @@ export const implementables = (options: KableComposedOptions): Implementables =>
             , ignorable: options.ignorable
         }
     })
-    const orchester = createOrchester(nodesRepository)
+    const orchester = createOrchester({
+        eventsDriver
+        , nodesRepository
+    })
     const transport = createTransport({
         type: TransportTypes.DGRAM
         , eventsDriver
@@ -186,7 +188,7 @@ export const implementables = (options: KableComposedOptions): Implementables =>
         }
     })
     const dependencyManager = createdependencyManager({
-        nodesRepository
+        eventsDriver
         , options: {
             depedencies: options.depedencies
         }

@@ -14,9 +14,9 @@ const create = (id: string, options: NodePickerOptions = {}) => {
     const nodesStore = createStore<NodeRegistre>()
     const nodesRepository = createRepository<NodeRegistre>(nodesStore)
     const eventsDriver = createEventsDriver()
-    const node = createNode({ nodesRepository, eventsDriver, options: { id } })
+    const node = createNode({ eventsDriver, options: { id } })
     const nodeStore = createStore<NodeRegistre>()
-    const orchester = createOrchester(nodesRepository)
+    const orchester = createOrchester({ eventsDriver, nodesRepository })
     const nodePicker = createNodePicker({
         orchester
         , options
