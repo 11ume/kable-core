@@ -13,8 +13,6 @@
 **Kable core** — Contains the main logic of **[kable](https://github.com/11ume/kable)** system 
 
 **This project is under developement 🔥**
-
-<br>
 <br>
 
 > Some rules im implement as a code of conduct to write this code.
