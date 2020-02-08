@@ -16,36 +16,7 @@
 <br>
 <br>
 
-> Some rules im implement as a code of conduct, to write this code.
-> This code of conduct will be moved to a suitable place, when im have time :shipit:.
+> Some rules im implement as a code of conduct to write this code.
+<br>
 
-* Avoid the use of reserved word **this**.
-
-* Always make **[clean code](https://github.com/ryanmcdermott/clean-code-javascript)**.
-
-* If a line or block of code needs to be commented, it is because it is very complex or the code is not eloquent.
-
-* Try to make pure functions whenever you can.
-
-* Try to make small functions that only  meet a simple task, this will make the event loop work better.
-
-* You don't create classes, you don't need them, you don't need so much verbiage.
-
-* Implement allways instead of inherit.
-
-* Reduces the  high cohesión between modules.
-
-* Refactor the code every time you can.
-
-* Don't make elegant code, the code too elegant can be difficult to understand for others.
-
-* Avoid switch statement, use object literals.
-
-* Avoid nested if else.
-  
-* No multiples returns.
-  
-* Avoid primitive obsession always u can.
-   
-* Others code smells.
-
+**[code of conduct](https://github.com/11ume/code-of-conduct)**
