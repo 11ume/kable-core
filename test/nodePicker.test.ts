@@ -82,9 +82,24 @@ test('check get not avaliable node', async (t) => {
     t.is(pickError.message, err.message(pickId))
 })
 
-test('check get not avaliable whit replica nodes', async (t) => {
+test('check get not avaliable node whit 2 replicas off', async (t) => {
     const foo = create('foo', { pickTimeoutOut: 500 })
     const bar = createNodeRegistre('bar', NODE_STATES.UP)
+    const bar1 = createNodeRegistre('bar1', NODE_STATES.UP, { is: false, of: 'bar' })
+    const bar2 = createNodeRegistre('bar2', NODE_STATES.RUNNING, { is: false, of: 'bar' })
+
+    foo.nodesRepository.add(bar.index, bar)
+    foo.nodesRepository.add(bar.index, bar1)
+    foo.nodesRepository.add(bar.index, bar2)
+
+    const pick = await foo.nodePicker.pick('bar')
+    t.is(pick.id, bar.id)
+    t.is(pick.state, NODE_STATES.RUNNING)
+})
+
+test('check get not avaliable whit one replica off', async (t) => {
+    const foo = create('foo', { pickTimeoutOut: 500 })
+    const bar = createNodeRegistre('bar', NODE_STATES.RUNNING)
     const bar1 = createNodeRegistre('bar1', NODE_STATES.UP, { is: false, of: 'bar' })
     const bar2 = createNodeRegistre('bar2', NODE_STATES.RUNNING, { is: false, of: 'bar' })
 
