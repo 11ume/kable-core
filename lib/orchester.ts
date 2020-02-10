@@ -65,7 +65,12 @@ const handleGetReplicasNodes = (sequencer: Sequencer
 }
 
 const handleGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeRegistre>) => {
-    return nodesRepository.getOne(sequencer.queue[0])
+    const node = nodesRepository.getOne(sequencer.queue[0])
+    if (node && checkNodeIsNotAvaliable(node)) {
+        return null
+    }
+
+    return node
 }
 
 const addNodeAwaiterToStack = (nodeAwaitStack: NodeAwaitStack) => (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => {
