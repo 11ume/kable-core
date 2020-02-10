@@ -47,7 +47,7 @@ const roundGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeRegi
     return nodesRepository.getOne(sequencer.next())
 }
 
-const checkNodeIsNotAvaliable = (node: NodeRegistre) => node.state === NODE_STATES.UP
+const checkNodeIsNotAvaliable = (node: Partial<NodeRegistre>) => node.state === NODE_STATES.UP
     || node.state === NODE_STATES.STOPPED
     || node.state === NODE_STATES.DOING_SOMETHING
 
@@ -56,21 +56,15 @@ const handleGetReplicasNodes = (sequencer: Sequencer
     , count = 0) => {
     const node = roundGetNode(sequencer, nodesRepository)
     const len = sequencer.queue.length
-    if (checkNodeIsNotAvaliable(node)) {
-        if (len > count) return handleGetReplicasNodes(sequencer, nodesRepository, ++count)
-        else return null
+    if (len > count) {
+        return handleGetReplicasNodes(sequencer, nodesRepository, ++count)
     }
 
     return node
 }
 
 const handleGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeRegistre>) => {
-    const node = nodesRepository.getOne(sequencer.queue[0])
-    if (node && checkNodeIsNotAvaliable(node)) {
-        return null
-    }
-
-    return node
+    return nodesRepository.getOne(sequencer.queue[0])
 }
 
 const addNodeAwaiterToStack = (nodeAwaitStack: NodeAwaitStack) => (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => {
@@ -133,6 +127,7 @@ const onAddNodeRegistre = (nodesRepository: Repository<NodeRegistre>
     , nodePoolStack: NodePoolStack
     , nodeAwaitStack: NodeAwaitStack
     , nodeRegistre: Partial<NodeRegistre>) => {
+    if (checkNodeIsNotAvaliable(nodeRegistre)) return
     onRegistreHandlePoolStack(nodePoolStack, nodeRegistre)
     onRegistreHandleAwaitStack(nodesRepository, nodePoolStack, nodeAwaitStack, nodeRegistre)
 }
