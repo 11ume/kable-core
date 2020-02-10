@@ -14,8 +14,7 @@
 
 **This project is under developement 🔥**
 <br>
-
-> Some rules im implement as a code of conduct to write this code.
 <br>
 
+#### Some rules im implement as a code of conduct to write this code.
 **[code of conduct](https://github.com/11ume/code-of-conduct)**
