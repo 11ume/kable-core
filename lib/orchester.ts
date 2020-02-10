@@ -47,7 +47,7 @@ const roundGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeRegi
     return nodesRepository.getOne(sequencer.next())
 }
 
-const checkNodeIsNotAvaliable = (node: NodeRegistre) => node.state === NODE_STATES.UP
+const checkIfNodeIsNotAvaliable = (node: Partial<NodeRegistre>) => node.state === NODE_STATES.UP
     || node.state === NODE_STATES.STOPPED
     || node.state === NODE_STATES.DOING_SOMETHING
 
@@ -56,21 +56,15 @@ const handleGetReplicasNodes = (sequencer: Sequencer
     , count = 0) => {
     const node = roundGetNode(sequencer, nodesRepository)
     const len = sequencer.queue.length
-    if (checkNodeIsNotAvaliable(node)) {
-        if (len > count) return handleGetReplicasNodes(sequencer, nodesRepository, ++count)
-        else return null
+    if (len > count) {
+        return handleGetReplicasNodes(sequencer, nodesRepository, ++count)
     }
 
     return node
 }
 
 const handleGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeRegistre>) => {
-    const node = nodesRepository.getOne(sequencer.queue[0])
-    if (node && checkNodeIsNotAvaliable(node)) {
-        return null
-    }
-
-    return node
+    return nodesRepository.getOne(sequencer.queue[0])
 }
 
 const addNodeAwaiterToStack = (nodeAwaitStack: NodeAwaitStack) => (unique: symbol, id: string, invoker: FnNodeAwaiterInvoker) => {
@@ -123,9 +117,16 @@ const onRegistreHandleAwaitStack = (nodesRepository: Repository<NodeRegistre>
     , nodePoolStack: NodePoolStack
     , nodeAwaitStack: NodeAwaitStack
     , nodeRegistre: Partial<NodeRegistre>) => {
+    const invoke = (pool: AwaitStack) => pool.invoker(getNode(nodesRepository, nodePoolStack)(pool.id))
     nodeAwaitStack.forEach((pool) => {
+        if (nodeRegistre.replica.is) {
+            if (nodeRegistre.replica.of !== pool.id) return
+            invoke(pool)
+            return
+        }
+
         if (nodeRegistre.id !== pool.id) return
-        pool.invoker(getNode(nodesRepository, nodePoolStack)(pool.id))
+        invoke(pool)
     })
 }
 
@@ -133,6 +134,7 @@ const onAddNodeRegistre = (nodesRepository: Repository<NodeRegistre>
     , nodePoolStack: NodePoolStack
     , nodeAwaitStack: NodeAwaitStack
     , nodeRegistre: Partial<NodeRegistre>) => {
+    if (checkIfNodeIsNotAvaliable(nodeRegistre)) return
     onRegistreHandlePoolStack(nodePoolStack, nodeRegistre)
     onRegistreHandleAwaitStack(nodesRepository, nodePoolStack, nodeAwaitStack, nodeRegistre)
 }
