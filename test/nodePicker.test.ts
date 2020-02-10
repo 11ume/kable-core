@@ -33,20 +33,20 @@ const create = (id: string, options: NodePickerOptions = {}) => {
 
 test('get a node', async (t) => {
     const foo = create('foo')
-    const rbar = createNodeRegistre('bar', NODE_STATES.RUNNING)
-    foo.nodesRepository.add(rbar.index, rbar)
+    const bar = createNodeRegistre('bar', NODE_STATES.RUNNING)
+    foo.nodesRepository.add(bar.index, bar)
 
     const pick = await foo.nodePicker.pick('bar')
-    t.is(pick.id, rbar.id)
+    t.is(pick.id, bar.id)
 })
 
 test('get one node whit delay', async (t) => {
     const foo = create('foo')
-    const rbar = createNodeRegistre('bar', NODE_STATES.RUNNING)
-    setTimeout(() => foo.nodesRepository.add(rbar.index, rbar), 500)
+    const bar = createNodeRegistre('bar', NODE_STATES.RUNNING)
+    setTimeout(() => foo.nodesRepository.add(bar.index, bar), 500)
 
     const pick = await foo.nodePicker.pick('bar')
-    t.is(pick.id, rbar.id)
+    t.is(pick.id, bar.id)
 })
 
 test('get error when pick node wait limit is exceeded', async (t) => {
@@ -54,6 +54,7 @@ test('get error when pick node wait limit is exceeded', async (t) => {
     const pickId = 'bar'
     const pick = () => t.throwsAsync(foo.nodePicker.pick(pickId))
     const pickError = await pick()
+
     const err = ERROR.NODE_PICK_WAITFOR_LIMIT_EXCEEDED
     t.is(pickError.name, err.name)
     t.is(pickError.message, err.message(pickId))
@@ -65,4 +66,33 @@ test('abort pick', async (t) => {
     foo.nodePicker.pick('bar', { opAbort })
     opAbort.abort()
     t.truthy(opAbort.state.aborted)
+})
+
+test('check get not avaliable node', async (t) => {
+    const foo = create('foo', { pickTimeoutOut: 50 })
+    const pickId = 'bar'
+    const bar = createNodeRegistre(pickId, NODE_STATES.UP)
+    foo.nodesRepository.add(bar.index, bar)
+
+    const pick = () => t.throwsAsync(foo.nodePicker.pick(pickId))
+    const pickError = await pick()
+
+    const err = ERROR.NODE_PICK_WAITFOR_LIMIT_EXCEEDED
+    t.is(pickError.name, err.name)
+    t.is(pickError.message, err.message(pickId))
+})
+
+test('check get not avaliable whit replica nodes', async (t) => {
+    const foo = create('foo', { pickTimeoutOut: 500 })
+    const bar = createNodeRegistre('bar', NODE_STATES.UP)
+    const bar1 = createNodeRegistre('bar1', NODE_STATES.UP, { is: false, of: 'bar' })
+    const bar2 = createNodeRegistre('bar2', NODE_STATES.RUNNING, { is: false, of: 'bar' })
+
+    foo.nodesRepository.add(bar.index, bar)
+    foo.nodesRepository.add(bar.index, bar1)
+    foo.nodesRepository.add(bar.index, bar2)
+
+    const pick = await foo.nodePicker.pick('bar')
+    t.is(pick.id, bar.id)
+    t.is(pick.state, NODE_STATES.RUNNING)
 })
