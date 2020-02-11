@@ -83,7 +83,7 @@ test('check get not avaliable node', async (t) => {
 })
 
 test('check get not avaliable whit one replica off', async (t) => {
-    const foo = create('foo')
+    const { orchester, ...foo } = create('foo')
     const bar = createNodeRegistre('bar', NODE_STATES.UP, { is: false, of: null })
     const bar1 = createNodeRegistre('bar1', NODE_STATES.RUNNING, { is: true, of: 'bar' })
     const bar2 = createNodeRegistre('bar2', NODE_STATES.RUNNING, { is: true, of: 'bar' })
@@ -91,9 +91,12 @@ test('check get not avaliable whit one replica off', async (t) => {
     foo.nodesRepository.add(bar.index, bar)
     foo.nodesRepository.add(bar1.index, bar1)
     foo.nodesRepository.add(bar2.index, bar2)
+    // if I have more than one item inside node pool stack, the element that has the largest index, is the first to be taken
+    const nodePoolStack = orchester.getNodePoolStack().foo
+    const lastNode = Math.min(...nodePoolStack.queue)
 
     const pick = await foo.nodePicker.pick('bar')
-    t.is(pick.id, bar1.id)
+    t.is(pick.index, lastNode)
     t.is(pick.state, NODE_STATES.RUNNING)
 })
 

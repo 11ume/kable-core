@@ -43,20 +43,13 @@ type AwaitStack = {
 type NodePoolStack = Map<string, Sequencer>
 type NodeAwaitStack = Map<symbol, AwaitStack>
 
-const roundGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeRegistre>) => {
+const getNextNode = (sequencer: Sequencer, nodesRepository: Repository<NodeRegistre>) => {
     return nodesRepository.getOne(sequencer.next())
 }
 
-const handleGetReplicasNodes = (sequencer: Sequencer
-    , nodesRepository: Repository<NodeRegistre>
-    , count = 0) => {
-    const node = roundGetNode(sequencer, nodesRepository)
-    const len = sequencer.queue.length
-    if (len > count) {
-        return handleGetReplicasNodes(sequencer, nodesRepository, ++count)
-    }
-
-    return node
+const handleGetNodeWhitReplicas = (sequencer: Sequencer
+    , nodesRepository: Repository<NodeRegistre>) => {
+    return getNextNode(sequencer, nodesRepository)
 }
 
 const handleGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeRegistre>) => {
@@ -78,7 +71,7 @@ const getNode = (nodesRepository: Repository<NodeRegistre>, nodePoolStack: NodeP
     const sequencer = nodePoolStack.get(id)
     if (sequencer) {
         return arrIsNotEmpty(sequencer.queue)
-            ? handleGetReplicasNodes(sequencer, nodesRepository)
+            ? handleGetNodeWhitReplicas(sequencer, nodesRepository)
             : handleGetNode(sequencer, nodesRepository)
     }
 
