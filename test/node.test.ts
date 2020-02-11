@@ -119,3 +119,21 @@ test('check node resetStates', async (t) => {
         , reason: null
     })
 })
+
+test('check if node is avaliable', async (t) => {
+    const eventsDriver = createEventsDriver()
+    const n = createNode({ eventsDriver })
+    n.stateTransit(NODE_STATES.UP)
+    n.stateTransit(NODE_STATES.RUNNING)
+    t.is(n.state, NODE_STATES.RUNNING)
+    t.is(n.stateIsNotAvaliable(), false)
+})
+
+test('check if node is not avaliable', async (t) => {
+    const eventsDriver = createEventsDriver()
+    const n = createNode({ eventsDriver })
+    n.stateTransit(NODE_STATES.UP)
+    n.stateTransit(NODE_STATES.STOPPED)
+    t.is(n.state, NODE_STATES.STOPPED)
+    t.is(n.stateIsNotAvaliable(), true)
+})

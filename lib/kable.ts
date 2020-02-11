@@ -17,6 +17,8 @@ export type KableComposedOptions = NodeOptions
     & DependencyManagerOptions
 
 export interface Kable extends NodeMain {
+    /** Returns true if this node is in status available */
+    avaliable: boolean
     /** Start all internals processes and set that node in up state */
     up(running?: boolean): Promise<void>
     /** Terminate all internals processes and set that node in down state */
@@ -302,6 +304,9 @@ export const KableCore = (impl: Implementables): Kable => {
         }
         , get adTime() {
             return node.adTime
+        }
+        , get avaliable() {
+            return !node.stateIsNotAvaliable()
         }
     }
 }

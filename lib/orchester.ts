@@ -1,6 +1,6 @@
 import { EventsDriver } from './eventsDriver'
 import * as EVENTS from './constants/events'
-import { NodeRegistre, NODE_STATES } from './node'
+import { NodeRegistre, stateIsNotAvaliable } from './node'
 import { Repository } from './repository'
 import {
     roundRound
@@ -46,10 +46,6 @@ type NodeAwaitStack = Map<symbol, AwaitStack>
 const roundGetNode = (sequencer: Sequencer, nodesRepository: Repository<NodeRegistre>) => {
     return nodesRepository.getOne(sequencer.next())
 }
-
-const checkIfNodeIsNotAvaliable = (node: Partial<NodeRegistre>) => node.state === NODE_STATES.UP
-    || node.state === NODE_STATES.STOPPED
-    || node.state === NODE_STATES.DOING_SOMETHING
 
 const handleGetReplicasNodes = (sequencer: Sequencer
     , nodesRepository: Repository<NodeRegistre>
@@ -117,16 +113,17 @@ const onRegistreHandleAwaitStack = (nodesRepository: Repository<NodeRegistre>
     , nodePoolStack: NodePoolStack
     , nodeAwaitStack: NodeAwaitStack
     , nodeRegistre: Partial<NodeRegistre>) => {
-    const invoke = (pool: AwaitStack) => pool.invoker(getNode(nodesRepository, nodePoolStack)(pool.id))
+    const gNode = getNode(nodesRepository, nodePoolStack)
+    const injectNode = (pool: AwaitStack) => pool.invoker(gNode(pool.id))
     nodeAwaitStack.forEach((pool) => {
         if (nodeRegistre.replica.is) {
             if (nodeRegistre.replica.of !== pool.id) return
-            invoke(pool)
+            injectNode(pool)
             return
         }
 
         if (nodeRegistre.id !== pool.id) return
-        invoke(pool)
+        injectNode(pool)
     })
 }
 
@@ -134,7 +131,7 @@ const onAddNodeRegistre = (nodesRepository: Repository<NodeRegistre>
     , nodePoolStack: NodePoolStack
     , nodeAwaitStack: NodeAwaitStack
     , nodeRegistre: Partial<NodeRegistre>) => {
-    if (checkIfNodeIsNotAvaliable(nodeRegistre)) return
+    if (stateIsNotAvaliable(nodeRegistre)()) return
     onRegistreHandlePoolStack(nodePoolStack, nodeRegistre)
     onRegistreHandleAwaitStack(nodesRepository, nodePoolStack, nodeAwaitStack, nodeRegistre)
 }
