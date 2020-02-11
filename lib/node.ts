@@ -121,6 +121,7 @@ export interface Node extends NodeBase {
     , doing: (reason?: string) => void
     , stateReset: (state: NODE_STATES) => void
     , stateTransit: (newState: NODE_STATES) => void
+    , stateIsNotAvaliable(): boolean
 }
 
 export type NodeOptions = {
@@ -178,6 +179,10 @@ const handleReplica = (is: boolean, id: string) => {
     replica.is ? replica.of = id : delete replica.of
     return replica
 }
+
+export const stateIsNotAvaliable = (node: Partial<NodeRegistre>) => () => node.state === NODE_STATES.UP
+    || node.state === NODE_STATES.STOPPED
+    || node.state === NODE_STATES.DOING_SOMETHING
 
 const stateTransit = (node: Node, smt: FnTrasitState) => (newState: NODE_STATES) => {
     node.state = smt(node.state, newState)
@@ -412,6 +417,7 @@ const node = ({
         , doing: null
         , stateTransit: null
         , stateReset: stateReset(initialStateData, stateData)
+        , stateIsNotAvaliable: null
         , stateData: {
             set up(value: NodeUp) {
                 stateData.up = value
@@ -452,6 +458,7 @@ const node = ({
     n.stop = stop(n, eventsDriver)
     n.doing = doing(n, eventsDriver)
     n.stateTransit = stateTransit(n, stateMachineTransition)
+    n.stateIsNotAvaliable = stateIsNotAvaliable(n)
     return n
 }
 

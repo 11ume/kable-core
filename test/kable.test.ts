@@ -407,3 +407,18 @@ test.serial('unsuscribe to node', async (t) => {
     foo.down()
     bar.down()
 })
+
+test.serial('check if node is avaliable', async (t) => {
+    const foo = kable('foo')
+    await foo.up()
+    t.is(foo.avaliable, true)
+    foo.down()
+})
+
+test.serial('check if node is not avaliable', async (t) => {
+    const foo = kable('foo')
+    await foo.up()
+    foo.stop()
+    t.is(foo.avaliable, false)
+    foo.down()
+})
