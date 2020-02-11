@@ -92,7 +92,7 @@ test('check get not avaliable whit one replica off', async (t) => {
     foo.nodesRepository.add(bar1.index, bar1)
     foo.nodesRepository.add(bar2.index, bar2)
     // if I have more than one item inside node pool stack, the element that has the largest index, is the first to be taken
-    const nodePoolStack = orchester.getNodePoolStack().foo
+    const nodePoolStack = orchester.getNodePoolStack().bar
     const lastNode = Math.min(...nodePoolStack.queue)
 
     const pick = await foo.nodePicker.pick('bar')
