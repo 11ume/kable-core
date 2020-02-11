@@ -1,7 +1,7 @@
 import test from 'ava'
 import op from 'ope-abort'
 import ERROR from '../lib/constants/error'
-import { createNode } from '../lib/node'
+import { createNode, convertToReplicaId } from '../lib/node'
 import { createStore } from '../lib/store'
 import { createOrchester } from '../lib/orchester'
 import { createRepository } from '../lib/repository'
@@ -85,13 +85,13 @@ test('check get not avaliable node', async (t) => {
 test('check get not avaliable whit one replica off', async (t) => {
     const { orchester, ...foo } = create('foo')
     const bar = createNodeRegistre('bar', NODE_STATES.UP, { is: false, of: null })
-    const bar1 = createNodeRegistre('bar1', NODE_STATES.RUNNING, { is: true, of: 'bar' })
-    const bar2 = createNodeRegistre('bar2', NODE_STATES.RUNNING, { is: true, of: 'bar' })
+    const bar1 = createNodeRegistre(convertToReplicaId('bar'), NODE_STATES.RUNNING, { is: true, of: 'bar' })
+    const bar2 = createNodeRegistre(convertToReplicaId('bar'), NODE_STATES.RUNNING, { is: true, of: 'bar' })
 
     foo.nodesRepository.add(bar.index, bar)
     foo.nodesRepository.add(bar1.index, bar1)
     foo.nodesRepository.add(bar2.index, bar2)
-    // if I have more than one item inside node pool stack, the element that has the largest index, is the first to be taken
+    // if I have more than one item inside node pool stack, the element that has the smallest of the list index, is the first to be taken
     const nodePoolStack = orchester.getNodePoolStack().bar
     const lastNode = Math.min(...nodePoolStack.queue)
 
@@ -103,8 +103,8 @@ test('check get not avaliable whit one replica off', async (t) => {
 test('check get not avaliable node whit 2 replicas off', async (t) => {
     const foo = create('foo')
     const bar = createNodeRegistre('bar', NODE_STATES.UP, { is: false, of: null })
-    const bar1 = createNodeRegistre('bar1', NODE_STATES.RUNNING, { is: true, of: 'bar' })
-    const bar2 = createNodeRegistre('bar2', NODE_STATES.STOPPED, { is: true, of: 'bar' })
+    const bar1 = createNodeRegistre(convertToReplicaId('bar'), NODE_STATES.RUNNING, { is: true, of: 'bar' })
+    const bar2 = createNodeRegistre(convertToReplicaId('bar'), NODE_STATES.STOPPED, { is: true, of: 'bar' })
 
     foo.nodesRepository.add(bar.index, bar)
     foo.nodesRepository.add(bar1.index, bar1)

@@ -29,8 +29,8 @@ type OrchesterArgs = {
 }
 
 type Sequencer = {
-    queue: number[]
-    , next?: () => number
+    queue: number[] // node indexes
+    , next?: () => number // round robing next function
 }
 
 type FnNodeAwaiterInvoker = (nodeRegistre: NodeRegistre) => void
