@@ -18,7 +18,6 @@ jobs:
         run: |
           npm install
           npm run build
-          npm test
           npm coverage
         env:
           CI: true
