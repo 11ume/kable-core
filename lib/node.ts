@@ -180,9 +180,11 @@ const handleReplica = (is: boolean, id: string) => {
     return replica
 }
 
-export const stateIsNotAvaliable = (node: Partial<NodeRegistre>) => () => node.state === NODE_STATES.UP
+export const checkIfNodeStateIsNotAvaliable = (node: Partial<NodeRegistre>) => node.state === NODE_STATES.UP
     || node.state === NODE_STATES.STOPPED
     || node.state === NODE_STATES.DOING_SOMETHING
+
+const stateIsNotAvaliable = (node: Partial<NodeRegistre>) => () => checkIfNodeStateIsNotAvaliable(node)
 
 const stateTransit = (node: Node, smt: FnTrasitState) => (newState: NODE_STATES) => {
     node.state = smt(node.state, newState)

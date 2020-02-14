@@ -17,7 +17,7 @@ export type KableComposedOptions = NodeOptions
     & DependencyManagerOptions
 
 export interface Kable extends NodeMain {
-    /** Returns true if this mode is in available state */
+    /** Check if it node is in available state */
     avaliable: boolean
     /** Start all internals processes and set that node in up state */
     up(running?: boolean): Promise<void>

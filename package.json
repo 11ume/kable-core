@@ -12,12 +12,13 @@
   "repository": "11ume/kable-core",
   "license": "MIT",
   "scripts": {
-    "test": "node node_modules/ava/cli.js -s",
-    "test:watch": "node node_modules/ava/cli.js -w -vs",
-    "test:verbose": "node node_modules/ava/cli.js -vs",
-    "test:coverage": "nyc ava -vs",
+    "test:watch": "ava -w -v",
+    "test:verbose": "ava -v",
+    "test": "ava",
+    "coverage": "nyc npm run test",
+    "posttest": "nyc report --reporter=json",
     "clean": "rm -rf .nyc_output coverage dist",
-    "lint": "node node_modules/tslint/bin/tslint -c tslint.json --project .",
+    "lint": "tslint -c tslint.json --project .",
     "build": "tsc -p ./tsconfig.publish.json",
     "prepublishOnly": "npm run lint & npm run test & npm run build & npm run clean",
     "postinstall": "npm run build"

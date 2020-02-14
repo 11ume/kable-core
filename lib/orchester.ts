@@ -1,6 +1,6 @@
 import { EventsDriver } from './eventsDriver'
 import * as EVENTS from './constants/events'
-import { NodeRegistre, stateIsNotAvaliable } from './node'
+import { NodeRegistre, checkIfNodeStateIsNotAvaliable } from './node'
 import { Repository } from './repository'
 import {
     roundRound
@@ -30,7 +30,7 @@ type OrchesterArgs = {
 
 type Sequencer = {
     queue: number[] // node indexes
-    , next?: () => number // round robing next function
+    , next?: () => number // round robin, next node function
 }
 
 type FnNodeAwaiterInvoker = (nodeRegistre: NodeRegistre) => void
@@ -124,7 +124,7 @@ const onAddNodeRegistre = (nodesRepository: Repository<NodeRegistre>
     , nodePoolStack: NodePoolStack
     , nodeAwaitStack: NodeAwaitStack
     , nodeRegistre: Partial<NodeRegistre>) => {
-    if (stateIsNotAvaliable(nodeRegistre)()) return
+    if (checkIfNodeStateIsNotAvaliable(nodeRegistre)) return
     onRegistreHandlePoolStack(nodePoolStack, nodeRegistre)
     onRegistreHandleAwaitStack(nodesRepository, nodePoolStack, nodeAwaitStack, nodeRegistre)
 }
