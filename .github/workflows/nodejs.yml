@@ -1,4 +1,4 @@
-name: Node CI
+name: Kable core
 
 on: [push]
 
@@ -16,10 +16,17 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: npm install, build, and test
+      - name: npm install, build, coverage, and test
         run: |
           npm install
           npm run build
-          npm test
+          npm run test
+          npm run test:coverage
+          npm run coverage
         env:
           CI: true
+      - uses: actions/checkout@master
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage/coverage-final.json
