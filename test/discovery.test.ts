@@ -136,24 +136,24 @@ test.serial('check node add event', async (t) => {
     bar.transport.close()
 })
 
-test.serial('check ingnorable', async (t) => {
-    const fNode = createDiscoveryMock('foo', { ignoreInstance: true })
-    const bNode = createDiscoveryMock('bar', { ignorable: true })
-    const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
-        fNode.eventsDriver.on(EVENTS.DISCOVERY.ADVERTISEMENT, resolve)
-        setTimeout(resolve, 2000)
-    })
+// test.serial('check ingnorable', async (t) => {
+//     const fNode = createDiscoveryMock('foo', { ignoreInstance: true })
+//     const bNode = createDiscoveryMock('bar', { ignorable: true })
+//     const check = (): Promise<NodeEmitter> => new Promise((resolve) => {
+//         fNode.eventsDriver.on(EVENTS.DISCOVERY.ADVERTISEMENT, resolve)
+//         setTimeout(resolve, 2000)
+//     })
 
-    await fNode.transport.bind()
-    await fNode.discovery.start()
-    await bNode.transport.bind()
-    await bNode.discovery.start()
+//     await fNode.transport.bind()
+//     await fNode.discovery.start()
+//     await bNode.transport.bind()
+//     await bNode.discovery.start()
 
-    const n = await check()
-    t.falsy(n)
+//     const n = await check()
+//     t.falsy(n)
 
-    fNode.discovery.stop('down')
-    fNode.transport.close()
-    bNode.discovery.stop('down')
-    bNode.transport.close()
-})
+//     fNode.discovery.stop('down')
+//     fNode.transport.close()
+//     bNode.discovery.stop('down')
+//     bNode.transport.close()
+// })
