@@ -21,11 +21,10 @@ jobs:
           npm install
           npm run build
           npm run test:coverage
-          npm run coverage
         env:
           CI: true
       - uses: actions/checkout@master
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage/coverage-final.json
+          file: coverage/coverage-final.json

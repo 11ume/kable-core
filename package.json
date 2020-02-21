@@ -15,7 +15,7 @@
     "test": "node node_modules/ava/cli.js -s",
     "test:watch": "node node_modules/ava/cli.js -w -vs",
     "test:verbose": "node node_modules/ava/cli.js -vs",
-    "test:coverage": "nyc ava",
+    "test:coverage": "nyc --reporter=json ava",
     "coverage": "nyc report --reporter=json",
     "clean": "rm -rf .nyc_output coverage dist",
     "lint": "node node_modules/tslint/bin/tslint -c tslint.json --project .",
