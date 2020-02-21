@@ -5,11 +5,9 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [12.x]
-
     steps:
       - uses: actions/checkout@v1
       - name: Use Node.js ${{ matrix.node-version }}
@@ -21,10 +19,10 @@ jobs:
           npm install
           npm run build
           npm run test:coverage
-        env:
-          CI: true
       - uses: actions/checkout@master
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: coverage/coverage-final.json
+          file: ./coverage/coverage-final.json
+        env:
+          CI: true      
