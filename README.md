@@ -16,5 +16,3 @@
 <br>
 <br>
 
-#### Some rules im implement as a code of conduct to write this code.
-**[code of conduct](https://github.com/11ume/code-of-conduct)**
