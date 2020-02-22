@@ -1,4 +1,4 @@
-name: Node CI
+name: Kable core CI
 
 on: [push]
 
@@ -24,4 +24,4 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage/coverage-final.json
         env:
-          CI: true      
+          CI: true
