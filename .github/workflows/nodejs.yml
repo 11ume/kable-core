@@ -19,7 +19,6 @@ jobs:
           npm install
           npm run build
           npm run test:coverage
-<<<<<<< HEAD
           npm run coverage
           make test-coverage
         env:
@@ -28,11 +27,3 @@ jobs:
       - uses: coverallsapp/github-action@v1.0.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }
-=======
-      - uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage/coverage-final.json
-        env:
-          CI: true      
->>>>>>> 58d60281f045968da9b062db24b8bae019965283
