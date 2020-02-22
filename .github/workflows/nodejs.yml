@@ -18,10 +18,10 @@ jobs:
         run: |
           npm install
           npm run build
-          npm run coverage
-        env:
-          CI: true
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
+          npm run test:coverage
+      - uses: codecov/codecov-action@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage/coverage-final.json
+        env:
+          CI: true      
