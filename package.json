@@ -13,10 +13,9 @@
   "license": "MIT",
   "scripts": {
     "test": "ava",
-    "test:watch": "ava -w -vs",
-    "test:verbose": "ava -vs",
-    "test:coverage": "nyc ava",
-    "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
+    "test:watch": "ava -w -v",
+    "test:verbose": "ava -v",
+    "test:coverage": "nyc --reporter=json ava",
     "clean": "rm -rf .nyc_output coverage dist",
     "lint": "node node_modules/tslint/bin/tslint -c tslint.json --project .",
     "build": "tsc -p ./tsconfig.publish.json",
@@ -55,16 +54,15 @@
     "@types/ip": "^1.1.0",
     "@types/node": "^13.1.8",
     "@types/uuid": "^3.4.6",
-    "ava": "2.4.0",
-    "clean-deep": "https://github.com/11ume/clean-deep.git",
     "interval-handler": "^0.0.2",
+    "ava": "2.4.0",
     "ip": "^1.1.5",
     "ope-abort": "^0.0.2",
+    "uuid": "^3.3.3",
     "typescript": "^3.7.4",
-    "uuid": "^3.3.3"
+    "clean-deep": "https://github.com/11ume/clean-deep.git"
   },
   "devDependencies": {
-    "coveralls": "^3.0.9",
     "nyc": "^15.0.0",
     "ts-node": "^8.6.2",
     "tslint": "^5.20.1"
