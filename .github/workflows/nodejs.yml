@@ -1,4 +1,4 @@
-name: Kable core CI
+name: Build
 
 on: [push]
 
