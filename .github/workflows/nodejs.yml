@@ -1,4 +1,4 @@
-name: Kable core
+name: Node CI
 
 on: [push]
 
@@ -22,10 +22,10 @@ jobs:
           npm run build
           npm run test:coverage
           npm run coverage
+          make test-coverage
         env:
           CI: true
-      - uses: actions/checkout@master
-      - uses: codecov/codecov-action@v1
+      - name: Coveralls
+      - uses: coverallsapp/github-action@v1.0.1
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage/coverage-final.json
+          github-token: ${{ secrets.GITHUB_TOKEN }
