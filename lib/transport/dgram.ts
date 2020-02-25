@@ -261,7 +261,7 @@ const onSocketRecibeMessage = (eventsDriver: EventsDriver, key: string | Buffer)
     })
 }
 
-const checkMultipleTrasmitionMethods = (...transmission: Array<string | string[]>) => transmission.filter(Boolean).length > 1
+const checkMultipleTrasmitionMethods = (...transmission: (string | string[])[]) => transmission.filter(Boolean).length > 1
 
 const setTransmissionPreferences = (socket: dgram.Socket
     , transmission: Transmission
