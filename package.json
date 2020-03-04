@@ -18,9 +18,10 @@
     "test:coverage": "nyc --reporter=json ava",
     "clean": "rm -rf .nyc_output coverage dist",
     "lint": "node node_modules/tslint/bin/tslint -c tslint.json --project .",
-    "build": "tsc -p ./tsconfig.publish.json",
-    "prepublishOnly": "npm run lint & npm run test & npm run build & npm run clean",
-    "postinstall": "npm run build"
+    "build": "tsc -p ./tsconfig.json",
+    "build:publish": "tsc -p ./tsconfig.publish.json",
+    "prepublishOnly": "npm run lint & npm run test & npm run build:publish & npm run clean",
+    "postinstall": "npm run build:publish"
   },
   "nyc": {
     "exclude": [

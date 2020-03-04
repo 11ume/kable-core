@@ -211,22 +211,20 @@ const handleNodeAdvertisement = (eventsDriver: EventsDriver
     addNodeToRepository(nodesRepository, manageDataToStoreInRegistre(payload))
 }
 
-const handleRecibedMessage = (nodesRepository: Repository<NodeRegistre>
+const recibeMessageSwitch = (nodesRepository: Repository<NodeRegistre>
     , eventsDriver: EventsDriver
-    , payload: NodeEmitter) => {
-    const event = payload.event
-    const events = {
+    , payload: NodeEmitter) => ({
         [EVENTS.DISCOVERY.UPDATE]: () => handleNodeUpdate(eventsDriver, nodesRepository, payload)
         , [EVENTS.DISCOVERY.UNREGISTRE]: () => handleNodeUnregistre(eventsDriver, nodesRepository, payload)
         , [EVENTS.DISCOVERY.ADVERTISEMENT]: () => handleNodeAdvertisement(eventsDriver, nodesRepository, payload)
-    }
+    })[payload.event]
 
-    if (event in events) {
-        events[event]()
-        eventsDriver.emit(event, payload)
-    }
+const handleRecibedMessage = (nodesRepository: Repository<NodeRegistre>
+    , eventsDriver: EventsDriver
+    , payload: NodeEmitter) => {
+    recibeMessageSwitch(nodesRepository, eventsDriver, payload)()
+    eventsDriver.emit(payload.event, payload)
 }
-
 const checkNodeDuplicateId = (node: Node, { id, iid, port, rinfo: { address } }: NodeEmitter): DuplicatedNodePayload => {
     const ref: DuplicatedNodePayload = {
         id
