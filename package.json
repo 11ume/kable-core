@@ -29,10 +29,6 @@
     ],
     "extension": [
       ".ts"
-    ],
-    "reporter": [
-      "lcov",
-      "text"
     ]
   },
   "dependencies": {
