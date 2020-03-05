@@ -1,4 +1,3 @@
-import ip from 'ip'
 import * as EVENTS from '../constants/events'
 import { ExecutionContext } from 'ava'
 import { pid } from '../constants/core'
@@ -17,6 +16,8 @@ type CheckEmitterOptions = {
     , port: number
     , event: EVENTS.DISCOVERY
 }
+
+const isValidIp = (value: string) => (/^(?:(?:^|\.)(?:2(?:5[0-5]|[0-4]\d)|1?\d?\d)){4}$/.test(value) ? true : false)
 
 export const checkPick = (
     t: ExecutionContext
@@ -55,7 +56,7 @@ export const checkEmitterData = (
     t.deepEqual(target.replica, {
         is: false
     })
-    t.is(target.rinfo.address, ip.address())
+    t.true(isValidIp(target.rinfo.address))
     t.is(target.rinfo.family, 'IPv4')
     t.is(target.rinfo.port, opts.port)
     t.true(typeof target.rinfo.size === 'number')

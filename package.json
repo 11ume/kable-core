@@ -39,15 +39,14 @@
     "@types/uuid": "^3.4.6",
     "clean-deep": "https://github.com/11ume/clean-deep.git",
     "interval-handler": "^0.0.2",
-    "ip": "^1.1.5",
     "ope-abort": "^0.0.2",
     "typescript": "^3.7.4",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
+    "ava": "3.4.0",
     "nyc": "^15.0.0",
     "ts-node": "^8.6.2",
-    "tslint": "^5.20.1",
-    "ava": "3.4.0"
+    "tslint": "^5.20.1"
   }
 }
