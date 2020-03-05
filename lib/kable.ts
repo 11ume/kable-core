@@ -47,18 +47,18 @@ export interface Kable extends NodeMain {
 
 type FnShutdown = (signal: string, code?: number) => Promise<void>
 
-const handleShutdown = (invoke: FnShutdown) => {
-    const handle = (signal: NodeJS.Signals, code = null) => {
-        invoke(signal, code)
-            .then(() => process.exit(code))
-            .catch((err) => process.exit(err ? 1 : 0))
-    }
+const handleShutdownInvoker = (invoke: FnShutdown) => (signal: NodeJS.Signals, code = null) => {
+    invoke(signal, code)
+        .then(() => process.exit(code))
+        .catch((err) => process.exit(err ? 1 : 0))
+}
 
-    process.on('SIGINT', handle)
-    process.on('SIGTERM', handle)
+const handleShutdown = (invoke: FnShutdown) => {
+    process.on('SIGINT', handleShutdownInvoker(invoke))
+    process.on('SIGTERM', handleShutdownInvoker(invoke))
     return () => {
-        process.off('SIGINT', handle)
-        process.off('SIGTERM', handle)
+        process.off('SIGINT', handleShutdownInvoker(invoke))
+        process.off('SIGTERM', handleShutdownInvoker(invoke))
     }
 }
 
