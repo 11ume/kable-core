@@ -60,6 +60,11 @@ export enum NODE_UNREGISTRE_REASON {
     , TIMEOUT = 'TIMEOUT'
 }
 
+type NodeState = {
+    current: NODE_STATES
+    , ids: symbol[]
+}
+
 export interface NodeMain {
     /** Node id, must be unique by network */
     id: string
@@ -74,7 +79,10 @@ export interface NodeMain {
     /** Node metadata */
     meta?: NodeMetadata
     /** Node states */
-    state: NODE_STATES
+    state: {
+        current: NODE_STATES
+        , ids: symbol[]
+    }
     /** Unique random number used for organizate the nodes workflow, who own replicated nodes */
     index: number
     /** Node os hostname */
@@ -180,14 +188,14 @@ const handleReplica = (is: boolean, id: string) => {
     return replica
 }
 
-export const checkIfNodeStateIsNotAvaliable = (node: Partial<NodeRegistre>) => node.state === NODE_STATES.UP
-    || node.state === NODE_STATES.STOPPED
-    || node.state === NODE_STATES.DOING_SOMETHING
+export const checkIfNodeStateIsNotAvaliable = ({ state }: Partial<NodeRegistre>) => state.current === NODE_STATES.UP
+    || state.current === NODE_STATES.STOPPED
+    || state.current === NODE_STATES.DOING_SOMETHING
 
 const stateIsNotAvaliable = (node: Partial<NodeRegistre>) => () => checkIfNodeStateIsNotAvaliable(node)
 
 const stateTransit = (node: Node, smt: FnTrasitState) => (newState: NODE_STATES) => {
-    node.state = smt(node.state, newState)
+    node.state.current = smt(node.state.current, newState)
 }
 
 const stateReset = (initialState: NodeStates, stateData: NodeStates) => (state: NODE_STATES) => {
@@ -273,14 +281,19 @@ const stop = (node: Node, eventsDriver: EventsDriver) => (reason: string = null)
     })
 }
 
-const doing = (node: Node, eventsDriver: EventsDriver) => (reason: string = null) => {
-    const { stateData } = node
+const resetStateIds = (node: Node) => {
+    node.state.ids.slice()
+}
+
+const doing = (node: Node, eventsDriver: EventsDriver) => (reason: string = null, id?: symbol) => {
+    const { stateData, state } = node
     const time = getDateNow()
-    const state = NODE_STATES.DOING_SOMETHING
     stateData.doing.time = time
     stateData.doing.reason = reason
-    node.stateReset(state)
-    node.stateTransit(state)
+    id && state.ids.push(id)
+
+    node.stateReset(NODE_STATES.DOING_SOMETHING)
+    node.stateTransit(NODE_STATES.DOING_SOMETHING)
 
     eventsDriver.emit(EVENTS.NODE.UPDATE, {
         type: EVENTS_TYPES.NODE_UPDATE_TYPES.DOING
@@ -390,22 +403,27 @@ const node = ({
     const initialStateData: NodeStates = {
         up: {
             time: null
+            , id: []
         }
         , down: {
             time: null
             , signal: null
             , code: null
+            , id: []
         }
         , start: {
             time: null
+            , id: []
         }
         , stop: {
             time: null
             , reason: null
+            , id: []
         }
         , doing: {
             time: null
             , reason: null
+            , id: []
         }
     }
     const stateMachineTransition = craateStateMachine(nodeStates)
