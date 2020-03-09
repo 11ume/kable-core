@@ -1,7 +1,6 @@
 import * as EVENTS from './constants/events'
 import { Node, NodeMain, NodeOptions, NodeRegistre, createNode } from './node'
 import { Transport, TransportOptionsCompose, TransportTypes, createTransport } from './transport/transport'
-import { DependencyManager, DependencyManagerOptions, createdependencyManager } from './dependency'
 import { NodePicker, NodePickerOptions, PickOptions, createNodePicker } from './nodePicker'
 import { Discovery, DiscoveryOptions, createDiscovery } from './discovery'
 import { EventsDriver, createEventsDriver } from './eventsDriver'
@@ -14,7 +13,6 @@ export type KableComposedOptions = NodeOptions
     & DiscoveryOptions
     & NodePickerOptions
     & TransportOptionsCompose
-    & DependencyManagerOptions
 
 export interface Kable extends NodeMain {
     /** Check if it node is in available state */
@@ -143,7 +141,6 @@ export type Implementables = {
     , nodePicker: NodePicker
     , eventsDriver: EventsDriver
     , nodesRepository: Repository<NodeRegistre>
-    , dependencyManager: DependencyManager
 }
 
 // Modules for make implementations by injection
@@ -192,12 +189,6 @@ export const implementables = (options: KableComposedOptions): Implementables =>
             , ignoreInstance: options.ignoreInstance
         }
     })
-    const dependencyManager = createdependencyManager({
-        eventsDriver
-        , options: {
-            depedencies: options.depedencies
-        }
-    })
     const nodePicker = createNodePicker({
         orchester
         , options: {
@@ -215,7 +206,6 @@ export const implementables = (options: KableComposedOptions): Implementables =>
         , nodePicker
         , eventsDriver
         , nodesRepository
-        , dependencyManager
     }
 }
 
