@@ -225,6 +225,7 @@ const handleRecibedMessage = (nodesRepository: Repository<NodeRegistre>
     recibeMessageSwitch(nodesRepository, eventsDriver, payload)()
     eventsDriver.emit(payload.event, payload)
 }
+
 const checkNodeDuplicateId = (node: Node, { id, iid, port, rinfo: { address } }: NodeEmitter): DuplicatedNodePayload => {
     const ref: DuplicatedNodePayload = {
         id

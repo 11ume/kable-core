@@ -103,6 +103,7 @@ export type NodeReplica = {
     is: boolean
     , of?: string
 }
+
 export interface NodeRegistre extends NodeBase {
     ensured: boolean
     , lastSeen: number
