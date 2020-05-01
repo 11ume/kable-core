@@ -21,7 +21,9 @@
     "build": "tsc -p ./tsconfig.json",
     "build:publish": "tsc -p ./tsconfig.publish.json",
     "prepublishOnly": "npm run lint & npm run test & npm run build:publish & npm run clean",
-    "postinstall": "npm run build:publish"
+    "postinstall": "npm run build:publish",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "nyc": {
     "exclude": [
@@ -42,11 +44,13 @@
     "ope-abort": "^0.0.2",
     "typescript": "^3.7.4",
     "ava": "3.5.0",
-    "uuid": "^3.3.3"
+    "uuid": "^3.3.3",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "nyc": "^15.0.0",
     "ts-node": "^8.6.2",
     "tslint": "^6.0.0"
-  }
+  },
+  "snyk": true
 }
