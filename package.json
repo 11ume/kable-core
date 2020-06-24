@@ -37,7 +37,7 @@
     "@ava/babel": "^1.0.1",
     "@msgpack/msgpack": "^1.11.0",
     "@types/ip": "^1.1.0",
-    "@types/node": "^13.1.8",
+    "@types/node": "^14.0.14",
     "@types/uuid": "^3.4.6",
     "clean-deep": "https://github.com/11ume/clean-deep.git",
     "interval-handler": "^0.0.2",
