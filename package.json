@@ -38,7 +38,7 @@
     "@msgpack/msgpack": "^1.11.0",
     "@types/ip": "^1.1.0",
     "@types/node": "^13.1.8",
-    "@types/uuid": "^3.4.6",
+    "@types/uuid": "^8.3.0",
     "clean-deep": "https://github.com/11ume/clean-deep.git",
     "interval-handler": "^0.0.2",
     "ope-abort": "^0.0.2",
