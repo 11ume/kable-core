@@ -34,7 +34,7 @@
     ]
   },
   "dependencies": {
-    "@ava/babel": "^1.0.1",
+    "@ava/babel": "^2.0.0",
     "@msgpack/msgpack": "^1.11.0",
     "@types/ip": "^1.1.0",
     "@types/node": "^13.1.8",
@@ -43,7 +43,7 @@
     "interval-handler": "^0.0.2",
     "ope-abort": "^0.0.2",
     "typescript": "^3.7.4",
-    "ava": "3.5.0",
+    "ava": "4.0.0",
     "uuid": "^3.3.3",
     "snyk": "^1.323.0"
   },
